@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.31.12)
 
 #project(R5A12 LANGUAGES CXX)
 
