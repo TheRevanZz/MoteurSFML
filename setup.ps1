@@ -11,5 +11,5 @@ conan install . -s compiler=gcc -s compiler.version=16.1 -s compiler.libcxx=libs
 
 mkdir build -ErrorAction SilentlyContinue
 
-cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="out/build/conan-debug/conan_toolchain.cmake" -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER=c++ -DCMAKE_BUILD_TYPE=Debug
+cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="out/build/conan-debug/conan_toolchain.cmake" -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER=c++ -DCMAKE_C_COMPILER=cc -DCMAKE_BUILD_TYPE=Debug
 

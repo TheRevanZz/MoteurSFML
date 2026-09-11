@@ -21,8 +21,8 @@ public:
 private:
     sf::RenderWindow _window;
 
-    //void processEvents();
-    //void render();
+    void processEvents();
+    void render();
 };
 
 #endif
