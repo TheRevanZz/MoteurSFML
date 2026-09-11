@@ -1,6 +1,15 @@
-conan install . --build missing -s compiler.cppstd=20 --output-folder out\build\conan-toolchain
-conan install . --build missing -s compiler.cppstd=20 --output-folder out\build\conan-toolchain -s build_type=Debug
+param(
+    [ValidateSet("Debug","Release")]
+    [string]$B = "Debug"
+)
+
+Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force out -ErrorAction SilentlyContinue
+
+conan install . -s compiler=gcc -s compiler.version=16.1 -s compiler.libcxx=libstdc++11 --build missing -s compiler.cppstd=20 --output-folder out\build\conan-release
+conan install . -s compiler=gcc -s compiler.version=16.1 -s compiler.libcxx=libstdc++11 --build missing -s compiler.cppstd=20 --output-folder out\build\conan-debug -s build_type=Debug
+
 mkdir build -ErrorAction SilentlyContinue
-cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE="out/build/conan-toolchain/conan_toolchain.cmake"
-cd ..
+
+cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="out/build/conan-debug/conan_toolchain.cmake" -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER=c++ -DCMAKE_BUILD_TYPE=Debug
+

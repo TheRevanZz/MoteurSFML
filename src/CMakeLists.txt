@@ -8,7 +8,7 @@ include_directories(".")
 find_package(SFML REQUIRED)
 #COMPONENTS graphics window system)
 
-add_executable(R5A12 main.cpp)
+add_executable(R5A12 "main.cpp")
 target_link_libraries(R5A12 sfml::sfml)
 
 add_custom_command(
