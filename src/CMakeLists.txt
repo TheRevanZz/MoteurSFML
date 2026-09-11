@@ -8,7 +8,9 @@ include_directories(".")
 find_package(SFML REQUIRED)
 #COMPONENTS graphics window system)
 
-add_executable(R5A12 "main.cpp")
+file(GLOB SOURCES CONFIGURE_DEPENDS "*.cpp")
+
+add_executable(R5A12 ${SOURCES})
 target_link_libraries(R5A12 sfml::sfml)
 
 add_custom_command(
