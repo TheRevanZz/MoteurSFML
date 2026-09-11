@@ -1,34 +1,16 @@
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
+#include "GameWindow.h"
  
 int main()
 {
     // Create the main window
-    sf::RenderWindow window(sf::VideoMode({800, 600}), "SFML window");
+    GameWindow window_test;
+    window_test.show(800, 600, "Messi le GOAT");
  
-    // Create a graphical text to display
-    const sf::Font font("ressources/arial.ttf");
-    sf::Text text(font, "Hello SFML", 50);
-
- 
-    // Start the game loop
-    while (window.isOpen())
-    {
-        // Process events
-        while (const std::optional event = window.pollEvent())
-        {
-            // Close window: exit
-            if (event->is<sf::Event::Closed>())
-                window.close();
-        }
- 
-        // Clear screen
-        window.clear();
- 
-        // Draw the string
-        window.draw(text);
- 
-        // Update the window
-        window.display();
-    }
+    // // Create a graphical text to display
+    // const sf::Font font("ressources/arial.ttf");
+    // sf::Text text(font, "Hello SFML", 50);
+    
+    return 0;
 }
