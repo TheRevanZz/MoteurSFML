@@ -1,15 +1,15 @@
 param(
     [ValidateSet("Debug","Release")]
-    [string]$B = "Debug"
+    [string]$BuildType = "Debug",
+
+    [string]$BuildPath = "build",
+    [string]$CCompiler = "cc",
+    [string]$CPPCompiler = "c++"
 )
 
-Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue
-Remove-Item -Recurse -Force out -ErrorAction SilentlyContinue
+& "$PSScriptRoot\conan-setup.ps1"
 
-conan install . -s compiler=gcc -s compiler.version=16.1 -s compiler.libcxx=libstdc++11 --build missing -s compiler.cppstd=20 --output-folder out\build\conan-release
-conan install . -s compiler=gcc -s compiler.version=16.1 -s compiler.libcxx=libstdc++11 --build missing -s compiler.cppstd=20 --output-folder out\build\conan-debug -s build_type=Debug
+mkdir $BuildPath -ErrorAction SilentlyContinue
 
-mkdir build -ErrorAction SilentlyContinue
-
-cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="out/build/conan-debug/conan_toolchain.cmake" -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER=c++ -DCMAKE_C_COMPILER=cc -DCMAKE_BUILD_TYPE=Debug
+cmake -S . -B $BuildPath -DCMAKE_TOOLCHAIN_FILE="out/build/conan-$($BuildType.ToLower())/conan_toolchain.cmake" -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="$($CPPCompiler)" -DCMAKE_C_COMPILER="$($CCompiler)" -DCMAKE_BUILD_TYPE="$($BuildType)"
 
