@@ -7,7 +7,6 @@
 #include <iostream>
 
 #include "Time/Time.h"
-#include "Math/CMath.h"
 
 Player::Player(const sf::Texture& texture, const sf::Vector2u& screenSize)
     : _sprite{sf::Sprite(texture)}, _screenSize{screenSize}
@@ -66,6 +65,12 @@ void Player::move(const sf::Vector2f& offset)
 
 void Player::update(sf::RenderWindow& window)
 {
+    handleMovement();
+    window.draw(this->_sprite);
+}
+
+void Player::handleMovement()
+{
     const auto& dt = Time::deltaTime();
     auto offset = sf::Vector2f(0, 0);
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
@@ -94,6 +99,4 @@ void Player::update(sf::RenderWindow& window)
         offset = offset.normalized();
         move(offset * _speed * dt);
     }
-    
-    window.draw(this->_sprite);
 }

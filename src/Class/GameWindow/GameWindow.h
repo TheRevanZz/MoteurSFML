@@ -13,32 +13,32 @@ class Player;
 class GameWindow
 {
     
-public:
-    GameWindow();
+    public:
+        GameWindow();
 
-    // Show window.
-    // Input:
-    //  * width: window width (pixels).
-    //  * height: window height (pixels).
-    //  * title: window title.
-    // Output:
-    //  * Nothing.
-    void show(int width, int height, const std::string& title);
+        // Show window.
+        // Input:
+        //  * width: window width (pixels).
+        //  * height: window height (pixels).
+        //  * title: window title.
+        // Output:
+        //  * Nothing.
+        void show(int width, int height, const std::string& title);
 
-    static ScreenPoint toScreenPoint(const WorldPoint& worldPoint, const sf::Vector2u &screenSize);
+        static ScreenPoint toScreenPoint(const WorldPoint& worldPoint, const sf::Vector2u &screenSize);
 
-    static WorldPoint toWorldPoint(const ScreenPoint& screenPoint,const sf::Vector2u &screenSize);
+        static WorldPoint toWorldPoint(const ScreenPoint& screenPoint,const sf::Vector2u &screenSize);
 
-private:
-    sf::RenderWindow _window;
+    private:
+        sf::RenderWindow _window;
 
-    std::shared_ptr<Player> _player;
-    sf::Texture _texture;
-    
-    sf::Clock _clock;
+        std::shared_ptr<Player> _player;
+        sf::Texture _texture;
+        
+        sf::Clock _clock;
 
-    void processEvents();
-    void render();
+        void processEvents();
+        void render();
 };
 
 inline ScreenPoint GameWindow::toScreenPoint(const WorldPoint &worldPoint,const sf::Vector2u &screenSize) {

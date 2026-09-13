@@ -18,6 +18,7 @@ target_include_directories(R5A12 PRIVATE
 		"Class" 
 		"Macro" 
 		"ressources"
+		"Interfaces"
 )
 
 add_custom_command(

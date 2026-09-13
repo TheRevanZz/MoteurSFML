@@ -6,9 +6,11 @@
 #define R5A12_DEBUG_H
 
 #ifndef NDEBUG
-    #define DEBUG_ONLY(x) x
+    #define DEBUG_ONLY(content) content
 #else
-    #define DEBUG_ONLY(x)
+    #define DEBUG_ONLY(content)
 #endif
 
 #endif //R5A12_DEBUG_H
+
+    

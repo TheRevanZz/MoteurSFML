@@ -27,14 +27,10 @@ void GameWindow::show(const int width, const int height, const std::string& titl
     {
         processEvents();
         auto time = _clock.restart();
-    
         Time::update(time);
         render();
     }
 }
-
-
-
 
 void GameWindow::processEvents()
 {
@@ -44,25 +40,6 @@ void GameWindow::processEvents()
             _window.close();
 
         // _player->handleEvent(event);
-        if (event->is<sf::Event::KeyPressed>())
-        {
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
-            {
-                // Left key pressed.
-            }
-            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
-            {
-                // Right key pressed.
-            }
-            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-            {
-                // Up key pressed.
-            }
-            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-            {
-                // Down key pressed.
-            }
-        }
     }
 }
 
@@ -70,14 +47,13 @@ void GameWindow::render()
 {
     // Clear background with White color.
     _window.clear();
-
-
     
     _player->update(_window);
     
     DEBUG_ONLY(
        sf::RectangleShape x_line({ 10000.f, 2.f});
        x_line.setFillColor(sf::Color::Red);
+       
        x_line.setPosition(sf::Vector2f(toScreenPoint(WorldPoint(0, 0), _window.getSize())));
        sf::RectangleShape y_line({ 10000.f, 2.f});
        y_line.setPosition(sf::Vector2f(toScreenPoint(WorldPoint(0, 0), _window.getSize())));
@@ -86,9 +62,7 @@ void GameWindow::render()
 
        _window.draw(x_line);
        _window.draw(y_line);
-   )
+    )
     
-
-
     _window.display();
 }

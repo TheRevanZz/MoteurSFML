@@ -7,9 +7,11 @@
 
 #include <SFML/Graphics.hpp>
 #include "Class/GameWindow/GameWindow.h"
+#include "Interfaces/IDraweable/IDrawable.h"
+#include "Interfaces/IUpdateable/IUpdateable.h"
 
 
-class Player {
+class Player : public IUpdateable, public IDrawable {
 
     public:
         explicit Player(const sf::Texture& texture, const sf::Vector2u& screenSize);
@@ -25,10 +27,11 @@ class Player {
         sf::Vector2f getPosition() const { return this->_sprite.getPosition(); }
     
         void move(const sf::Vector2f& offset);
+
+        explicit operator sf::Sprite() const { return this->_sprite; }
     
-        operator sf::Sprite() const { return this->_sprite; }
-    
-        void update(sf::RenderWindow& window);
+        void update(sf::RenderWindow& window) override;
+        const sf::Drawable* getDrawable() const override { return &this->_sprite;}
         
 
     protected:
@@ -36,6 +39,9 @@ class Player {
         WorldPoint _position;
         sf::Vector2u _screenSize;
         float _speed = 160.f; //pixel par seconde;
+    
+    private:
+        void handleMovement();
 };
 
 
