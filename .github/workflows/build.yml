@@ -33,8 +33,8 @@ jobs:
           
       - name : Setup Conan
         run : |
-          conan install . -s compiler=gcc -s compiler.version=16.1 -s compiler.libcxx=libstdc++11 --build missing -s compiler.cppstd=20 --output-folder out/build/conan-release -c tools.system.package_manager:mode=install
-          conan install . -s compiler=gcc -s compiler.version=16.1 -s compiler.libcxx=libstdc++11 --build missing -s compiler.cppstd=20 --output-folder out/buildM/conan-debug -s build_type=Debug -c tools.system.package_manager:mode=install
+          sudo conan install . -s compiler=gcc -s compiler.version=16.1 -s compiler.libcxx=libstdc++11 --build missing -s compiler.cppstd=20 --output-folder out/build/conan-release -c tools.system.package_manager:mode=install
+          sudo conan install . -s compiler=gcc -s compiler.version=16.1 -s compiler.libcxx=libstdc++11 --build missing -s compiler.cppstd=20 --output-folder out/buildM/conan-debug -s build_type=Debug -c tools.system.package_manager:mode=install
           
       - name : Setup CMake
         run : |
