@@ -34,5 +34,5 @@ jobs:
       - name : Lancement du setup
         run : |
           chmod +x setup.sh
-          ./setup.sh
+          sh setup.sh
         
