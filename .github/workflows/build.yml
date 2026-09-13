@@ -23,11 +23,15 @@ jobs:
       
       - name : Installation cmake
         run : |
-          sudo apt update
-          sudo apt install cmake
+          sudo apt update 
+          sudo apt install curl -y
+          curl -LO https://github.com/Kitware/CMake/releases/download/v4.3.5/cmake-4.3.5-linux-x86_64.sh
+          chmod +x cmake-4.3.5-linux-x86_64.sh
+          ./cmake-4.3.5-linux-x86_64.sh
           cmake --version
           
       - name : Lancement du setup
         run : |
+          chmod +x setup.sh
           ./setup.sh
         
