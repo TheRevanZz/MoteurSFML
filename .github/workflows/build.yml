@@ -23,9 +23,12 @@ jobs:
       
       - name : Installation cmake
         run : |
-          curl -LO https://github.com/Kitware/CMake/releases/download/v4.3.5/cmake-4.3.5-linux-x86_64.sh
-          chmod +x cmake-4.3.5-linux-x86_64.sh
-          ./cmake-4.3.5-linux-x86_64.sh --skip-licence
+          curl -LO cmake.tar.gz https://github.com/Kitware/CMake/releases/download/v4.3.5/cmake-4.3.5-linux-x86_64.tar.gz
+          tar -xzf cmake.tar.gz
+          echo "$PWD/cmake-4.3.5-linux-x86_64/bin" >> "$GITHUB_PATH"
+      
+      - name : Check CMAKE
+        run : |
           cmake --version
           
       - name : Lancement du setup
