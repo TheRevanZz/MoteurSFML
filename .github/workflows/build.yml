@@ -35,16 +35,15 @@ jobs:
         run: |
           conan profile detect --force
           conan profile show
-          conan config set tools.system.package_manager:mode=install
-          conan config set tools.system.package_manager:sudo=True
           
       - name : Installations des dépendances en Release
         run : |
-          conan install . -s compiler=gcc --build missing -s compiler.cppstd=20 --output-folder out/build/conan-release -c tools.system.package_manager:mode=install -s build_type=Release
+          conan install . -s compiler=gcc --build missing -s compiler.cppstd=20 --output-folder out/build/conan-release -c tools.system.package_manager:mode=install -s build_type=Release -c tools.system.package_manager:sudo=True
           
       - name : Installation des dépendances en Debug
         run : |
-          conan install . -s compiler=gcc --build missing -s compiler.cppstd=20 --output-folder out/build/conan-debug -s build_type=Debug -c tools.system.package_manager:mode=install
+          conan install . -s compiler=gcc --build missing -s compiler.cppstd=20 --output-folder out/build/conan-debug -s build_type=Debug -c tools.system.package_manager:mode=install 
+          -c tools.system.package_manager:sudo=True
           
       - name : Configuration CMake en Debug
         run : |
