@@ -1,3 +1,6 @@
+[tool_requires]
+cmake/[>=3.21.3]
+
 [requires]
 sfml/3.0.2
 

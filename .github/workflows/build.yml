@@ -1,0 +1,64 @@
+﻿name: Build SFML
+
+permissions: 
+  contents: read
+  
+on:
+  push:
+  pull_request: 
+
+jobs: 
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name : Clone repôt
+        uses: actions/checkout@v7.0.1
+        
+      - name : Installation de conan
+        uses: conan-io/setup-conan@ed3942a6883243f4af84e13e49c972f9440fa1c2
+      
+      - name : Installation cmake
+        run : |
+          curl -L -o cmake.tar.gz https://github.com/Kitware/CMake/releases/download/v4.3.5/cmake-4.3.5-linux-x86_64.tar.gz
+          tar -xzf cmake.tar.gz
+          echo "$PWD/cmake-4.3.5-linux-x86_64/bin" >> "$GITHUB_PATH"
+          
+      - name: Vérifications
+        run: |
+          cmake --version
+          gcc --version
+          g++ --version
+          conan --version
+          
+      - name: Configuration Conan
+        run: |
+          conan profile detect --force
+          conan profile show
+          
+      - name : Installations des dépendances en Release
+        run : |
+          conan install . -s compiler=gcc --build missing -s compiler.cppstd=20 --output-folder out/build/conan-release -c tools.system.package_manager:mode=install -s build_type=Release -c tools.system.package_manager:sudo=True
+          
+      - name : Installation des dépendances en Debug
+        run : |
+          conan install . -s compiler=gcc --build missing -s compiler.cppstd=20 --output-folder out/build/conan-debug -s build_type=Debug -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
+          
+      - name : Configuration CMake en Debug
+        run : |
+          cmake -S . -B build/debug -DCMAKE_TOOLCHAIN_FILE="out/build/conan-debug/conan_toolchain.cmake" -G "Ninja" -DCMAKE_BUILD_TYPE="Debug"
+          
+      - name : Build CMake en Debug
+        run : |
+          cmake --build build/debug --config Debug
+      
+      - name : Configuration CMake en Release
+        run : |
+          cmake -S . -B build/release -DCMAKE_TOOLCHAIN_FILE="out/build/conan-release/conan_toolchain.cmake" -G "Ninja" -DCMAKE_BUILD_TYPE="Release"
+          
+      - name: Build CMake en release
+        run : |
+          cmake --build build/release --config Release
+          
+
+        
