@@ -18,29 +18,38 @@ jobs:
       - name : Installation de conan
         uses: conan-io/setup-conan@ed3942a6883243f4af84e13e49c972f9440fa1c2
       
-      - name : Installation MinGW
-        uses : egor-tensin/setup-mingw@41b837e47d7f85214629d255b9c4bc3fcbe9fd63
-      
       - name : Installation cmake
         run : |
           curl -L -o cmake.tar.gz https://github.com/Kitware/CMake/releases/download/v4.3.5/cmake-4.3.5-linux-x86_64.tar.gz
           tar -xzf cmake.tar.gz
           echo "$PWD/cmake-4.3.5-linux-x86_64/bin" >> "$GITHUB_PATH"
-      
-      - name : Check CMAKE
-        run : |
+          
+      - name: Vérifications
+      - run: |
           cmake --version
+          gcc --version
+          g++ --version
+          conan --version
           
-      - name : Setup Conan
+      - name: Configuration Conan
+        run: |
+          conan profile detect --force
+          conan profile show
+          
+      - name : Installations des dépendances en Release
         run : |
-          sudo conan install . -s compiler=gcc -s compiler.version=16.1 -s compiler.libcxx=libstdc++11 --build missing -s compiler.cppstd=20 --output-folder out/build/conan-release -c tools.system.package_manager:mode=install
-          sudo conan install . -s compiler=gcc -s compiler.version=16.1 -s compiler.libcxx=libstdc++11 --build missing -s compiler.cppstd=20 --output-folder out/buildM/conan-debug -s build_type=Debug -c tools.system.package_manager:mode=install
+          conan install . -s compiler=gcc -s compiler.libcxx=libstdc++11 --build missing -s compiler.cppstd=20 --output-folder out/build/conan-release -c tools.system.package_manager:mode=install -s build_type=Release
           
-      - name : Setup CMake
+      - name : Installation des dépendances en Debug
         run : |
-          mkdir build
+          conan install . -s compiler=gcc -s compiler.libcxx=libstdc++11 --build missing -s compiler.cppstd=20 --output-folder out/build/conan-debug -s build_type=Debug -c tools.system.package_manager:mode=install
           
-          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="out/build/conan-debug/conan_toolchain.cmake" -G "Ninja" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_C_COMPILER="gcc" -DCMAKE_BUILD_TYPE="Debug"
-          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="out/build/conan-release/conan_toolchain.cmake" -G "Ninja" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_C_COMPILER="gcc" -DCMAKE_BUILD_TYPE="Release"
+      - name : Configuration CMake en Debug
+        run : |
+          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="out/build/conan-debug/conan_toolchain.cmake" -G "Ninja" -DCMAKE_BUILD_TYPE="Debug"
+      
+      - name : Configuration CMake en Release
+        run : |
+          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="out/build/conan-release/conan_toolchain.cmake" -G "Ninja" -DCMAKE_BUILD_TYPE="Release"
 
         
