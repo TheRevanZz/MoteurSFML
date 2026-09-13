@@ -25,7 +25,7 @@ jobs:
           echo "$PWD/cmake-4.3.5-linux-x86_64/bin" >> "$GITHUB_PATH"
           
       - name: Vérifications
-      - run: |
+        run: |
           cmake --version
           gcc --version
           g++ --version
@@ -38,18 +38,18 @@ jobs:
           
       - name : Installations des dépendances en Release
         run : |
-          conan install . -s compiler=gcc -s compiler.libcxx=libstdc++11 --build missing -s compiler.cppstd=20 --output-folder out/build/conan-release -c tools.system.package_manager:mode=install -s build_type=Release
+          conan install . -s compiler=gcc --build missing -s compiler.cppstd=20 --output-folder out/build/conan-release -c tools.system.package_manager:mode=install -s build_type=Release
           
       - name : Installation des dépendances en Debug
         run : |
-          conan install . -s compiler=gcc -s compiler.libcxx=libstdc++11 --build missing -s compiler.cppstd=20 --output-folder out/build/conan-debug -s build_type=Debug -c tools.system.package_manager:mode=install
+          conan install . -s compiler=gcc --build missing -s compiler.cppstd=20 --output-folder out/build/conan-debug -s build_type=Debug -c tools.system.package_manager:mode=install
           
       - name : Configuration CMake en Debug
         run : |
-          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="out/build/conan-debug/conan_toolchain.cmake" -G "Ninja" -DCMAKE_BUILD_TYPE="Debug"
+          cmake -S . -B build/debug -DCMAKE_TOOLCHAIN_FILE="out/build/conan-debug/conan_toolchain.cmake" -G "Ninja" -DCMAKE_BUILD_TYPE="Debug"
       
       - name : Configuration CMake en Release
         run : |
-          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="out/build/conan-release/conan_toolchain.cmake" -G "Ninja" -DCMAKE_BUILD_TYPE="Release"
+          cmake -S . -B build/release -DCMAKE_TOOLCHAIN_FILE="out/build/conan-release/conan_toolchain.cmake" -G "Ninja" -DCMAKE_BUILD_TYPE="Release"
 
         
