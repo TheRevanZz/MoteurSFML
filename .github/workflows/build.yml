@@ -10,9 +10,10 @@ on:
       - "CMakeLists.txt"
       - "conanfile.txt"
   pull_request:
-      - "src/**"
-      - "CMakeLists.txt"
-      - "conanfile.txt"
+      paths:
+        - "src/**"
+        - "CMakeLists.txt"
+        - "conanfile.txt"
 jobs: 
   build:
     runs-on: ubuntu-latest
