@@ -11,35 +11,10 @@
 Player::Player(const sf::Texture& texture, const sf::Vector2u& screenSize)
     : _sprite{sf::Sprite(texture)}, _screenSize{screenSize}
 {
-    _sprite.setScale({.3f, .3f});
-}
+    _sprite.setScale({.2f, .2f});
+    _bounds = _sprite.getLocalBounds();
 
-void Player::handleEvent(const std::optional<sf::Event>& event)
-{
-    if (event->is<sf::Event::KeyPressed>())
-    {
-        auto offset = sf::Vector2f(0, 0);
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
-        {
-            offset.x -= 1;
-            // Left key pressed.
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
-        {
-            offset.x += 1;
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-        {
-            // Up key pressed.
-            offset.y += 1;
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-        {
-            // Down key pressed.
-            offset.y -= 1;
-        }
-        move(offset);
-    }
+    _sprite.setOrigin({_bounds.size.x / 2.f, _bounds.size.y / 2.f});
 }
 
 void Player::setPosition(const WorldPoint& newPosition)
@@ -63,6 +38,12 @@ void Player::move(const sf::Vector2f& offset)
     _sprite.move({ offset.x, -offset.y});
 }
 
+void Player::rotate(float angle)
+{
+    // _sprite.setRotation(sf::degrees(angle));
+    _sprite.rotate(sf::degrees(angle));
+}
+
 void Player::update(sf::RenderWindow& window)
 {
     handleMovement();
@@ -73,23 +54,49 @@ void Player::handleMovement()
 {
     const auto& dt = Time::deltaTime();
     auto offset = sf::Vector2f(0, 0);
+    auto angle = 0.f;
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
     {
         offset.x -= 1;
+        // angle = 180.f;
+        angle = 180 - _sprite.getRotation().asDegrees();
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
     {
         offset.x += 1;
+        // angle = 360.f;
+        angle = 0 - _sprite.getRotation().asDegrees();
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
     {
         // Up key pressed.
         offset.y += 1;
+        // angle = 360-90.f;
+        angle = 270 - _sprite.getRotation().asDegrees();
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+        {
+            angle -= 45.f;
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+        {
+            angle += 45.f;
+        }
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
     {
         // Down key pressed.
         offset.y -= 1;
+        // angle = 90.f;
+        angle = 90 - _sprite.getRotation().asDegrees();
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+        {
+            angle += 45.f;
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+        {
+            angle -= 45.f;
+        }
     }
     
     if (offset.length() > 0)
@@ -98,5 +105,7 @@ void Player::handleMovement()
         // même en diagonale
         offset = offset.normalized();
         move(offset * _speed * dt);
+
+        rotate(angle * _rotateSpeed * dt);
     }
 }

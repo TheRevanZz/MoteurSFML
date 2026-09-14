@@ -18,8 +18,6 @@ class Player : public IUpdateable, public IDrawable {
 
         const sf::Sprite& getSprite() const { return this->_sprite; }
 
-        void handleEvent(const std::optional<sf::Event> &event);
-
         void setPosition(const WorldPoint& newPosition);
         
         sf::Vector2f getSize() const { return this->_sprite.getLocalBounds().size; }
@@ -27,6 +25,7 @@ class Player : public IUpdateable, public IDrawable {
         sf::Vector2f getPosition() const { return this->_sprite.getPosition(); }
     
         void move(const sf::Vector2f& offset);
+        void rotate(float angle);
 
         explicit operator sf::Sprite() const { return this->_sprite; }
     
@@ -35,10 +34,12 @@ class Player : public IUpdateable, public IDrawable {
         
 
     protected:
-        sf::Sprite _sprite;
+        sf::Sprite _sprite; //par défaut dirigé vers la droite
         WorldPoint _position;
         sf::Vector2u _screenSize;
         float _speed = 160.f; //pixel par seconde;
+        float _rotateSpeed = 8.f;
+        sf::FloatRect _bounds;
     
     private:
         void handleMovement();
