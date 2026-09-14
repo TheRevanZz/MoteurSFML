@@ -21,6 +21,10 @@ void GameWindow::show(const int width, const int height, const std::string& titl
     this->_player = std::make_shared<Player>(_texture, _window.getSize());
     this->_player->setPosition({ - _player->getScaledSize().x / 2.f, _player->getScaledSize().y / 2.f });
 
+    this->_player2 = std::make_shared<Player>(_texture, _window.getSize());
+    this->_player2->setPosition({ - _player2->getScaledSize().x / 2.f, _player2->getScaledSize().y / 2.f });
+
+    _components = { _player, _player2 };
     _clock.start();
     
     while (_window.isOpen())
@@ -28,6 +32,7 @@ void GameWindow::show(const int width, const int height, const std::string& titl
         processEvents();
         auto time = _clock.restart();
         Time::update(time);
+        std::cout << 1 / time.asSeconds() << std::endl;
         render();
     }
 }
@@ -38,8 +43,6 @@ void GameWindow::processEvents()
     {
         if (event->is<sf::Event::Closed>())
             _window.close();
-
-        // _player->handleEvent(event);
     }
 }
 
@@ -47,9 +50,7 @@ void GameWindow::render()
 {
     // Clear background with White color.
     _window.clear();
-    
-    _player->update(_window);
-    
+
     DEBUG_ONLY(
        sf::RectangleShape x_line({ 10000.f, 2.f});
        x_line.setFillColor(sf::Color::Red);
@@ -63,6 +64,13 @@ void GameWindow::render()
        _window.draw(x_line);
        _window.draw(y_line);
     )
-    
+
+    for (const auto& component : _components) {
+        if (auto* UpdateableCompoent = dynamic_cast<IUpdateable*>(component.get()); UpdateableCompoent != nullptr) {
+            UpdateableCompoent->update(_window);
+        }
+        _window.draw(*component->getDrawable());
+    }
+
     _window.display();
 }

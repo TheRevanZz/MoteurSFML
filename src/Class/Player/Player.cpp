@@ -3,43 +3,35 @@
 //
 
 #include "Player.h"
-
+#include "Time/Time.h"
+#include <fstream>
 #include <iostream>
 
-#include "Time/Time.h"
+#include <c4/yml/file.hpp>
+#include <c4/yml/emit.hpp>
+#include <c4/substr.hpp>
+#include <ryml.hpp>
+#include <c4/std/string.hpp>
+
+#include "Utils/Utils.h"
+
 
 Player::Player(const sf::Texture& texture, const sf::Vector2u& screenSize)
     : _sprite{sf::Sprite(texture)}, _screenSize{screenSize}
 {
     _sprite.setScale({.3f, .3f});
-}
+    _id = _count;
 
-void Player::handleEvent(const std::optional<sf::Event>& event)
-{
-    if (event->is<sf::Event::KeyPressed>())
-    {
-        auto offset = sf::Vector2f(0, 0);
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
-        {
-            offset.x -= 1;
-            // Left key pressed.
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
-        {
-            offset.x += 1;
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-        {
-            // Up key pressed.
-            offset.y += 1;
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-        {
-            // Down key pressed.
-            offset.y -= 1;
-        }
-        move(offset);
+    if (_id == 0) {
+        _keymapPath = "ressources/config/keymap1.yml";
+        LoadKeymap(_keymapPath);
     }
+    else {
+        _keymapPath = "ressources/config/keymap2.yml";
+        LoadKeymap(_keymapPath);
+    }
+    // keymap.at("Left").second = sf::Keyboard::Key::Left;
+    _count++;
 }
 
 void Player::setPosition(const WorldPoint& newPosition)
@@ -66,27 +58,29 @@ void Player::move(const sf::Vector2f& offset)
 void Player::update(sf::RenderWindow& window)
 {
     handleMovement();
-    window.draw(this->_sprite);
+    // window.draw(this->_sprite);
 }
 
 void Player::handleMovement()
 {
     const auto& dt = Time::deltaTime();
     auto offset = sf::Vector2f(0, 0);
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+    if (const auto& key = keymap.get(EActionTag::LEFT).second; key.has_value() && sf::Keyboard::isKeyPressed(key.value()))
     {
         offset.x -= 1;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+    if (const auto& key = keymap.get(EActionTag::RIGHT).second; key.has_value() && sf::Keyboard::isKeyPressed(key.value()))
     {
         offset.x += 1;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+    if (const auto& key = keymap.get(EActionTag::UP).second;
+        key.has_value() && sf::Keyboard::isKeyPressed(key.value()))
     {
         // Up key pressed.
         offset.y += 1;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+    if (const auto& key = keymap.get(EActionTag::DOWN).second;
+        key.has_value() && sf::Keyboard::isKeyPressed(key.value()))
     {
         // Down key pressed.
         offset.y -= 1;
@@ -99,4 +93,76 @@ void Player::handleMovement()
         offset = offset.normalized();
         move(offset * _speed * dt);
     }
+}
+
+bool Player::LoadKeymap(const std::string& keymapPath) {
+
+    const auto& content = Utils::getFileContent(keymapPath);
+    if (!content.has_value())
+        return false;
+
+    ryml::Tree YamlContent = c4::yml::parse_in_arena(c4::to_csubstr(content.value()));
+
+    const auto touches = YamlContent["touches"];
+
+    for (const std::string_view& key : GetEActionTagsValues()) {
+        const auto keyStr = std::string(key);
+        const auto& keyTag = StringToEActionTag(keyStr);
+        if (!keyTag.has_value())
+            continue;
+
+        //Le code de la touche ( ex: 25 -> Z)
+        const c4::csubstr KeyCodeCSubStr = touches[keyStr.c_str()].val();
+
+        try {
+            int KeyCode = std::stoi(Utils::csubtrToString(KeyCodeCSubStr));
+
+            auto LastKeyValue = keymap.get(keyTag.value());
+            LastKeyValue.second = static_cast<sf::Keyboard::Key>(KeyCode);
+
+            keymap.update(keyTag.value(),LastKeyValue);
+        } catch (...) {
+            std::cout << "Une erreur à lieu lors du chargement pour la clé" << keyStr << "\n";
+        }
+    }
+
+    std::cout << "[KEYMAP] Keymap " << keymapPath << " loaded\n";
+
+    return true;
+}
+
+bool Player::ChangeKey(const EActionTag &action_tag, const sf::Keyboard::Key &new_key) {
+    auto [keyDisplayName, KeyValue] = keymap.get(action_tag);
+    KeyValue = new_key;
+
+    keymap.update(action_tag,{keyDisplayName, KeyValue});
+
+    const auto& content = Utils::getFileContent(_keymapPath);
+    if (!content.has_value())
+        return false;
+
+    ryml::Tree YamlContent = c4::yml::parse_in_arena(
+        c4::to_csubstr(content.value())
+    );
+
+    const auto& action_tag_str = EActionTagToString(action_tag);
+
+    if (!action_tag_str.has_value())
+        return false;
+
+    YamlContent["touches"][action_tag_str.value().c_str()] << static_cast<int>(new_key);
+
+    std::ofstream config_file(_keymapPath);
+    if (!config_file.is_open())
+        return false;
+
+    FILE* yamlFile;
+    yamlFile = fopen(_keymapPath.c_str(),"w");
+
+    if (yamlFile == nullptr)
+        return false;
+
+    c4::yml::emit_yaml(YamlContent, yamlFile);
+    std::cout << "[KEYMAP] Keymap " << _keymapPath << " updated\n";
+    return true;
 }

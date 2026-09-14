@@ -2,7 +2,7 @@ param(
     [ValidateSet("Debug","Release")]
     [string]$BuildType = "Debug",
 
-    [string]$BuildPath = "build",
+    [string]$BuildPath = "build\debug",
     [string]$CCompiler = "cc",
     [string]$CPPCompiler = "c++"
 )
