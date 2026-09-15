@@ -26,6 +26,7 @@ class Player : public IUpdateable, public IDrawable {
     
         void move(const sf::Vector2f& offset);
         void rotate(float angle);
+        void progressiveRotate(float targetAngle);
 
         explicit operator sf::Sprite() const { return this->_sprite; }
     
@@ -38,11 +39,13 @@ class Player : public IUpdateable, public IDrawable {
         WorldPoint _position;
         sf::Vector2u _screenSize;
         float _speed = 160.f; //pixel par seconde;
-        float _rotateSpeed = 8.f;
+        float _rotateSpeed = 500.f;
         sf::FloatRect _bounds;
+        float _targetRotation = 0.f;
     
     private:
         void handleMovement();
+        void handleRotation();
 };
 
 

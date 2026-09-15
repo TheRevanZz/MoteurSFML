@@ -40,13 +40,56 @@ void Player::move(const sf::Vector2f& offset)
 
 void Player::rotate(float angle)
 {
-    // _sprite.setRotation(sf::degrees(angle));
     _sprite.rotate(sf::degrees(angle));
+}
+
+void Player::progressiveRotate(float targetAngle)
+{
+    const auto& dt = Time::deltaTime();
+
+    float currentAngle = _sprite.getRotation().asDegrees();
+    // pr atteindre le target angle je dois rotate de angle°
+    float angle = targetAngle - currentAngle;
+
+    //normalise entre -180 et 180
+    while (angle > 180.f)
+    {
+        angle -= 360.f;
+    }
+    while (angle < -180.f)
+    {
+        angle += 360.f;
+    }
+
+    float tempRotation = _rotateSpeed * dt;
+    if (angle > 0.f)
+    {
+        if (_rotateSpeed * dt < angle)
+            tempRotation = _rotateSpeed * dt;
+        else
+            tempRotation = angle;
+
+        rotate(tempRotation);
+    }
+    else if (angle < 0.f)
+    {
+        if (_rotateSpeed * dt < -angle)
+            tempRotation = _rotateSpeed * dt;
+        else
+            tempRotation = -angle;
+
+        rotate(-tempRotation);
+    }
+
+    // std::cout << angle << " : " << _rotateSpeed * dt << std::endl;
 }
 
 void Player::update(sf::RenderWindow& window)
 {
     handleMovement();
+    handleRotation();
+    // std::cout << _targetRotation << std::endl;
+    progressiveRotate(_targetRotation);
     window.draw(this->_sprite);
 }
 
@@ -54,49 +97,24 @@ void Player::handleMovement()
 {
     const auto& dt = Time::deltaTime();
     auto offset = sf::Vector2f(0, 0);
-    auto angle = 0.f;
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
     {
         offset.x -= 1;
-        // angle = 180.f;
-        angle = 180 - _sprite.getRotation().asDegrees();
     }
      else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
     {
         offset.x += 1;
-        // angle = 360.f;
-        angle = 0 - _sprite.getRotation().asDegrees();
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
     {
         // Up key pressed.
         offset.y += 1;
-        // angle = 360-90.f;
-        angle = 270 - _sprite.getRotation().asDegrees();
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
-        {
-            angle -= 45.f;
-        }
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
-        {
-            angle += 45.f;
-        }
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
     {
         // Down key pressed.
         offset.y -= 1;
-        // angle = 90.f;
-        angle = 90 - _sprite.getRotation().asDegrees();
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
-        {
-            angle += 45.f;
-        }
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
-        {
-            angle -= 45.f;
-        }
     }
     
     if (offset.length() > 0)
@@ -105,7 +123,44 @@ void Player::handleMovement()
         // même en diagonale
         offset = offset.normalized();
         move(offset * _speed * dt);
+    }
+}
 
-        rotate(angle * _rotateSpeed * dt);
+void Player::handleRotation()
+{
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+    {
+        _targetRotation = 180;
+    }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+    {
+        _targetRotation = 0;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+    {
+        // Up key pressed.
+        _targetRotation = 270;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+        {
+            _targetRotation -= 45.f;
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+        {
+            _targetRotation += 45.f;
+        }
+    }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+    {
+        // Down key pressed.
+        _targetRotation = 90;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+        {
+            _targetRotation += 45.f;
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+        {
+            _targetRotation -= 45.f;
+        }
     }
 }
