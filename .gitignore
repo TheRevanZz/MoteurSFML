@@ -3,3 +3,19 @@ build/
 .idea/
 out/
 CMakeUserPresets.json
+cmake-build-*/
+# Conan generated files in root
+*.cmake
+conanbuild.bat
+conandeps_legacy.cmake
+conanrun.bat
+deactivate_conanbuild.bat
+deactivate_conanrun.bat
+conanbuildenv-*.bat
+conanrunenv-*.bat
+*-config*.cmake
+*-Target-*.cmake
+*-data.cmake
+*Targets.cmake
+Find*.cmake
+module-*.cmake
