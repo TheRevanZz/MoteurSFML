@@ -11,7 +11,7 @@
 Player::Player(const sf::Texture& texture, const sf::Vector2u& screenSize)
     : _sprite{sf::Sprite(texture)}, _screenSize{screenSize}
 {
-    _sprite.setScale({.2f, .2f});
+    _sprite.setScale({.15f, .15f});
     _bounds = _sprite.getLocalBounds();
 
     _sprite.setOrigin({_bounds.size.x / 2.f, _bounds.size.y / 2.f});

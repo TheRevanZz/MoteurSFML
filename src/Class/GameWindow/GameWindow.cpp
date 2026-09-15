@@ -8,7 +8,7 @@
 
 GameWindow::GameWindow() {
 
-    if (!_texture.loadFromFile("ressources/images/spaceship.png")) {
+    if (!_texture.loadFromFile("ressources/images/spaceship_3.png")) {
         abort();
     }
     _texture.setSmooth(true);
