@@ -5,7 +5,7 @@
 #include <string>
 
 
-class GameComponent;
+class IGameComponent;
 using WorldPoint = sf::Vector2f;
 using ScreenPoint = sf::Vector2i;
 
@@ -39,7 +39,7 @@ class GameWindow
         
         sf::Clock _clock;
 
-        std::vector<std::shared_ptr<GameComponent>> _components = {};
+        std::vector<std::shared_ptr<IGameComponent>> _components = {};
 
         void processEvents();
         void render();

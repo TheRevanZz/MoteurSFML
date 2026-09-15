@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include <map>
-
+#include <optional>
 
 template<typename TKey, typename TValue>
 class LockedMap {
@@ -15,5 +15,11 @@ public:
         map[key] = new_val;
     }
 
-    TValue get(const TKey key) const { return map.at(key); }
+    std::optional<TValue> get(const TKey key) const
+    {
+        if (auto search = map.find(key); search != map.end()) {
+            return map.at(key);
+        }
+        return {};
+    }
 };

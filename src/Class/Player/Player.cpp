@@ -6,27 +6,20 @@
 #include "Time/Time.h"
 #include <fstream>
 #include <iostream>
-
-#include <c4/yml/file.hpp>
-#include <c4/yml/emit.hpp>
-#include <c4/substr.hpp>
 #include <ryml.hpp>
-#include <c4/std/string.hpp>
-
+#include <ryml_std.hpp>
 #include "Utils/Utils.h"
 
 
-Player::Player(const sf::Texture& texture, const sf::Vector2u& screenSize)
-    : _sprite{sf::Sprite(texture)}, _screenSize{screenSize}
-{
+Player::Player(const sf::Texture &texture, const sf::Vector2u &screenSize)
+    : IBaseCharacter(texture, 150), _screenSize(screenSize) {
     _sprite.setScale({.3f, .3f});
     _id = _count;
 
     if (_id == 0) {
         _keymapPath = "ressources/config/keymap1.yml";
         LoadKeymap(_keymapPath);
-    }
-    else {
+    } else {
         _keymapPath = "ressources/config/keymap2.yml";
         LoadKeymap(_keymapPath);
     }
@@ -34,60 +27,50 @@ Player::Player(const sf::Texture& texture, const sf::Vector2u& screenSize)
     _count++;
 }
 
-void Player::setPosition(const WorldPoint& newPosition)
-{
+void Player::setPosition(const WorldPoint &newPosition) {
     _position = newPosition;
     _sprite.setPosition(sf::Vector2f(GameWindow::toScreenPoint(newPosition, _screenSize)));
 }
 
-sf::Vector2f Player::getScaledSize() const
-{
-    const auto& scale = this->_sprite.getScale();
-    const auto& size = this->_sprite.getLocalBounds().size;
+sf::Vector2f Player::getScaledSize() const {
+    const auto &scale = this->_sprite.getScale();
+    const auto &size = this->_sprite.getLocalBounds().size;
 
     return {scale.x * size.x, scale.y * size.y};
 }
 
-void Player::move(const sf::Vector2f& offset)
-{
+void Player::move(const sf::Vector2f &offset) {
     //Si offset.length = offset.x c'est équivalent à ce que offset.y soit egal a 0.
     // offset.length c'est Vx**2 + y**2 donc si Vx**2 + y**2 = 0 alors c'est que y = 0 car Vx**2 + 0 = x
-    _sprite.move({ offset.x, -offset.y});
+    _sprite.move({offset.x, -offset.y});
 }
 
-void Player::update(sf::RenderWindow& window)
-{
+void Player::update(sf::RenderWindow &window) {
     handleMovement();
     // window.draw(this->_sprite);
 }
 
-void Player::handleMovement()
-{
-    const auto& dt = Time::deltaTime();
+void Player::handleMovement() {
+    const auto &dt = Time::deltaTime();
     auto offset = sf::Vector2f(0, 0);
-    if (const auto& key = keymap.get(EActionTag::LEFT).second; key.has_value() && sf::Keyboard::isKeyPressed(key.value()))
-    {
+    if (
+        PlayerIsDoingAction(EActionTag::LEFT)
+    ) {
         offset.x -= 1;
     }
-    if (const auto& key = keymap.get(EActionTag::RIGHT).second; key.has_value() && sf::Keyboard::isKeyPressed(key.value()))
-    {
+    if (PlayerIsDoingAction(EActionTag::RIGHT)) {
         offset.x += 1;
     }
-    if (const auto& key = keymap.get(EActionTag::UP).second;
-        key.has_value() && sf::Keyboard::isKeyPressed(key.value()))
-    {
+    if (PlayerIsDoingAction(EActionTag::UP)) {
         // Up key pressed.
         offset.y += 1;
     }
-    if (const auto& key = keymap.get(EActionTag::DOWN).second;
-        key.has_value() && sf::Keyboard::isKeyPressed(key.value()))
-    {
+    if (PlayerIsDoingAction(EActionTag::DOWN)) {
         // Down key pressed.
         offset.y -= 1;
     }
-    
-    if (offset.length() > 0)
-    {
+
+    if (offset.length() > 0) {
         //Le vecteur est normalisé comme ça la valeur de length est toujours égal a 1, donc les déplacements sont toujours de même vitesse
         // même en diagonale
         offset = offset.normalized();
@@ -95,32 +78,44 @@ void Player::handleMovement()
     }
 }
 
-bool Player::LoadKeymap(const std::string& keymapPath) {
+bool Player::PlayerIsDoingAction(EActionTag action_tag) const {
+    auto KeymapValue = keymap.get(action_tag);
+    if (!KeymapValue.has_value())
+        return false;
+    if (!KeymapValue.value().second.has_value())
+        return false;
+    return sf::Keyboard::isKeyPressed(KeymapValue.value().second.value());
+}
 
-    const auto& content = Utils::getFileContent(keymapPath);
+bool Player::LoadKeymap(const std::string &keymapPath) {
+    const auto &content = Utils::getFileContent(keymapPath);
     if (!content.has_value())
         return false;
 
-    ryml::Tree YamlContent = c4::yml::parse_in_arena(c4::to_csubstr(content.value()));
+    ryml::Tree YamlContent = ryml::parse_in_arena(c4::to_csubstr(content.value()));
 
     const auto touches = YamlContent["touches"];
 
-    for (const std::string_view& key : GetEActionTagsValues()) {
+    for (const std::string_view &key: GetEActionTagsValues()) {
         const auto keyStr = std::string(key);
-        const auto& keyTag = StringToEActionTag(keyStr);
+        const auto &keyTag = StringToEActionTag(keyStr);
         if (!keyTag.has_value())
             continue;
 
         //Le code de la touche ( ex: 25 -> Z)
-        const c4::csubstr KeyCodeCSubStr = touches[keyStr.c_str()].val();
+        const ryml::csubstr KeyCodeCSubStr = touches[keyStr.c_str()].val();
 
         try {
             int KeyCode = std::stoi(Utils::csubtrToString(KeyCodeCSubStr));
 
-            auto LastKeyValue = keymap.get(keyTag.value());
-            LastKeyValue.second = static_cast<sf::Keyboard::Key>(KeyCode);
+            auto OptionalKeymapValue = keymap.get(keyTag.value());
+            if (!OptionalKeymapValue.has_value())
+                return false;
 
-            keymap.update(keyTag.value(),LastKeyValue);
+            auto KeymapValue = OptionalKeymapValue.value();
+            KeymapValue.second = static_cast<sf::Keyboard::Key>(KeyCode);
+
+            keymap.update(keyTag.value(), KeymapValue);
         } catch (...) {
             std::cout << "Une erreur à lieu lors du chargement pour la clé" << keyStr << "\n";
         }
@@ -132,20 +127,25 @@ bool Player::LoadKeymap(const std::string& keymapPath) {
 }
 
 bool Player::ChangeKey(const EActionTag &action_tag, const sf::Keyboard::Key &new_key) {
-    auto [keyDisplayName, KeyValue] = keymap.get(action_tag);
+    auto OptionalValue = keymap.get(action_tag);
+    if (!OptionalValue.has_value())
+        return false;
+
+
+    auto [keyDisplayName, KeyValue] = OptionalValue.value();
     KeyValue = new_key;
 
-    keymap.update(action_tag,{keyDisplayName, KeyValue});
+    keymap.update(action_tag, {keyDisplayName, KeyValue});
 
-    const auto& content = Utils::getFileContent(_keymapPath);
+    const auto &content = Utils::getFileContent(_keymapPath);
     if (!content.has_value())
         return false;
 
-    ryml::Tree YamlContent = c4::yml::parse_in_arena(
-        c4::to_csubstr(content.value())
+    ryml::Tree YamlContent = ryml::parse_in_arena(
+        ryml::to_csubstr(content.value())
     );
 
-    const auto& action_tag_str = EActionTagToString(action_tag);
+    const auto &action_tag_str = EActionTagToString(action_tag);
 
     if (!action_tag_str.has_value())
         return false;
@@ -156,13 +156,13 @@ bool Player::ChangeKey(const EActionTag &action_tag, const sf::Keyboard::Key &ne
     if (!config_file.is_open())
         return false;
 
-    FILE* yamlFile;
-    yamlFile = fopen(_keymapPath.c_str(),"w");
+    FILE *yamlFile;
+    yamlFile = fopen(_keymapPath.c_str(), "w");
 
     if (yamlFile == nullptr)
         return false;
 
-    c4::yml::emit_yaml(YamlContent, yamlFile);
+    ryml::emit_yaml(YamlContent, yamlFile);
     std::cout << "[KEYMAP] Keymap " << _keymapPath << " updated\n";
     return true;
 }

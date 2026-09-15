@@ -23,6 +23,7 @@ void GameWindow::show(const int width, const int height, const std::string& titl
 
     this->_player2 = std::make_shared<Player>(_texture, _window.getSize());
     this->_player2->setPosition({ - _player2->getScaledSize().x / 2.f, _player2->getScaledSize().y / 2.f });
+    this->_player2->ChangeKey(EActionTag::UP, sf::Keyboard::Key::Num0);
 
     _components = { _player, _player2 };
     _clock.start();

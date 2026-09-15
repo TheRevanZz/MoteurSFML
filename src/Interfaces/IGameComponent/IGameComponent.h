@@ -5,7 +5,7 @@
 #pragma once
 #include "IDraweable/IDrawable.h"
 
-class GameComponent : public IDrawable {
+class IGameComponent : public IDrawable {
 };
 
 

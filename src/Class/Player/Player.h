@@ -8,13 +8,11 @@
 #include <SFML/Graphics.hpp>
 
 #include "Class/GameWindow/GameWindow.h"
-#include "Interfaces/IDraweable/IDrawable.h"
-#include "Interfaces/IUpdateable/IUpdateable.h"
 #include "LockedMap/LockedMap.h"
 #include <string>
 
 #include "Enum/EKeyTag.h"
-#include "GameComponent/GameComponent.h"
+#include "IBaseCharacter/IBaseCharacter.h"
 
 
 //Description de la touche
@@ -28,7 +26,7 @@ using KeyValue = std::pair<
     std::optional<sf::Keyboard::Key>
 >;
 
-class Player : public GameComponent, public IUpdateable {
+class Player : public IBaseCharacter {
 
 public:
     static int _count;
@@ -63,13 +61,19 @@ public:
      */
     bool ChangeKey(const EActionTag& action_tag, const sf::Keyboard::Key& new_key);
 
+    void takeDamage(const int &damage) override { this->_life -= damage; }
+    bool IsDead() const override { return this->_life <= 0; }
+    void Destruct() override {};
+
+
 protected:
-    sf::Sprite _sprite;
+
     WorldPoint _position;
     sf::Vector2u _screenSize;
     float _speed = 160.f; //pixel par seconde;
     int _id = 0;
     std::string _keymapPath = "ressources/config/keymap1.yml";
+
 
     LockedMap<EActionTag, KeyValue> keymap = LockedMap<EActionTag, KeyValue>({
         {EActionTag::RIGHT, {"Aller à droite", {}}},
@@ -81,6 +85,8 @@ protected:
 
 private:
     void handleMovement();
+
+    bool PlayerIsDoingAction(EActionTag action_tag) const;
 
 protected:
 };
