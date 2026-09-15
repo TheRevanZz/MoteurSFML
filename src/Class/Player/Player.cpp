@@ -11,35 +11,10 @@
 Player::Player(const sf::Texture& texture, const sf::Vector2u& screenSize)
     : _sprite{sf::Sprite(texture)}, _screenSize{screenSize}
 {
-    _sprite.setScale({.3f, .3f});
-}
+    _sprite.setScale({.2f, .2f});
+    _bounds = _sprite.getLocalBounds();
 
-void Player::handleEvent(const std::optional<sf::Event>& event)
-{
-    if (event->is<sf::Event::KeyPressed>())
-    {
-        auto offset = sf::Vector2f(0, 0);
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
-        {
-            offset.x -= 1;
-            // Left key pressed.
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
-        {
-            offset.x += 1;
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-        {
-            // Up key pressed.
-            offset.y += 1;
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-        {
-            // Down key pressed.
-            offset.y -= 1;
-        }
-        move(offset);
-    }
+    _sprite.setOrigin({_bounds.size.x / 2.f, _bounds.size.y / 2.f});
 }
 
 void Player::setPosition(const WorldPoint& newPosition)
@@ -63,9 +38,58 @@ void Player::move(const sf::Vector2f& offset)
     _sprite.move({ offset.x, -offset.y});
 }
 
+void Player::rotate(float angle)
+{
+    _sprite.rotate(sf::degrees(angle));
+}
+
+void Player::progressiveRotate(float targetAngle)
+{
+    const auto& dt = Time::deltaTime();
+
+    float currentAngle = _sprite.getRotation().asDegrees();
+    // pr atteindre le target angle je dois rotate de angle°
+    float angle = targetAngle - currentAngle;
+
+    //normalise entre -180 et 180
+    while (angle > 180.f)
+    {
+        angle -= 360.f;
+    }
+    while (angle < -180.f)
+    {
+        angle += 360.f;
+    }
+
+    float tempRotation = _rotateSpeed * dt;
+    if (angle > 0.f)
+    {
+        if (_rotateSpeed * dt < angle)
+            tempRotation = _rotateSpeed * dt;
+        else
+            tempRotation = angle;
+
+        rotate(tempRotation);
+    }
+    else if (angle < 0.f)
+    {
+        if (_rotateSpeed * dt < -angle)
+            tempRotation = _rotateSpeed * dt;
+        else
+            tempRotation = -angle;
+
+        rotate(-tempRotation);
+    }
+
+    // std::cout << angle << " : " << _rotateSpeed * dt << std::endl;
+}
+
 void Player::update(sf::RenderWindow& window)
 {
     handleMovement();
+    handleRotation();
+    // std::cout << _targetRotation << std::endl;
+    progressiveRotate(_targetRotation);
     window.draw(this->_sprite);
 }
 
@@ -73,11 +97,12 @@ void Player::handleMovement()
 {
     const auto& dt = Time::deltaTime();
     auto offset = sf::Vector2f(0, 0);
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
     {
         offset.x -= 1;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
     {
         offset.x += 1;
     }
@@ -86,7 +111,7 @@ void Player::handleMovement()
         // Up key pressed.
         offset.y += 1;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
     {
         // Down key pressed.
         offset.y -= 1;
@@ -98,5 +123,44 @@ void Player::handleMovement()
         // même en diagonale
         offset = offset.normalized();
         move(offset * _speed * dt);
+    }
+}
+
+void Player::handleRotation()
+{
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+    {
+        _targetRotation = 180;
+    }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+    {
+        _targetRotation = 0;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+    {
+        // Up key pressed.
+        _targetRotation = 270;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+        {
+            _targetRotation -= 45.f;
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+        {
+            _targetRotation += 45.f;
+        }
+    }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+    {
+        // Down key pressed.
+        _targetRotation = 90;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+        {
+            _targetRotation += 45.f;
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+        {
+            _targetRotation -= 45.f;
+        }
     }
 }
