@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 
 #include "Time/Time.h"
 
@@ -72,39 +73,71 @@ void Player::update(sf::RenderWindow& window)
 
 void Player::handleMovement()
 {
-    const auto& dt = Time::deltaTime();
-    auto offset = sf::Vector2f(0, 0);
+    const float dt = Time::deltaTime();
+    
+    //calcul forces selon input
+    sf::Vector2f input(0.f, 0.f);
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
     {
-        offset.x -= 1;
+        input.x -= 1.f;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
     {
-        offset.x += 1;
+        input.x += 1.f;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
     {
-        // Up key pressed.
-        offset.y += 1;
+        input.y += 1.f;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
     {
-        // Down key pressed.
-        offset.y -= 1;
+        input.y -= 1.f;
     }
     
-    if (offset.length() > 0)
+    // calcul forces
+    float forceX = 0.f;
+    float forceY = 0.f;
+    
+    if (input.length() > 0.f)
     {
-        //Le vecteur est normalisé comme ça la valeur de length est toujours égal a 1, donc les déplacements sont toujours de même vitesse
-        // même en diagonale
-        offset = offset.normalized();
-        const float acceleration = _speed / _mass;
-        _velocity = std::min(_velocity + acceleration * dt, _speed);
-        move(offset * _velocity * dt);
+        input = input.normalized();
+        
+        // application de la force dans la direction indiquee par le joueur
+        forceX = input.x * _thrustForce;
+        forceY = input.y * _thrustForce;
     }
-    else
+    
+    // euler velocity: v_{n+1} = v_n + (F/m) * dt
+    
+    // acceleration: a = F / m
+    float accelerationX = forceX / _mass;
+    float accelerationY = forceY / _mass;
+    
+    // update velocity
+    _velocityX += accelerationX * dt;
+    _velocityY += accelerationY * dt;
+    
+    // deceleration
+    // approximation discrète : v(n+1) = friction * v(n)
+    // cela simule une diminution exponentielle de la vitesse
+    if (input.length() == 0.f)
     {
-        const float friction = 0.85f;
-        _velocity *= friction;
+        _velocityX *= _friction;
+        _velocityY *= _friction;
     }
+    
+    // limitation de la vitesse maximale
+    float speed = std::sqrt(_velocityX * _velocityX + _velocityY * _velocityY);
+    if (speed > _maxSpeed)
+    {
+        float scale = _maxSpeed / speed;
+        _velocityX *= scale;
+        _velocityY *= scale;
+    }
+    
+    // methode d'Euler pour calculer la position :
+    // x(n+1) = x(n) + v(n) * dt
+    // cela correspond à l'approximation discrète de dx/dt = v
+    sf::Vector2f displacement(_velocityX * dt, _velocityY * dt);
+    move(displacement);
 }
