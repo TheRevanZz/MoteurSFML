@@ -5,6 +5,7 @@
 #include "Player.h"
 
 #include <iostream>
+#include <algorithm>
 
 #include "Time/Time.h"
 
@@ -97,6 +98,13 @@ void Player::handleMovement()
         //Le vecteur est normalisé comme ça la valeur de length est toujours égal a 1, donc les déplacements sont toujours de même vitesse
         // même en diagonale
         offset = offset.normalized();
-        move(offset * _speed * dt);
+        const float acceleration = _speed / _mass;
+        _velocity = std::min(_velocity + acceleration * dt, _speed);
+        move(offset * _velocity * dt);
+    }
+    else
+    {
+        const float friction = 0.85f;
+        _velocity *= friction;
     }
 }

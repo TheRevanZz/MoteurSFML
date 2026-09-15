@@ -39,6 +39,8 @@ class Player : public IUpdateable, public IDrawable {
         WorldPoint _position;
         sf::Vector2u _screenSize;
         float _speed = 160.f; //pixel par seconde;
+        float _mass = 90*1000;
+        float _velocity = 0.f; //accélération progressive
     
     private:
         void handleMovement();
