@@ -36,6 +36,31 @@ void Player::move(const sf::Vector2f& offset)
     //Si offset.length = offset.x c'est équivalent à ce que offset.y soit egal a 0.
     // offset.length c'est Vx**2 + y**2 donc si Vx**2 + y**2 = 0 alors c'est que y = 0 car Vx**2 + 0 = x
     _sprite.move({ offset.x, -offset.y});
+
+    //si à droite de l'écran
+    if (_sprite.getPosition().x > _screenSize.x - getScaledSize().x / 2)
+    {
+        //remplacer par une force
+        _sprite.setPosition(sf::Vector2f(_screenSize.x - getScaledSize().x / 2, _sprite.getPosition().y));
+    }
+    //si à gauche de l'écran
+    if (_sprite.getPosition().x < 0 + getScaledSize().x / 2)
+    {
+        //remplacer par une force
+        _sprite.setPosition(sf::Vector2f(0 + getScaledSize().x / 2, _sprite.getPosition().y));
+    }
+    //si en bas de l'écran
+    if (_sprite.getPosition().y > _screenSize.y - getScaledSize().y / 2)
+    {
+        //remplacer par une force
+        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x, _screenSize.y - getScaledSize().y / 2));
+    }
+    //si en haut de l'écran
+    if (_sprite.getPosition().y < 0 + getScaledSize().y / 2)
+    {
+        //remplacer par une force
+        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x, 0 + getScaledSize().y / 2));
+    }
 }
 
 void Player::rotate(float angle)
