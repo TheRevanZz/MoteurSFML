@@ -28,7 +28,11 @@ Player::Player(const sf::Texture& texture)
     {
         _keymapPath = "ressources/config/keymap2.yml";
     }
-    assert(LoadKeymap(_keymapPath) == true && ("ERREUR DANS LE CHARGEMENT " + _keymapPath).c_str());
+    
+    bool sucessLoading = LoadKeymap(_keymapPath);
+    if (!sucessLoading)
+        abort();
+    // assert( sucessLoading == true && ("ERREUR DANS LE CHARGEMENT " + _keymapPath).c_str());
     // keymap.at("Left").second = sf::Keyboard::Key::Left;
     
      _sprite.setOrigin({_sprite.getLocalBounds().size.x / 2.f, _sprite.getLocalBounds().size.y / 2.f});
@@ -231,12 +235,14 @@ bool Player::LoadKeymap(const std::string& keymapPath)
             DEBUG_ONLY(
                 std::cout << "Une erreur à lieu lors du chargement pour la clé" << keyStr << "\n";
             )
+            
         }
     }
 
     DEBUG_ONLY(
         std::cout << "[KEYMAP] Keymap " << keymapPath << " loaded\n";
     )
+    
     return true;
 }
 
