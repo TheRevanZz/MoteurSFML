@@ -10,3 +10,10 @@ BaseCharacter::BaseCharacter(const sf::Texture& texture, const float life)
     _life = life;
     _maxLife = life;
 }
+
+BaseCharacter::BaseCharacter(const char* texture_path, float life)
+    : IGameComponent(texture_path)
+{
+    _life = life;
+    _maxLife = life;
+}

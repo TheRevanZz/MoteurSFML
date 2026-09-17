@@ -10,6 +10,7 @@
 
 #include "Character/BaseCharacter/BaseCharacter.h"
 #include "Character/BonusConsumer/BonusConsumer.h"
+#include "Component/MultipleSprite/MultipleSpriteComponent.h"
 #include "Enum/EBonusCategory.h"
 #include "Enum/EKeyTag.h"
 
@@ -17,6 +18,13 @@
 //Description de la touche
 using KeyDisplayName = std::string;
 
+#define PLAYER_TEXTURES \
+    X("ressources/images/player_textures/spaceship_1.png") \
+    X("ressources/images/player_textures/spaceship_2.png") \
+    X("ressources/images/player_textures/spaceship_3.png") \
+    X("ressources/images/player_textures/spaceship_4.png") \
+
+constexpr int PLAYER_LIFE = 150;
 /*
  Contient la description de la touche, ainsi que optionnelle le code de la touche elle même
  */
@@ -31,7 +39,7 @@ class Player : public BaseCharacter, BonusConsumer
 public:
     static int _count;
 
-    explicit Player(const sf::Texture& texture);
+    explicit Player(const char* texture_path);
 
     const sf::Sprite& getSprite() const { return this->_sprite; }
 
@@ -73,6 +81,9 @@ public:
 
     void Destruct() override
     {
+        // auto pAssetLoader = AssetLoader::getInstance();
+        // _sprite.setTexture(*pAssetLoader->getImage("ressources/images/player_textures/spaceship_1.png"));
+        // multipleSpriteComponent.changeTexture(0u);
     }
 
     void Collision(const std::shared_ptr<IGameComponent>& otherComponent) const override;
@@ -94,16 +105,24 @@ protected:
         {EActionTag::DOWN, {"Aller en bas", {}}},
         {EActionTag::DASH, {"Dash", {}}}
     });
+    
+    const std::array<sf::Texture, 4> textures = {
+        sf::Texture("ressources/images/player_textures/spaceship_1.png"),
+        sf::Texture("ressources/images/player_textures/spaceship_2.png"),
+        sf::Texture("ressources/images/player_textures/spaceship_3.png"),
+        sf::Texture("ressources/images/player_textures/spaceship_4.png"),
+    };
 
     float _rotateSpeed = 500.f;
     float _targetRotation = 0.f;
     
-    std::array<sf::Texture, 4> _textures;
+    MultipleSpriteComponent multipleSpriteComponent;
 
 private:
     void handleMovement();
     void handleRotation();
     bool PlayerIsDoingAction(EActionTag action_tag) const;
+    void Init();
 };
 
 inline int Player::_count = 0;

@@ -23,5 +23,6 @@ class BaseCharacter :
 
 public:
     BaseCharacter(const sf::Texture& texture, float life);
+    BaseCharacter(const char* texture_path, float life);
 };
 

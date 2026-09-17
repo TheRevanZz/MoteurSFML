@@ -6,19 +6,17 @@
 #include <iostream>
 #include <ryml.hpp>
 #include <ryml_std.hpp>
-
-#include "Player.h"
-
 #include <ranges>
 
+
+
+#include "Player.h"
 #include "Debug.h"
 #include "Game/Utils/Utils.h"
 #include "Game/WindowData/WindowData.h"
 #include "Game/Time/Time.h"
 
-
-Player::Player(const sf::Texture& texture)
-    : BaseCharacter(texture, 150), _screenSize(WindowData::getScreenSize())
+void Player::Init()
 {
     _id = _count;
     _sprite.setScale({.15f, .15f});
@@ -31,15 +29,30 @@ Player::Player(const sf::Texture& texture)
     {
         _keymapPath = "ressources/config/keymap2.yml";
     }
-    
+
     bool sucessLoading = LoadKeymap(_keymapPath);
     if (!sucessLoading)
         abort();
     // assert( sucessLoading == true && ("ERREUR DANS LE CHARGEMENT " + _keymapPath).c_str());
     // keymap.at("Left").second = sf::Keyboard::Key::Left;
-    
-     _sprite.setOrigin({_sprite.getLocalBounds().size.x / 2.f, _sprite.getLocalBounds().size.y / 2.f});
+
+    _sprite.setOrigin({_sprite.getLocalBounds().size.x / 2.f, _sprite.getLocalBounds().size.y / 2.f});
     _count++;
+}
+
+Player::Player(const char* texture_path)
+    : BaseCharacter(texture_path, PLAYER_LIFE),
+      _screenSize(WindowData::getScreenSize()),
+      multipleSpriteComponent(
+                              {
+                                texture_path,
+                                #define X(path) path,
+                                      PLAYER_TEXTURES
+                                #undef X
+                              }
+                              , &_sprite)
+{
+    Init();
 }
 
 void Player::setPosition(const WorldPoint& newPosition)
@@ -144,58 +157,6 @@ void Player::update()
     progressiveRotate(_targetRotation);
 }
 
-void Player::handleMovement()
-{
-    const auto& dt = Time::deltaTime();
-    auto offset = sf::Vector2f(0, 0);
-    if (
-        PlayerIsDoingAction(EActionTag::LEFT)
-    )
-    {
-        offset.x -= 1;
-    }
-    if (PlayerIsDoingAction(EActionTag::RIGHT))
-    {
-        offset.x += 1;
-    }
-    if (PlayerIsDoingAction(EActionTag::UP))
-    {
-        // Up key pressed.
-        offset.y += 1;
-    }
-    if (PlayerIsDoingAction(EActionTag::DOWN))
-    {
-        // Down key pressed.
-        offset.y -= 1;
-    }
-
-    DEBUG_ONLY(
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::K)) {
-        std::cout << applyBonusToStat(_speed, EBonusCategory::SPEED) << "\n";
-        std::cout << _speed << "\n";
-        }
-    )
-
-    if (offset.length() > 0)
-    {
-        //Le vecteur est normalisé comme ça la valeur de length est toujours égal a 1, donc les déplacements sont toujours de même vitesse
-        // même en diagonale
-        offset = offset.normalized();
-        move(offset * applyBonusToStat(_speed, EBonusCategory::SPEED) * dt);
-    }
-}
-
-
-bool Player::PlayerIsDoingAction(const EActionTag action_tag) const
-{
-    const auto KeymapValue = keymap.get(action_tag);
-    if (!KeymapValue.has_value())
-        return false;
-    if (!KeymapValue.value().second.has_value())
-        return false;
-    return sf::Keyboard::isKeyPressed(KeymapValue.value().second.value());
-}
-
 bool Player::LoadKeymap(const std::string& keymapPath)
 {
     const auto& content = Utils::getFileContent(keymapPath);
@@ -238,16 +199,16 @@ bool Player::LoadKeymap(const std::string& keymapPath)
             DEBUG_ONLY(
                 std::cout << "Une erreur à lieu lors du chargement pour la clé" << keyStr << "\n";
             )
-            
         }
     }
 
     DEBUG_ONLY(
         std::cout << "[KEYMAP] Keymap " << keymapPath << " loaded\n";
     )
-    
+
     return true;
 }
+
 
 bool Player::ChangeKey(const EActionTag& action_tag, const sf::Keyboard::Key& new_key)
 {
@@ -304,7 +265,8 @@ void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent) co
     if (std::dynamic_pointer_cast<StaticEntity>(otherComponent))
     {
         auto pEntity = std::dynamic_pointer_cast<StaticEntity>(otherComponent);
-        std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->getId() + 1 << std::endl;
+        std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->getId() + 1 <<
+            std::endl;
     }
     // abort();
 }
@@ -327,6 +289,47 @@ float Player::applyBonusToStat(const float& stat, const EBonusCategory bonusCate
         final_stat = (*it)->getApplyedBonus(final_stat);
     }
     return final_stat;
+}
+
+void Player::handleMovement()
+{
+    const auto& dt = Time::deltaTime();
+    auto offset = sf::Vector2f(0, 0);
+    if (
+        PlayerIsDoingAction(EActionTag::LEFT)
+    )
+    {
+        offset.x -= 1;
+    }
+    if (PlayerIsDoingAction(EActionTag::RIGHT))
+    {
+        offset.x += 1;
+    }
+    if (PlayerIsDoingAction(EActionTag::UP))
+    {
+        // Up key pressed.
+        offset.y += 1;
+    }
+    if (PlayerIsDoingAction(EActionTag::DOWN))
+    {
+        // Down key pressed.
+        offset.y -= 1;
+    }
+
+    DEBUG_ONLY(
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::K)) {
+        std::cout << applyBonusToStat(_speed, EBonusCategory::SPEED) << "\n";
+        std::cout << _speed << "\n";
+        }
+    )
+
+    if (offset.length() > 0)
+    {
+        //Le vecteur est normalisé comme ça la valeur de length est toujours égal a 1, donc les déplacements sont toujours de même vitesse
+        // même en diagonale
+        offset = offset.normalized();
+        move(offset * applyBonusToStat(_speed, EBonusCategory::SPEED) * dt);
+    }
 }
 
 void Player::handleRotation()
@@ -365,4 +368,14 @@ void Player::handleRotation()
             _targetRotation -= 45.f;
         }
     }
+}
+
+bool Player::PlayerIsDoingAction(const EActionTag action_tag) const
+{
+    const auto KeymapValue = keymap.get(action_tag);
+    if (!KeymapValue.has_value())
+        return false;
+    if (!KeymapValue.value().second.has_value())
+        return false;
+    return sf::Keyboard::isKeyPressed(KeymapValue.value().second.value());
 }

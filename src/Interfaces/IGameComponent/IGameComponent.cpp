@@ -7,8 +7,13 @@
 
 #include "Debug.h"
 
-IGameComponent::IGameComponent(const sf::Texture& texture)
-    : _sprite(texture)
+IGameComponent::IGameComponent(const char* texture_path)
+    : _mainTexture(texture_path), _sprite(_mainTexture)
+{
+}
+
+IGameComponent::IGameComponent(sf::Texture texture)
+    : _mainTexture(std::move(texture)), _sprite(_mainTexture)
 {
 }
 

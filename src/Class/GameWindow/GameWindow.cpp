@@ -5,6 +5,7 @@
 #include "Macro/Debug.h"
 #include "Game/Time/Time.h"
 #include "Game/WindowData/WindowData.h"
+#include "Other/AssetLoader/AssetLoader.h"
 
 
 GameWindow::GameWindow() {
@@ -34,13 +35,17 @@ void GameWindow::show(const int width, const int height, const std::string& titl
     WindowData::setWindow(&_window);
 
     DirectBonus bonus1 {1.f, EBonusCategory::SPEED, true};
-    std::shared_ptr<StaticEntity>entity = std::make_shared<StaticEntity>(_asteroidTexture, _window.getSize(), std::make_shared<DirectBonus>(bonus1) );
+    auto entity = std::make_shared<StaticEntity>(_asteroidTexture, _window.getSize(), std::make_shared<DirectBonus>(bonus1) );
     
-    this->_player = std::make_shared<Player>(_texture);
+    this->_player = std::make_shared<Player>("ressources/images/player_textures/spaceship_2.png");
     this->_player->setPosition({ - _player->getScaledSize().x / 2.f, _player->getScaledSize().y / 2.f });
+    auto pAssetLoader = AssetLoader::getInstance();
+    pAssetLoader->loadImage("ressources/images/player_textures/spaceship_1.png");
+    
+    this->_player->Destruct();
     
     
-    this->_player2 = std::make_shared<Player>(_texture2);
+    this->_player2 = std::make_shared<Player>("ressources/images/player_textures/spaceship_3.png");
     this->_player2->setPosition({ -100, -100});
     // if (this->_player2->ChangeKey(EActionTag::UP, sf::Keyboard::Key::Num0))
     // {
