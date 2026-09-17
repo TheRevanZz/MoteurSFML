@@ -13,6 +13,9 @@ add_executable(R5A12 ${SOURCES})
 
 target_link_libraries(R5A12 sfml::sfml)
 
+find_package(ryml REQUIRED)
+target_link_libraries(R5A12 ryml::ryml)
+
 target_include_directories(R5A12 PRIVATE 
 		"." 
 		"Class" 
