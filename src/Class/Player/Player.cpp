@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "Time/Time.h"
+#include "Game/Time/Time.h"
 
 Player::Player(const sf::Texture& texture, const sf::Vector2u& screenSize)
     : _sprite{sf::Sprite(texture)}, _screenSize{screenSize}
