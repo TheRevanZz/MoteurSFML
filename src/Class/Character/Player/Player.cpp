@@ -295,7 +295,7 @@ void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent) co
     if (std::dynamic_pointer_cast<StaticEntity>(otherComponent))
     {
         auto pEntity = std::dynamic_pointer_cast<StaticEntity>(otherComponent);
-        std::cout << "Collision StaticEntity, " << pEntity->getBonus() << std::endl;
+        std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->getId() + 1 << std::endl;
     }
     // abort();
 }

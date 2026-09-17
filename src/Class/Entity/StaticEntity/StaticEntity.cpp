@@ -9,6 +9,7 @@
 StaticEntity::StaticEntity(const sf::Texture &texture, const sf::Vector2u &screenSize, std::shared_ptr<BaseBonus> bonus)
     : BaseEntity(texture)
 {
+    _id = _count;
     _sprite.setScale({.15f, .15f});
 
     // _sprite.setOrigin({_sprite.getGlobalBounds().size.x / 2.f, _sprite.getGlobalBounds().size.y / 2.f});
