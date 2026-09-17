@@ -6,7 +6,7 @@
 
 #include "GameWindow/GameWindow.h"
 
-StaticEntity::StaticEntity(const sf::Texture &texture, const sf::Vector2u &screenSize, std::shared_ptr<BaseBonus> bonus)
+StaticEntity::StaticEntity(const sf::Texture &texture, std::shared_ptr<BaseBonus> bonus)
     : BaseEntity(texture)
 {
     _id = _count;

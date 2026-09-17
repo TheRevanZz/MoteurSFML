@@ -5,6 +5,7 @@
 #include <string>
 #include "CollisionSystem/CollisionSystem.h"
 #include "Entity/StaticEntity/StaticEntity.h"
+#include "Entity/StaticEntity/StaticEntityFactory.h"
 
 
 class IGameComponent;
@@ -39,11 +40,11 @@ class GameWindow
         std::shared_ptr<Player> _player2;
     
         CollisionSystem _collisionSystem;
+
+        StaticEntityFactory _staticEntityFactory;
+
         sf::Texture _texture;
         sf::Texture _texture2;
-
-        // à réfléchir
-        sf::Texture _asteroidTexture;
 
         sf::Clock _clock;
 

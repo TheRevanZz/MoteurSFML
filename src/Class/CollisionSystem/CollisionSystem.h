@@ -24,6 +24,7 @@ public:
 
     void update();
     void setComponents(const std::vector<std::shared_ptr<IGameComponent>>& components) { _components = components; }
+    std::shared_ptr<std::vector<std::shared_ptr<IGameComponent>>> getComponents() { return std::make_shared<std::vector<std::shared_ptr<IGameComponent>>>(_components); };
     
 protected:
 

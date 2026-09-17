@@ -60,7 +60,7 @@ std::vector<std::shared_ptr<IGameComponent>> CollisionSystem::getNearComponents(
 void CollisionSystem::update()
 {
     clearGrid();
-    
+
     for (const auto& component : _components)
     {
         insertInGrid(component);
