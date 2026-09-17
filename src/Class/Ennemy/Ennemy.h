@@ -4,11 +4,11 @@
 
 #pragma once
 
+#include "BaseCharacter/BaseCharacter.h"
 #include "GameWindow/GameWindow.h"
-#include "IBaseCharacter/IBaseCharacter.h"
 
 
-class Ennemy: public IBaseCharacter {
+class Ennemy: public BaseCharacter {
 
 public:
     Ennemy(const sf::Texture& texture, const ScreenPoint& screenSize, int life);

@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <string>
+#include "CollisionSystem/CollisionSystem.h"
 
 
 class IGameComponent;
@@ -35,8 +36,10 @@ class GameWindow
 
         std::shared_ptr<Player> _player;
         std::shared_ptr<Player> _player2;
+    
+        CollisionSystem _collisionSystem;
         sf::Texture _texture;
-        
+
         sf::Clock _clock;
 
         std::vector<std::shared_ptr<IGameComponent>> _components = {};

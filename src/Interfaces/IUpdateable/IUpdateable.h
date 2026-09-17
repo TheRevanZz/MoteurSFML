@@ -9,5 +9,5 @@ class IUpdateable
 {
 public:
     virtual ~IUpdateable() = default;
-    virtual void update(sf::RenderWindow& window) = 0;
+    virtual void update() = 0;
 };

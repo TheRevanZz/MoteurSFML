@@ -9,11 +9,13 @@
 #include <SFML/Graphics.hpp>
 
 
+class BaseBonus;
+
 namespace sf {
     class Texture;
 }
 
-class IBaseCharacter :
+class BaseCharacter :
     public IGameComponent,
     public IUpdateable,
     public IDamageable,
@@ -21,9 +23,13 @@ class IBaseCharacter :
 {
 
 public:
-    IBaseCharacter(const sf::Texture& texture, int life);
+    BaseCharacter(const sf::Texture& texture, int life);
+
 
 protected:
     sf::Sprite _sprite;
+
+
+
 };
 

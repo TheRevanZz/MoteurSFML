@@ -9,5 +9,5 @@ class IDrawable
 {
 public:
     virtual ~IDrawable() = default;
-    [[nodiscard]] virtual const sf::Drawable* getDrawable() const = 0;
+    virtual const sf::Drawable& getDrawable() const = 0;
 };
