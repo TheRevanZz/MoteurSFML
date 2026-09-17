@@ -8,7 +8,7 @@
 
 GameWindow::GameWindow() {
 
-    if (!_texture.loadFromFile("ressources/images/aoba.png")) {
+    if (!_texture.loadFromFile("ressources/images/spaceship_3.png")) {
         abort();
     }
     _texture.setSmooth(true);
@@ -46,7 +46,7 @@ void GameWindow::processEvents()
 {
     while (const std::optional event = _window.pollEvent())
     {
-        if (event->is<sf::Event::Closed>())
+        if (event->is<sf::Event::Closed>() ||sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
             _window.close();
     }
 }

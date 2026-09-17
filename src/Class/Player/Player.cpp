@@ -15,8 +15,9 @@
 
 Player::Player(const sf::Texture &texture, const sf::Vector2u &screenSize)
     : BaseCharacter(texture, 150), _screenSize(screenSize) {
-    _sprite.setScale({.3f, .3f});
     _id = _count;
+    _sprite.setScale({.15f, .15f});
+    _bounds = _sprite.getGlobalBounds();
 
     if (_id == 0) {
         _keymapPath = "ressources/config/keymap1.yml";
@@ -26,6 +27,7 @@ Player::Player(const sf::Texture &texture, const sf::Vector2u &screenSize)
     assert(LoadKeymap(_keymapPath) == true && ("ERREUR DANS LE CHARGEMENT " + _keymapPath).c_str());
     // keymap.at("Left").second = sf::Keyboard::Key::Left;
     _count++;
+    _sprite.setOrigin({_bounds.size.x / 2.f, _bounds.size.y / 2.f});
 }
 
 void Player::setPosition(const WorldPoint &newPosition) {
@@ -46,13 +48,86 @@ const sf::Transform Player::getTransform() const
 void Player::move(const sf::Vector2f &offset) {
     //Si offset.length = offset.x c'est équivalent à ce que offset.y soit egal a 0.
     // offset.length c'est Vx**2 + y**2 donc si Vx**2 + y**2 = 0 alors c'est que y = 0 car Vx**2 + 0 = x
-    _sprite.move({offset.x, -offset.y});
-    
+    _sprite.move({ offset.x, -offset.y});
+
+    //si à droite de l'écran
+    if (_sprite.getPosition().x > _screenSize.x - getScaledSize().x / 2)
+    {
+        //remplacer par une force
+        _sprite.setPosition(sf::Vector2f(_screenSize.x - getScaledSize().x / 2, _sprite.getPosition().y));
+    }
+    //si à gauche de l'écran
+    if (_sprite.getPosition().x < 0 + getScaledSize().x / 2)
+    {
+        //remplacer par une force
+        _sprite.setPosition(sf::Vector2f(0 + getScaledSize().x / 2, _sprite.getPosition().y));
+    }
+    //si en bas de l'écran
+    if (_sprite.getPosition().y > _screenSize.y - getScaledSize().y / 2)
+    {
+        //remplacer par une force
+        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x, _screenSize.y - getScaledSize().y / 2));
+    }
+    //si en haut de l'écran
+    if (_sprite.getPosition().y < 0 + getScaledSize().y / 2)
+    {
+        //remplacer par une force
+        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x, 0 + getScaledSize().y / 2));
+    }
+}
+
+void Player::rotate(float angle)
+{
+    _sprite.rotate(sf::degrees(angle));
+}
+
+void Player::progressiveRotate(float targetAngle)
+{
+    const auto& dt = Time::deltaTime();
+
+    float currentAngle = _sprite.getRotation().asDegrees();
+    // pr atteindre le target angle je dois rotate de angle°
+    float angle = targetAngle - currentAngle;
+
+    //normalise entre -180 et 180
+    while (angle > 180.f)
+    {
+        angle -= 360.f;
+    }
+    while (angle < -180.f)
+    {
+        angle += 360.f;
+    }
+
+    float tempRotation = _rotateSpeed * dt;
+    if (angle > 0.f)
+    {
+        if (_rotateSpeed * dt < angle)
+            tempRotation = _rotateSpeed * dt;
+        else
+            tempRotation = angle;
+
+        rotate(tempRotation);
+    }
+    else if (angle < 0.f)
+    {
+        if (_rotateSpeed * dt < -angle)
+            tempRotation = _rotateSpeed * dt;
+        else
+            tempRotation = -angle;
+
+        rotate(-tempRotation);
+    }
+
+    // std::cout << angle << " : " << _rotateSpeed * dt << std::endl;
 }
 
 void Player::update() {
     handleMovement();
     // window.draw(this->_sprite);
+    handleRotation();
+    // std::cout << _targetRotation << std::endl;
+    progressiveRotate(_targetRotation);
 }
 
 void Player::handleMovement() {
@@ -214,4 +289,43 @@ float Player::applyBonusToStat(const float &stat, const EBonusCategory bonusCate
         final_stat = (*it)->getApplyedBonus(final_stat);
     }
     return final_stat;
+}
+
+void Player::handleRotation()
+{
+
+    if (PlayerIsDoingAction(EActionTag::LEFT))
+    {
+        _targetRotation = 180;
+    }
+    else if (PlayerIsDoingAction(EActionTag::RIGHT))
+    {
+        _targetRotation = 0;
+    }
+    if (PlayerIsDoingAction(EActionTag::UP))
+    {
+        // Up key pressed.
+        _targetRotation = 270;
+        if (PlayerIsDoingAction(EActionTag::LEFT))
+        {
+            _targetRotation -= 45.f;
+        }
+        else if (PlayerIsDoingAction(EActionTag::RIGHT))
+        {
+            _targetRotation += 45.f;
+        }
+    }
+    else if (PlayerIsDoingAction(EActionTag::DOWN))
+    {
+        // Down key pressed.
+        _targetRotation = 90;
+        if (PlayerIsDoingAction(EActionTag::LEFT))
+        {
+            _targetRotation += 45.f;
+        }
+        else if (PlayerIsDoingAction(EActionTag::RIGHT))
+        {
+            _targetRotation -= 45.f;
+        }
+    }
 }

@@ -48,6 +48,10 @@ public:
     const sf::Transform getTransform() const override;
 
     void move(const sf::Vector2f &offset);
+        
+        
+        void rotate(float angle);
+        void progressiveRotate(float targetAngle);
 
     explicit operator sf::Sprite() const { return this->_sprite; }
 
@@ -91,10 +95,14 @@ protected:
         {EActionTag::DOWN, {"Aller en bas", {}}},
         {EActionTag::DASH, {"Dash", {}}}
     });
+    
+    float _rotateSpeed = 500.f;
+    sf::FloatRect _bounds;
+    float _targetRotation = 0.f;
 
 private:
     void handleMovement();
-
+    void handleRotation();
     bool PlayerIsDoingAction(EActionTag action_tag) const;
 };
 
