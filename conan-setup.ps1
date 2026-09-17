@@ -1,3 +1,5 @@
+Remove-Item -Recurse -Force out -ErrorAction SilentlyContinue
+
 Remove-Item -Recurse -Force -Path build -ErrorAction SilentlyContinue
 Remove-Item -Recurse -Force -Path out -ErrorAction SilentlyContinue
 
