@@ -1,0 +1,7 @@
+﻿touches:
+  UP: 73
+  LEFT: 71
+  RIGHT: 72
+  DOWN: 74
+
+  DASH: 27

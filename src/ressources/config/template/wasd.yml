@@ -1,0 +1,7 @@
+﻿touches:
+  UP: 25
+  LEFT: 16
+  RIGHT: 3
+  DOWN: 18
+
+  DASH: A

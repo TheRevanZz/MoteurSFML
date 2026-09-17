@@ -1,10 +1,12 @@
-#ifndef GAMEWINDOW_H
-#define GAMEWINDOW_H
+#pragma once
+
 
 #include <SFML/Graphics.hpp>
 #include <string>
+#include "CollisionSystem/CollisionSystem.h"
 
 
+class IGameComponent;
 using WorldPoint = sf::Vector2f;
 using ScreenPoint = sf::Vector2i;
 
@@ -33,9 +35,14 @@ class GameWindow
         sf::RenderWindow _window;
 
         std::shared_ptr<Player> _player;
+        std::shared_ptr<Player> _player2;
+    
+        CollisionSystem _collisionSystem;
         sf::Texture _texture;
-        
+
         sf::Clock _clock;
+
+        std::vector<std::shared_ptr<IGameComponent>> _components = {};
 
         void processEvents();
         void render();
@@ -55,5 +62,5 @@ inline WorldPoint GameWindow::toWorldPoint(const ScreenPoint &screenPoint,const 
     };
 }
 
-#endif
+
 
