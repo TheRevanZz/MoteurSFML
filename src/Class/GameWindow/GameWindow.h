@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include "CollisionSystem/CollisionSystem.h"
+#include "StaticEntity/StaticEntity.h"
 
 
 class IGameComponent;
@@ -39,6 +40,10 @@ class GameWindow
     
         CollisionSystem _collisionSystem;
         sf::Texture _texture;
+        sf::Texture _texture2;
+
+        // à réfléchir
+        sf::Texture _asteroidTexture;
 
         sf::Clock _clock;
 

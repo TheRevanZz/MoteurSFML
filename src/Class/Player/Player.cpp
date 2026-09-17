@@ -17,7 +17,7 @@ Player::Player(const sf::Texture &texture, const sf::Vector2u &screenSize)
     : BaseCharacter(texture, 150), _screenSize(screenSize) {
     _id = _count;
     _sprite.setScale({.15f, .15f});
-    _bounds = _sprite.getGlobalBounds();
+    _bounds = _sprite.getLocalBounds();
 
     if (_id == 0) {
         _keymapPath = "ressources/config/keymap1.yml";
@@ -271,7 +271,12 @@ bool Player::ChangeKey(const EActionTag &action_tag, const sf::Keyboard::Key &ne
 
 void Player::Collision(const std::shared_ptr<IGameComponent> &otherComponent) const {
     IGameComponent::Collision(otherComponent);
-    abort();
+    if (std::dynamic_pointer_cast<StaticEntity>(otherComponent))
+    {
+        auto pEntity = std::dynamic_pointer_cast<StaticEntity>(otherComponent);
+        std::cout << "Collision StaticEntity, " << pEntity->getBonus() << std::endl;
+    }
+    // abort();
 }
 
 float Player::applyBonusToStat(const float &stat, const EBonusCategory bonusCategory) const {
