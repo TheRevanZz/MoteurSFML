@@ -1,6 +1,5 @@
 #include "GameWindow/GameWindow.h"
 
-
 int main()
 {
     GameWindow window;
