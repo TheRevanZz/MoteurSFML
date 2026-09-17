@@ -18,16 +18,10 @@ namespace sf {
 class BaseCharacter :
     public IGameComponent,
     public IUpdateable,
-    public IDamageable,
-    public IDestructable
+    public IDamageable
 {
 
 public:
-    BaseCharacter(const sf::Texture& texture, int life);
-
-
-protected:
-    sf::Sprite _sprite;
-    
+    BaseCharacter(const sf::Texture& texture, float life);
 };
 

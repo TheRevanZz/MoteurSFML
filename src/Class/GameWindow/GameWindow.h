@@ -8,11 +8,11 @@
 #include "Entity/Ennemy/EnnemyFactory.h"
 
 
-class IGameComponent;
 using WorldPoint = sf::Vector2f;
 using ScreenPoint = sf::Vector2i;
 
 class Player;
+class EnnemyFactory;
 
 class GameWindow
 {

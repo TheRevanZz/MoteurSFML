@@ -5,9 +5,7 @@
 #pragma once
 
 #include <memory>
-#include <ranges>
 #include <vector>
-#include <SFML/Graphics/RenderWindow.hpp>
 
 #include "IGameComponent/IGameComponent.h"
 
@@ -24,14 +22,16 @@ public:
 
     void update();
     void setComponents(const std::vector<std::shared_ptr<IGameComponent>>& components) { _components = components; }
-    
-protected:
+    void addComponents(const std::vector<std::shared_ptr<IGameComponent>>& components);
 
-    std::vector<std::shared_ptr<IGameComponent>> _components = {};
-    GridT _grids;
 
     void insertInGrid(const std::shared_ptr<IGameComponent>& component);
     [[nodiscard]] std::vector<std::shared_ptr<IGameComponent>> getNearComponents(const std::shared_ptr<IGameComponent>& gameComponent);
     static std::pair<int,int> getCell(const std::shared_ptr<IGameComponent>& component);
     void clearGrid();
+    
+private:
+    std::vector<std::shared_ptr<IGameComponent>> _components = {};
+    
+    GridT _grids;
 };

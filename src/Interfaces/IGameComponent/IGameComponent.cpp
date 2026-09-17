@@ -7,6 +7,11 @@
 
 #include "Debug.h"
 
+IGameComponent::IGameComponent(const sf::Texture& texture)
+    : _sprite(texture)
+{
+}
+
 void IGameComponent::Collision(const std::shared_ptr<IGameComponent>& otherComponent) const
 {
     DEBUG_ONLY(

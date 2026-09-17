@@ -49,10 +49,12 @@ void GameWindow::show(const int width, const int height, const std::string& titl
 
     _components = { _player, _player2, entity };
     _collisionSystem.setComponents(_components);
+    
     _clock.start();
     
     while (_window.isOpen())
     {
+
         processEvents();
         auto time = _clock.restart();
         Time::update(time);

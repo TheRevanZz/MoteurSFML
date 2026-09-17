@@ -4,6 +4,6 @@
 #include "BaseEntity.h"
 
 BaseEntity::BaseEntity(const sf::Texture& texture)
-    : _sprite(texture)
+    : IGameComponent(texture)
 {
 }

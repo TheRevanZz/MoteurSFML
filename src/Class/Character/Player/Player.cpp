@@ -8,6 +8,9 @@
 #include <ryml_std.hpp>
 
 #include "Player.h"
+
+#include <ranges>
+
 #include "Debug.h"
 #include "Game/Utils/Utils.h"
 #include "Game/WindowData/WindowData.h"

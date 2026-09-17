@@ -3,10 +3,10 @@
 //
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <string>
 
 #include "Class/GameWindow/GameWindow.h"
 #include "Other/LockedMap/LockedMap.h"
-#include <string>
 
 #include "Character/BaseCharacter/BaseCharacter.h"
 #include "Character/BonusConsumer/BonusConsumer.h"
@@ -25,16 +25,17 @@ using KeyValue = std::pair<
     std::optional<sf::Keyboard::Key>
 >;
 
-class Player : public BaseCharacter, BonusConsumer {
-
+class Player : public BaseCharacter, BonusConsumer
+{
+    
 public:
     static int _count;
 
-    explicit Player(const sf::Texture &texture);
+    explicit Player(const sf::Texture& texture);
 
-    const sf::Sprite &getSprite() const { return this->_sprite; }
+    const sf::Sprite& getSprite() const { return this->_sprite; }
 
-    void setPosition(const WorldPoint &newPosition);
+    void setPosition(const WorldPoint& newPosition);
 
     sf::Vector2f getSize() const { return this->_sprite.getLocalBounds().size; }
 
@@ -44,11 +45,11 @@ public:
     const sf::FloatRect getBounds() const override { return this->_sprite.getGlobalBounds(); }
     const sf::Transform getTransform() const override;
 
-    void move(const sf::Vector2f &offset);
-        
-        
-        void rotate(float angle);
-        void progressiveRotate(float targetAngle);
+    void move(const sf::Vector2f& offset);
+
+
+    void rotate(float angle);
+    void progressiveRotate(float targetAngle);
 
     explicit operator sf::Sprite() const { return this->_sprite; }
 
@@ -57,7 +58,7 @@ public:
     const sf::Drawable& getDrawable() const override { return this->_sprite; }
 
     [[nodiscard("Il faut vérifier si l'opération a réussi")]]
-    bool LoadKeymap(const std::string &keymapPath);
+    bool LoadKeymap(const std::string& keymapPath);
 
     /**
      * Méthode permettant de changer les touches du joueur
@@ -68,17 +69,18 @@ public:
     [[nodiscard("Il faut vérifier si l'opération a réussi")]]
     bool ChangeKey(const EActionTag& action_tag, const sf::Keyboard::Key& new_key);
 
-    void takeDamage(const int &damage) override { this->_life -= damage; }
-    bool IsDead() const override { return this->_life <= 0; }
-    void Destruct() override {}
+    void takeDamage(const float& damage) override { this->_life -= damage; }
 
-    void Collision(const std::shared_ptr<IGameComponent> &otherComponent) const override;
+    void Destruct() override
+    {
+    }
+
+    void Collision(const std::shared_ptr<IGameComponent>& otherComponent) const override;
 
 private:
     float applyBonusToStat(const float& stat, EBonusCategory bonusCategory) const;
 
 protected:
-
     WorldPoint _position;
     sf::Vector2u _screenSize;
     float _speed = 160.f; //pixel par seconde;
@@ -88,13 +90,15 @@ protected:
     LockedMap<EActionTag, KeyValue> keymap = LockedMap<EActionTag, KeyValue>({
         {EActionTag::RIGHT, {"Aller à droite", {}}},
         {EActionTag::LEFT, {"Aller à gauche", {}}},
-        {EActionTag::UP,{"Aller en haut", {}}},
+        {EActionTag::UP, {"Aller en haut", {}}},
         {EActionTag::DOWN, {"Aller en bas", {}}},
         {EActionTag::DASH, {"Dash", {}}}
     });
-    
+
     float _rotateSpeed = 500.f;
     float _targetRotation = 0.f;
+    
+    std::array<sf::Texture, 4> _textures;
 
 private:
     void handleMovement();

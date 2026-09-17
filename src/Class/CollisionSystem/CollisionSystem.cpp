@@ -88,10 +88,14 @@ void CollisionSystem::update()
     }
 }
 
+void CollisionSystem::addComponents(const std::vector<std::shared_ptr<IGameComponent>>& components)
+{
+    _components.insert(_components.end(), components.begin(), components.end());
+}
+
 void CollisionSystem::insertInGrid(const std::shared_ptr<IGameComponent>& component)
 {
     auto [x,y] = getCell(component);
-
     this->_grids[x][y].push_back(component);
 }
 

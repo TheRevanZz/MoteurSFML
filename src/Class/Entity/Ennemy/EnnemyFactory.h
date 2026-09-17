@@ -1,19 +1,20 @@
 ﻿#pragma once
-#include <memory>
-#include <vector>
 
+#include <vector>
 #include "Ennemy.h"
 
 class EnnemyFactory
 {
-    using ennemiesList = std::vector<std::unique_ptr<Ennemy>>;
-    
-    ennemiesList _ennemies;
+    std::vector<std::shared_ptr<Ennemy>> _ennemies;
     
 public:
     EnnemyFactory();
     
-    const ennemiesList& getEnnemies() const { return _ennemies; }
+    const std::vector<std::shared_ptr<Ennemy>>& getEnnemies() const { return _ennemies; }
+    
+private:
+    
+    std::vector<std::shared_ptr<Ennemy>> _ennemiesTemplate;
 };
 
 
