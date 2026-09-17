@@ -4,8 +4,8 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include "CollisionSystem/CollisionSystem.h"
+#include "Entity/StaticEntity/StaticEntity.h"
 #include "Entity/Ennemy/EnnemyFactory.h"
-#include "StaticEntity/StaticEntity.h"
 
 
 class IGameComponent;
