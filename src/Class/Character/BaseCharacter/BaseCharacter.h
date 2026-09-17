@@ -28,8 +28,6 @@ public:
 
 protected:
     sf::Sprite _sprite;
-
-
-
+    
 };
 

@@ -2,17 +2,14 @@
 // Created by sylvi on 12/09/2026.
 //
 #pragma once
-
-#include <map>
-#include <ranges>
 #include <SFML/Graphics.hpp>
 
 #include "Class/GameWindow/GameWindow.h"
-#include "LockedMap/LockedMap.h"
+#include "Other/LockedMap/LockedMap.h"
 #include <string>
 
-#include "BaseCharacter/BaseCharacter.h"
-#include "BonusConsumer/BonusConsumer.h"
+#include "Character/BaseCharacter/BaseCharacter.h"
+#include "Character/BonusConsumer/BonusConsumer.h"
 #include "Enum/EBonusCategory.h"
 #include "Enum/EKeyTag.h"
 
@@ -33,7 +30,7 @@ class Player : public BaseCharacter, BonusConsumer {
 public:
     static int _count;
 
-    explicit Player(const sf::Texture &texture, const sf::Vector2u &screenSize);
+    explicit Player(const sf::Texture &texture);
 
     const sf::Sprite &getSprite() const { return this->_sprite; }
 
@@ -97,7 +94,6 @@ protected:
     });
     
     float _rotateSpeed = 500.f;
-    sf::FloatRect _bounds;
     float _targetRotation = 0.f;
 
 private:

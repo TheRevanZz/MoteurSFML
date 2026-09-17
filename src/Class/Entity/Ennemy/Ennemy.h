@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "BaseCharacter/BaseCharacter.h"
+#include "Character/BaseCharacter/BaseCharacter.h"
 #include "GameWindow/GameWindow.h"
 
 
