@@ -65,10 +65,9 @@ void Player::move(const sf::Vector2f& offset)
     _sprite.move({ offset.x, -offset.y});
 }
 
-void Player::update(sf::RenderWindow& window)
+void Player::update()
 {
     handleMovement();
-    window.draw(this->_sprite);
 }
 
 void Player::handleMovement()

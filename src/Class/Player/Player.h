@@ -30,7 +30,7 @@ public:
 
     explicit operator sf::Sprite() const { return this->_sprite; }
 
-    void update(sf::RenderWindow& window) override;
+    void update() override;
 
     const sf::Drawable& getDrawable() const override {
         return this->_sprite;
