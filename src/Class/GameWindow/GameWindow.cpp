@@ -1,10 +1,10 @@
 #include "GameWindow.h"
 #include <iostream>
 
-#include "Player/Player.h"
-#include "StaticEntity/StaticEntity.h"
+#include "Character/Player/Player.h"
 #include "Macro/Debug.h"
-#include "Time/Time.h"
+#include "Game/Time/Time.h"
+#include "Game/WindowData/WindowData.h"
 
 
 GameWindow::GameWindow() {
@@ -31,14 +31,16 @@ void GameWindow::show(const int width, const int height, const std::string& titl
 {
     _window.create(sf::VideoMode(sf::Vector2u(width, height)), title);
     _window.setFramerateLimit(60);
+    WindowData::setWindow(&_window);
 
     DirectBonus bonus1 {1.f, EBonusCategory::SPEED, true};
     std::shared_ptr<StaticEntity>entity = std::make_shared<StaticEntity>(_asteroidTexture, _window.getSize(), std::make_shared<DirectBonus>(bonus1) );
-
-    this->_player = std::make_shared<Player>(_texture, _window.getSize());
+    
+    this->_player = std::make_shared<Player>(_texture);
     this->_player->setPosition({ - _player->getScaledSize().x / 2.f, _player->getScaledSize().y / 2.f });
-
-    this->_player2 = std::make_shared<Player>(_texture2, _window.getSize());
+    
+    
+    this->_player2 = std::make_shared<Player>(_texture);
     this->_player2->setPosition({ -100, -100});
     // if (this->_player2->ChangeKey(EActionTag::UP, sf::Keyboard::Key::Num0))
     // {
@@ -86,8 +88,6 @@ void GameWindow::render()
        _window.draw(x_line);
        _window.draw(y_line);
     )
-
-    
     
     for (const auto& component : _components) {
         if (auto* UpdateableCompoent = dynamic_cast<IUpdateable*>(component.get()); UpdateableCompoent != nullptr) {
@@ -101,7 +101,7 @@ void GameWindow::render()
             // bounds.setOutlineThickness(4.f);
             // bounds.setOutlineColor(sf::Color::Red);
             // _window.draw(bounds);
-            //
+
             std::cout << component->getPosition().x << " " << component->getPosition().y << "\n";
         )
     }
