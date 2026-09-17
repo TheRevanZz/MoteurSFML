@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include "CollisionSystem/CollisionSystem.h"
-#include "StaticEntity/StaticEntity.h"
+#include "Entity/StaticEntity/StaticEntity.h"
 
 
 class IGameComponent;

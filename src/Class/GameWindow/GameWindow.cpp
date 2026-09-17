@@ -40,7 +40,7 @@ void GameWindow::show(const int width, const int height, const std::string& titl
     this->_player->setPosition({ - _player->getScaledSize().x / 2.f, _player->getScaledSize().y / 2.f });
     
     
-    this->_player2 = std::make_shared<Player>(_texture);
+    this->_player2 = std::make_shared<Player>(_texture2);
     this->_player2->setPosition({ -100, -100});
     // if (this->_player2->ChangeKey(EActionTag::UP, sf::Keyboard::Key::Num0))
     // {
