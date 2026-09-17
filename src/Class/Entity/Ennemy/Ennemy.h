@@ -11,7 +11,7 @@
 class Ennemy: public BaseCharacter {
 
 public:
-    Ennemy(const sf::Texture& texture, const ScreenPoint& screenSize, int life);
+    Ennemy(const sf::Texture& texture, int life);
 };
 
 

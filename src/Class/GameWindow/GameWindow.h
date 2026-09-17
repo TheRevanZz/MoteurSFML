@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include "CollisionSystem/CollisionSystem.h"
+#include "Entity/Ennemy/EnnemyFactory.h"
 #include "StaticEntity/StaticEntity.h"
 
 
@@ -37,8 +38,9 @@ class GameWindow
 
         std::shared_ptr<Player> _player;
         std::shared_ptr<Player> _player2;
-    
         CollisionSystem _collisionSystem;
+        EnnemyFactory _ennemyFactory;
+    
         sf::Texture _texture;
         sf::Texture _texture2;
 

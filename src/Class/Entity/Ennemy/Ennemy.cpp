@@ -4,7 +4,7 @@
 
 #include "Ennemy.h"
 
-Ennemy::Ennemy(const sf::Texture &texture, const ScreenPoint &screenSize, const int life)
+Ennemy::Ennemy(const sf::Texture &texture, const int life)
     : BaseCharacter(texture, life)
 {
 
