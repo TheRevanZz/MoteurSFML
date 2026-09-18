@@ -4,6 +4,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <string>
+#include <unordered_set>
 
 #include "Class/GameWindow/GameWindow.h"
 #include "Other/LockedMap/LockedMap.h"
@@ -17,12 +18,6 @@
 
 //Description de la touche
 using KeyDisplayName = std::string;
-
-#define PLAYER_TEXTURES \
-    X("ressources/images/player_textures/spaceship_1.png") \
-    X("ressources/images/player_textures/spaceship_2.png") \
-    X("ressources/images/player_textures/spaceship_3.png") \
-    X("ressources/images/player_textures/spaceship_4.png") \
 
 constexpr int PLAYER_LIFE = 150;
 /*
@@ -39,7 +34,8 @@ class Player : public BaseCharacter, BonusConsumer
 public:
     static int _count;
 
-    explicit Player(const char* texture_path);
+    explicit Player(std::vector<const char *> texturesPaths, uint8_t TextureIndex = 0);
+    explicit Player(std::vector<std::string> texturesPaths, uint8_t TextureIndex = 0);
 
     const sf::Sprite& getSprite() const { return this->_sprite; }
 
@@ -85,7 +81,12 @@ public:
         // _sprite.setTexture(*pAssetLoader->getImage("ressources/images/player_textures/spaceship_1.png"));
         // multipleSpriteComponent.changeTexture(0u);
     }
-
+    
+    void ChangeSprite(uint8_t id)
+    {
+        multipleSpriteComponent.ChangeTexture(id);
+    }
+    
     void Collision(const std::shared_ptr<IGameComponent>& otherComponent) const override;
 
 private:
@@ -106,12 +107,7 @@ protected:
         {EActionTag::DASH, {"Dash", {}}}
     });
     
-    const std::array<sf::Texture, 4> textures = {
-        sf::Texture("ressources/images/player_textures/spaceship_1.png"),
-        sf::Texture("ressources/images/player_textures/spaceship_2.png"),
-        sf::Texture("ressources/images/player_textures/spaceship_3.png"),
-        sf::Texture("ressources/images/player_textures/spaceship_4.png"),
-    };
+    std::unordered_set<std::string> textures = {};
 
     float _rotateSpeed = 500.f;
     float _targetRotation = 0.f;

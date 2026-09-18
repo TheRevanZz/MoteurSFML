@@ -7,3 +7,8 @@ BaseEntity::BaseEntity(const sf::Texture& texture)
     : IGameComponent(texture)
 {
 }
+
+BaseEntity::BaseEntity(const char* texturePath)
+    : IGameComponent(texturePath)
+{
+}

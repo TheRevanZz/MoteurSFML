@@ -9,12 +9,17 @@ class MultipleSpriteComponent
 {
     
 protected:
-    sf::Sprite* _sprite;
-    std::unordered_map<int, sf::Texture> _textures = {};
-    uint8_t _spriteIndex = 0u;
+    sf::Sprite* _pSprite;
+    std::unordered_map<int, std::shared_ptr<sf::Texture>> _textures = {};
+    uint8_t _textureIndex = 0u;
     
 public:
-    MultipleSpriteComponent(std::vector<std::string> texturesPaths, sf::Sprite* pSprite);
+    MultipleSpriteComponent(std::vector<const char *> texturesPaths, sf::Sprite* pSprite, uint8_t textureIndex);
+    MultipleSpriteComponent(std::vector<std::string> texturesPaths, sf::Sprite* pSprite, uint8_t textureIndex);
     
-    void changeTexture(uint8_t index);
+    void ChangeTexture(uint8_t index);
+    const std::unordered_map<int, std::shared_ptr<sf::Texture>>& getTextures() const;
+
+private:
+    void Init(const std::vector<std::string>& texturesPaths);
 };

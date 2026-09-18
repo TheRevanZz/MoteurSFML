@@ -12,4 +12,5 @@ class BaseEntity :
 {
 public:
     explicit BaseEntity(const sf::Texture& texture);
+    explicit BaseEntity(const char* texturePath);
 };

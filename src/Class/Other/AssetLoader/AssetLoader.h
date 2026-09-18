@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -9,16 +10,16 @@ namespace sf
 
 class AssetLoader
 {
+    
 public:
     static AssetLoader* getInstance();
-
-    void loadImage(std::string _path);
-    sf::Texture* getImage(std::string _name);
+    
+    std::string loadTexture(const char* _path);
+    std::shared_ptr<sf::Texture> getTexture(const char* texturePath) const;
 
 private:
-    static AssetLoader* pAssetLoader;
-
-    std::unordered_map<std::string, sf::Texture*> images;
+    static AssetLoader* _pAssetLoader;
+    std::unordered_map<std::string, std::shared_ptr<sf::Texture>> _textures;
 	
     AssetLoader() = default;
     ~AssetLoader() = default;

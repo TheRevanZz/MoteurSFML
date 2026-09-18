@@ -17,6 +17,7 @@ public:
     
     IGameComponent(const char* texture_path);
     IGameComponent(sf::Texture texture);
+
     virtual const sf::Vector2f getPosition() const = 0;
     virtual const sf::FloatRect getBounds() const = 0;
     virtual const sf::Transform getTransform() const = 0;

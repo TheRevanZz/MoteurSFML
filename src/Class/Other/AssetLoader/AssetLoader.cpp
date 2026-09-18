@@ -3,27 +3,36 @@
 #include <cassert>
 #include <SFML/Graphics/Texture.hpp>
 
-AssetLoader* AssetLoader::pAssetLoader = nullptr;
+
+AssetLoader* AssetLoader::_pAssetLoader = nullptr;
 
 AssetLoader* AssetLoader::getInstance()
 {
-    if(pAssetLoader == nullptr)
+    if(_pAssetLoader == nullptr)
     {
-        pAssetLoader = new AssetLoader();
+        _pAssetLoader = new AssetLoader();
     }
-    return pAssetLoader;
+    return _pAssetLoader;
 }
 
-void AssetLoader::loadImage(std::string _path)
+
+std::string AssetLoader::loadTexture(const char* _path)
 {
-    auto pTexture = new sf::Texture();
-    bool succeeded = pTexture->loadFromFile(_path);
+    if (_textures.contains(_path))
+        return _path;
+    const auto pTexture = std::make_shared<sf::Texture>();
+    const bool succeeded = pTexture->loadFromFile(_path);
     assert(succeeded && "failed to load file");
-    images[_path] = pTexture;
+    if (!succeeded)
+        return _path;
+    _textures[_path] = pTexture;
+    return _path;
 }
 
-sf::Texture* AssetLoader::getImage(std::string _name)
+std::shared_ptr<sf::Texture> AssetLoader::getTexture(const char* texturePath) const
 {
-    return images[_name];
+    if (!_textures.contains(texturePath))
+        return nullptr;
+    return _textures.at(texturePath);
 }
 

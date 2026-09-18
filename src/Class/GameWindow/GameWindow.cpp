@@ -8,24 +8,11 @@
 #include "Other/AssetLoader/AssetLoader.h"
 
 
-GameWindow::GameWindow() {
-
-    if (!_texture.loadFromFile("ressources/images/player_textures/spaceship_3.png")) {
-        abort();
-    }
-    _texture.setSmooth(true);
-
-    if (!_texture2.loadFromFile("ressources/images/player_textures/spaceship_4.png"))
-    {
-        abort();
-    }
-    _texture2.setSmooth(true);
-
+GameWindow::GameWindow()
+{
+    preLoadTexture();
     if (!_asteroidTexture.loadFromFile("ressources/images/entity_textures/static_entity_0.png"))
-    {
         abort();
-    }
-    _asteroidTexture.setSmooth(true);
 }
 
 void GameWindow::show(const int width, const int height, const std::string& title)
@@ -34,32 +21,36 @@ void GameWindow::show(const int width, const int height, const std::string& titl
     _window.setFramerateLimit(60);
     WindowData::setWindow(&_window);
 
-    DirectBonus bonus1 {1.f, EBonusCategory::SPEED, true};
-    auto entity = std::make_shared<StaticEntity>(_asteroidTexture, _window.getSize(), std::make_shared<DirectBonus>(bonus1) );
-    
-    this->_player = std::make_shared<Player>("ressources/images/player_textures/spaceship_2.png");
-    this->_player->setPosition({ - _player->getScaledSize().x / 2.f, _player->getScaledSize().y / 2.f });
-    auto pAssetLoader = AssetLoader::getInstance();
-    pAssetLoader->loadImage("ressources/images/player_textures/spaceship_1.png");
-    
-    this->_player->Destruct();
-    
-    
-    this->_player2 = std::make_shared<Player>("ressources/images/player_textures/spaceship_3.png");
-    this->_player2->setPosition({ -100, -100});
-    // if (this->_player2->ChangeKey(EActionTag::UP, sf::Keyboard::Key::Num0))
-    // {
-    //
-    // }
+    DirectBonus bonus1{1.f, EBonusCategory::SPEED, true};
+    auto entity = std::make_shared<StaticEntity>(_asteroidTexture, _window.getSize(),
+                                                 std::make_shared<DirectBonus>(bonus1));
 
-    _components = { _player, _player2, entity };
+    this->_player = std::make_shared<Player>(
+        std::vector({
+            "ressources/images/player_textures/spaceship_1.png",
+            "ressources/images/player_textures/spaceship_2.png",
+            "ressources/images/player_textures/spaceship_3.png",
+            "ressources/images/player_textures/spaceship_4.png",
+        })
+    );
+    this->_player->setPosition({-_player->getScaledSize().x / 2.f, _player->getScaledSize().y / 2.f});
+    
+    this->_player2 = std::make_shared<Player>(
+        std::vector({
+                "ressources/images/player_textures/spaceship_1.png",
+                "ressources/images/player_textures/spaceship_2.png",
+                "ressources/images/player_textures/spaceship_3.png",
+                "ressources/images/player_textures/spaceship_4.png",
+        }), 1);
+    this->_player2->setPosition({-100, -100});
+
+    _components = {_player, _player2, entity};
     _collisionSystem.setComponents(_components);
-    
+
     _clock.start();
-    
+
     while (_window.isOpen())
     {
-
         processEvents();
         auto time = _clock.restart();
         Time::update(time);
@@ -72,7 +63,7 @@ void GameWindow::processEvents()
 {
     while (const std::optional event = _window.pollEvent())
     {
-        if (event->is<sf::Event::Closed>() ||sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+        if (event->is<sf::Event::Closed>() || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
             _window.close();
     }
 }
@@ -83,21 +74,23 @@ void GameWindow::render()
     _window.clear();
 
     DEBUG_ONLY(
-       sf::RectangleShape x_line({ 10000.f, 2.f});
-       x_line.setFillColor(sf::Color::Red);
-       
-       x_line.setPosition(sf::Vector2f(toScreenPoint(WorldPoint(0, 0), _window.getSize())));
-       sf::RectangleShape y_line({ 10000.f, 2.f});
-       y_line.setPosition(sf::Vector2f(toScreenPoint(WorldPoint(0, 0), _window.getSize())));
-       y_line.rotate(sf::degrees(-90));
-       y_line.setFillColor(sf::Color::Red);
+        sf::RectangleShape x_line({ 10000.f, 2.f});
+        x_line.setFillColor(sf::Color::Red);
 
-       _window.draw(x_line);
-       _window.draw(y_line);
+        x_line.setPosition(sf::Vector2f(toScreenPoint(WorldPoint(0, 0), _window.getSize())));
+        sf::RectangleShape y_line({ 10000.f, 2.f});
+        y_line.setPosition(sf::Vector2f(toScreenPoint(WorldPoint(0, 0), _window.getSize())));
+        y_line.rotate(sf::degrees(-90));
+        y_line.setFillColor(sf::Color::Red);
+
+        _window.draw(x_line);
+        _window.draw(y_line);
     )
-    
-    for (const auto& component : _components) {
-        if (auto* UpdateableCompoent = dynamic_cast<IUpdateable*>(component.get()); UpdateableCompoent != nullptr) {
+
+    for (const auto& component : _components)
+    {
+        if (auto* UpdateableCompoent = dynamic_cast<IUpdateable*>(component.get()); UpdateableCompoent != nullptr)
+        {
             UpdateableCompoent->update();
         }
         _window.draw(component->getDrawable());
@@ -112,9 +105,18 @@ void GameWindow::render()
             std::cout << component->getPosition().x << " " << component->getPosition().y << "\n";
         )
     }
-    
+
 
     _collisionSystem.update();
 
     _window.display();
+}
+
+void GameWindow::preLoadTexture()
+{
+    auto pAssetLoader = AssetLoader::getInstance();
+    pAssetLoader->loadTexture("ressources/images/player_textures/spaceship_1.png");
+    pAssetLoader->loadTexture("ressources/images/player_textures/spaceship_2.png");
+    pAssetLoader->loadTexture("ressources/images/player_textures/spaceship_3.png");
+    pAssetLoader->loadTexture("ressources/images/player_textures/spaceship_4.png");
 }

@@ -9,7 +9,6 @@
 #include <ranges>
 
 
-
 #include "Player.h"
 #include "Debug.h"
 #include "Game/Utils/Utils.h"
@@ -40,20 +39,23 @@ void Player::Init()
     _count++;
 }
 
-Player::Player(const char* texture_path)
-    : BaseCharacter(texture_path, PLAYER_LIFE),
+Player::Player(std::vector<const char *> texturesPaths,uint8_t TextureIndex)
+    : BaseCharacter(texturesPaths[TextureIndex], PLAYER_LIFE),
       _screenSize(WindowData::getScreenSize()),
-      multipleSpriteComponent(
-                              {
-                                texture_path,
-                                #define X(path) path,
-                                      PLAYER_TEXTURES
-                                #undef X
-                              }
-                              , &_sprite)
+      multipleSpriteComponent(texturesPaths, &_sprite,TextureIndex)
 {
     Init();
 }
+
+Player::Player(std::vector<std::string> texturesPaths, uint8_t TextureIndex)
+    : BaseCharacter(texturesPaths[TextureIndex].c_str(), PLAYER_LIFE),
+      _screenSize(WindowData::getScreenSize()),
+      multipleSpriteComponent(texturesPaths, &_sprite, TextureIndex)
+{
+    Init();
+}
+
+
 
 void Player::setPosition(const WorldPoint& newPosition)
 {

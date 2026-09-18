@@ -16,7 +16,7 @@ public:
     static int _count;
 
     StaticEntity(const sf::Texture &texture, const sf::Vector2u &screenSize, std::shared_ptr<BaseBonus> bonus);
-
+    
     const sf::Sprite &getSprite() const { return this->_sprite; };
     const int getId() const { return this->_id; };
 

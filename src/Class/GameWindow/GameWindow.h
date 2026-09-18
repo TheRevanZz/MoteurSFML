@@ -41,9 +41,6 @@ class GameWindow
         CollisionSystem _collisionSystem;
         EnnemyFactory _ennemyFactory;
     
-        sf::Texture _texture;
-        sf::Texture _texture2;
-
         // à réfléchir
         sf::Texture _asteroidTexture;
 
@@ -53,6 +50,8 @@ class GameWindow
 
         void processEvents();
         void render();
+    
+        void preLoadTexture();
 };
 
 inline ScreenPoint GameWindow::toScreenPoint(const WorldPoint &worldPoint,const sf::Vector2u &screenSize) {
