@@ -39,11 +39,19 @@ void GameWindow::show(const int width, const int height, const std::string& titl
     // }
 
     _components = { _player, _player2};
-    _collisionSystem.setComponents(_components);
+    std::cout << "ADDR " << &_components<< " entités\n";
+
+    _collisionSystem.setComponents(&_components);
+
+    std::cout << "ADDR " << &_components<< " entités\n";
 
     _staticEntityFactory.setComponentsList(&_components);
 
+    std::cout << "ADDR " << &_components<< " entités\n";
+
     _staticEntityFactory.createStaticEntity();
+
+    std::cout << "ADDR " << &_components<< " entités\n";
     std::cout << "le component contient " << _components.size() << " entités\n";
 
     _clock.start();

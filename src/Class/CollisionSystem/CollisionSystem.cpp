@@ -61,12 +61,12 @@ void CollisionSystem::update()
 {
     clearGrid();
 
-    for (const auto& component : _components)
+    for (const auto& component : *_components)
     {
         insertInGrid(component);
     }
     
-    for (const auto& component : _components)
+    for (const auto& component : *_components)
     {
         DEBUG_ONLY(
             std::cout << "COMPONENT 1\n";
@@ -77,9 +77,12 @@ void CollisionSystem::update()
             const auto& entity : nearEntities
         )
         {
+            std::cout << "entites proche : " << nearEntities.size() << std::endl;
+
             if (const auto optional_value = entity->getBounds().findIntersection(component->getBounds()); 
                 optional_value.has_value())
             {
+                std::cout << "test 2" << std::endl;
                 entity->Collision(component);
                 component->Collision(entity);
             }
