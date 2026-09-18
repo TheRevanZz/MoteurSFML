@@ -82,6 +82,14 @@ protected:
     WorldPoint _position;
     sf::Vector2u _screenSize;
     float _speed = 160.f; //pixel par seconde;
+    
+    float _velocityX = 0.f;
+    float _velocityY = 0.f;
+    float _mass = 1.f;
+    float _maxSpeed = 300.f;
+    float _friction = 0.95f;
+    float _thrustForce = 300.f;
+    
     int _id = 0;
     std::string _keymapPath = "ressources/config/keymap1.yml";
 

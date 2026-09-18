@@ -139,43 +139,77 @@ void Player::update()
 
 void Player::handleMovement()
 {
-    const auto& dt = Time::deltaTime();
-    auto offset = sf::Vector2f(0, 0);
-    if (
-        PlayerIsDoingAction(EActionTag::LEFT)
-    )
+    const float dt = Time::deltaTime();
+    
+    //calcul forces selon input
+    sf::Vector2f input(0.f, 0.f);
+    if (PlayerIsDoingAction(EActionTag::LEFT))
     {
-        offset.x -= 1;
+        input.x -= 1.f;
     }
     if (PlayerIsDoingAction(EActionTag::RIGHT))
     {
-        offset.x += 1;
+        input.x += 1.f;
     }
     if (PlayerIsDoingAction(EActionTag::UP))
     {
-        // Up key pressed.
-        offset.y += 1;
+        input.y += 1.f;
     }
     if (PlayerIsDoingAction(EActionTag::DOWN))
     {
-        // Down key pressed.
-        offset.y -= 1;
+        input.y -= 1.f;
     }
-
-    DEBUG_ONLY(
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::K)) {
-        std::cout << applyBonusToStat(_speed, EBonusCategory::SPEED) << "\n";
-        std::cout << _speed << "\n";
-        }
-    )
-
-    if (offset.length() > 0)
+    
+    // calcul forces
+    float forceX = 0.f;
+    float forceY = 0.f;
+    
+    if (input.length() > 0.f)
     {
-        //Le vecteur est normalisé comme ça la valeur de length est toujours égal a 1, donc les déplacements sont toujours de même vitesse
-        // même en diagonale
-        offset = offset.normalized();
-        move(offset * applyBonusToStat(_speed, EBonusCategory::SPEED) * dt);
+        input = input.normalized();
+        
+        // application de la force dans la direction indiquee par le joueur
+        forceX = input.x * _thrustForce;
+        forceY = input.y * _thrustForce;
     }
+    
+    // euler velocity: v_{n+1} = v_n + (F/m) * dt
+    
+    // acceleration: a = F / m
+    float accelerationX = forceX / _mass;
+    float accelerationY = forceY / _mass;
+    
+    // update velocity
+    _velocityX += accelerationX * dt;
+    _velocityY += accelerationY * dt;
+    
+    // deceleration
+    // approximation discrète : v(n+1) = friction * v(n)
+    // cela simule une diminution exponentielle de la vitesse
+    if (input.length() == 0.f)
+    {
+        _velocityX *= _friction;
+        _velocityY *= _friction;
+    }
+    
+    // limitation de la vitesse maximale
+    float speed = std::sqrt(_velocityX * _velocityX + _velocityY * _velocityY);
+
+    float maxSpeed = applyBonusToStat(_maxSpeed, EBonusCategory::SPEED);
+
+    if (speed > maxSpeed)
+    {
+        float scale = maxSpeed / speed;
+        _velocityX *= scale;
+        _velocityY *= scale;
+    }
+    
+    // methode d'Euler pour calculer la position :
+    // x(n+1) = x(n) + v(n) * dt
+    // cela correspond à l'approximation discrète de dx/dt = v
+    sf::Vector2f displacement(_velocityX * dt, _velocityY * dt);
+    move(displacement);
+    
 }
 
 
@@ -356,4 +390,5 @@ void Player::handleRotation()
             _targetRotation -= 45.f;
         }
     }
+    std::cout << "rotation : " << _targetRotation << std::endl;
 }
