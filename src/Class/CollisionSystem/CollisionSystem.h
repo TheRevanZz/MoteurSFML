@@ -11,6 +11,8 @@
 
 #include "IGameComponent/IGameComponent.h"
 
+using ComponentsList = std::vector<std::shared_ptr<IGameComponent>>;
+
 constexpr int CELL_SIZE = 300;
 constexpr int GRID_INIT_SIZE = 15;
 
@@ -23,11 +25,12 @@ public:
     explicit CollisionSystem();
 
     void update();
-    void setComponents(const std::vector<std::shared_ptr<IGameComponent>>& components) { _components = components; }
+    void setComponents(ComponentsList* components) {_components = components;};
+    std::shared_ptr<std::vector<std::shared_ptr<IGameComponent>>> getComponents() { return std::make_shared<std::vector<std::shared_ptr<IGameComponent>>>(*_components); };
     
 protected:
 
-    std::vector<std::shared_ptr<IGameComponent>> _components = {};
+    ComponentsList* _components;
     GridT _grids;
 
     void insertInGrid(const std::shared_ptr<IGameComponent>& component);

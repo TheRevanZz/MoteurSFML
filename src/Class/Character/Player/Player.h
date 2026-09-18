@@ -25,10 +25,12 @@ using KeyValue = std::pair<
     std::optional<sf::Keyboard::Key>
 >;
 
-class Player : public BaseCharacter, BonusConsumer {
+class Player : public BaseCharacter, public BonusConsumer {
 
 public:
     static int _count;
+
+    int getId() const { return this->_id; }
 
     explicit Player(const sf::Texture &texture);
 
@@ -72,7 +74,7 @@ public:
     bool IsDead() const override { return this->_life <= 0; }
     void Destruct() override {}
 
-    void Collision(const std::shared_ptr<IGameComponent> &otherComponent) const override;
+    void Collision(const std::shared_ptr<IGameComponent> &otherComponent) override;
 
 private:
     float applyBonusToStat(const float& stat, EBonusCategory bonusCategory) const;

@@ -16,7 +16,7 @@ public:
     virtual const sf::FloatRect getBounds() const = 0;
     virtual const sf::Transform getTransform() const = 0;
 
-    virtual void Collision(const std::shared_ptr<IGameComponent>& otherComponent) const;
+    virtual void Collision(const std::shared_ptr<IGameComponent>& otherComponent);
 };
 
 
