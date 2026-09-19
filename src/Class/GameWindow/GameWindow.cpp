@@ -83,9 +83,9 @@ void GameWindow::Render()
         sf::RectangleShape x_line({ 10000.f, 2.f});
         x_line.setFillColor(sf::Color::Red);
 
-        x_line.setPosition(sf::Vector2f(toScreenPoint(WorldPoint(0, 0), _window.getSize())));
+        x_line.setPosition(sf::Vector2f(CoordinateSystem::ToScreenPoint({0,0})));
         sf::RectangleShape y_line({ 10000.f, 2.f});
-        y_line.setPosition(sf::Vector2f(toScreenPoint(WorldPoint(0, 0), _window.getSize())));
+        y_line.setPosition(sf::Vector2f(CoordinateSystem::ToScreenPoint({0,0})));
         y_line.rotate(sf::degrees(-90));
         y_line.setFillColor(sf::Color::Red);
 

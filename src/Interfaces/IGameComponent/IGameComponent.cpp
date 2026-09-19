@@ -3,7 +3,12 @@
 //
 
 #include "IGameComponent.h"
+
 #include "Debug.h"
+
+#ifndef NDEBUG
+    #include <iostream>
+#endif
 
 IGameComponent::IGameComponent(const char* texture_path)
     : _mainTexture(texture_path), _sprite(_mainTexture)
