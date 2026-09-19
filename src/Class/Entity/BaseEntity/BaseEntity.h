@@ -3,16 +3,17 @@
 //
 
 #pragma once
-#include <SFML/Graphics/Sprite.hpp>
-
 #include "IGameComponent/IGameComponent.h"
+
+namespace sf
+{
+    class Texture;
+}
 
 class BaseEntity :
     public IGameComponent
 {
 public:
-    BaseEntity(const sf::Texture& texture);
-
-protected:
-    sf::Sprite _sprite;
+    explicit BaseEntity(const sf::Texture& texture);
+    explicit BaseEntity(const char* texturePath);
 };

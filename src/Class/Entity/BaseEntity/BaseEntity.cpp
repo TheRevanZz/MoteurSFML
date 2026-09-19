@@ -4,6 +4,11 @@
 #include "BaseEntity.h"
 
 BaseEntity::BaseEntity(const sf::Texture& texture)
-    : _sprite(texture)
+    : IGameComponent(texture)
+{
+}
+
+BaseEntity::BaseEntity(const char* texturePath)
+    : IGameComponent(texturePath)
 {
 }

@@ -7,10 +7,21 @@
 #include <iostream>
 #include "Enum/EBonusCategory.h"
 #include "StaticEntity.h"
+#include "Game/Bonus/DirectBonus/DirectBonus.h"
 
-std::shared_ptr<StaticEntity> StaticEntityFactory::createStaticEntity()
+void StaticEntityFactory::SetComponentsList(ComponentsList* components)
 {
-    DirectBonus bonus{1.f, EBonusCategory::SPEED, true};
+    _pComponents = components;
+}
+
+ComponentsList* StaticEntityFactory::GetComponentsList() const
+{
+    return _pComponents;
+}
+
+std::shared_ptr<StaticEntity> StaticEntityFactory::CreateStaticEntity()
+{
+    DirectBonus bonus{-300, EBonusCategory::SPEED, true,3};
 
     if (!_asteroidTexture.loadFromFile("ressources/images/entity_textures/static_entity_0.png"))
     {
@@ -18,21 +29,20 @@ std::shared_ptr<StaticEntity> StaticEntityFactory::createStaticEntity()
     }
     _asteroidTexture.setSmooth(true);
 
-    std::shared_ptr<StaticEntity> entity = std::make_shared<StaticEntity>(_asteroidTexture, std::make_shared<DirectBonus>(bonus), this);
+    auto entity = std::make_shared<StaticEntity>(_asteroidTexture, std::make_shared<DirectBonus>(std::move(bonus)), this);
 
-    _components->push_back(entity);
-
+    _pComponents->push_back(std::move(entity));
 
     return entity;
 }
 
-void StaticEntityFactory::deleteStaticEntity(const StaticEntity* pEntity) const
+void StaticEntityFactory::DeleteStaticEntity(const StaticEntity* pEntity) const
 {
-    for (auto it = _components->cbegin(); it != _components->cend();)
+    for (auto it = _pComponents->cbegin(); it != _pComponents->cend();)
     {
         if (std::dynamic_pointer_cast<StaticEntity>(*it).get() == pEntity)
         {
-            it = _components->erase(it);
+            it = _pComponents->erase(it);
         }
         else
             ++it;
