@@ -19,12 +19,12 @@ const sf::Drawable& Ennemy::getDrawable() const
     return _sprite;
 }
 
-const sf::Vector2f Ennemy::getPosition() const
+const sf::Vector2f Ennemy::GetPosition() const
 {
     return _sprite.getPosition();
 }
 
-const sf::FloatRect Ennemy::getBounds() const
+const sf::FloatRect Ennemy::GetBounds() const
 {
     return _sprite.getGlobalBounds();
 }

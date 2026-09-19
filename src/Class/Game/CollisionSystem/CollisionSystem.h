@@ -4,9 +4,7 @@
 
 #pragma once
 
-#include "GameComponentGrid/GameComponentGrid.h"
-
-
+class GameComponentGrid;
 
 class CollisionSystem {
 

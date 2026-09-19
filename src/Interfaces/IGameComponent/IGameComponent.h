@@ -9,18 +9,20 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Transformable.hpp>
 
+#include "Game/CoordinateSystem/CoordinateSystem.h"
 #include "IDraweable/IDrawable.h"
+
 
 class IGameComponent : public IDrawable {
 
 public:
-    
-    IGameComponent(const char* texture_path);
-    IGameComponent(sf::Texture texture);
+    explicit IGameComponent(const char* texture_path);
+    explicit IGameComponent(sf::Texture texture);
 
-    virtual const sf::Vector2f getPosition() const = 0;
-    virtual const sf::FloatRect getBounds() const = 0;
-    virtual const sf::Transform getTransform() const = 0;
+    virtual const sf::Vector2f GetPosition() const = 0;
+    void SetPosition(const CoordinateSystem::WorldPoint& position);
+    virtual const sf::FloatRect GetBounds() const = 0;
+    virtual const sf::Transform GetTransform() const = 0;
 
     virtual void Collision(const std::shared_ptr<IGameComponent>& otherComponent);
     

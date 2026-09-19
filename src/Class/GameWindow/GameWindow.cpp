@@ -11,57 +11,61 @@
 
 GameWindow::GameWindow()
 {
-    preLoadTexture();
+    PreLoadTexture();
     if (!_asteroidTexture.loadFromFile("ressources/images/entity_textures/static_entity_0.png"))
         abort();
 }
 
-void GameWindow::show(const int width, const int height, const std::string& title)
+void GameWindow::Show(const int width, const int height, const std::string& title)
 {
     _window.create(sf::VideoMode(sf::Vector2u(width, height)), title);
     _window.setFramerateLimit(60);
-    WindowData::setWindow(&_window);
+    WindowData::SetWindow(&_window);
 
-    DirectBonus bonus1{1.f, EBonusCategory::SPEED, true};
-    auto entity = std::make_shared<StaticEntity>(_asteroidTexture, _window.getSize(),
-                                                 std::make_shared<DirectBonus>(bonus1));
-
-    this->_player = std::make_shared<Player>(
-        std::vector({
-            "ressources/images/player_textures/spaceship_1.png",
-            "ressources/images/player_textures/spaceship_2.png",
-            "ressources/images/player_textures/spaceship_3.png",
-            "ressources/images/player_textures/spaceship_4.png",
-        })
-    );
-    this->_player->setPosition({-_player->getScaledSize().x / 2.f, _player->getScaledSize().y / 2.f});
-
+    this->_player = std::make_shared<Player>(std::vector({
+        "ressources/images/player_textures/spaceship_1.png",
+        "ressources/images/player_textures/spaceship_2.png",
+        "ressources/images/player_textures/spaceship_3.png",
+        "ressources/images/player_textures/spaceship_4.png",
+    }));
+    
+    this->_player->SetPosition({-_player->GetScaledSize().x / 2.f, _player->GetScaledSize().y / 2.f});
+    
     this->_player2 = std::make_shared<Player>(
         std::vector({
             "ressources/images/player_textures/spaceship_1.png",
             "ressources/images/player_textures/spaceship_2.png",
             "ressources/images/player_textures/spaceship_3.png",
             "ressources/images/player_textures/spaceship_4.png",
-        }), 1);
-    this->_player2->setPosition({-100, -100});
+        }),2);
+    this->_player2->SetPosition({-100, -100});
+    // if (this->_player2->ChangeKey(EActionTag::UP, sf::Keyboard::Key::Num0))
+    // {
+    //
+    // }
 
-    _components = {_player, _player2, entity};
-    _gameComponentGrid.setComponents(&_components);
+    _components = { _player, _player2 };
 
-    fpsClock.start();
+    _gameComponentGrid.SetComponents(&_components);
 
+    _staticEntityFactory.SetComponentsList(&_components);
+    
+    _staticEntityFactory.CreateStaticEntity();
+    
+    _clock.start();
+    
     while (_window.isOpen())
     {
-        processEvents();
-        auto time = fpsClock.restart();
-        deleteComponentTimer += time.asSeconds();
+        ProcessEvents();
+        auto time = _clock.restart();
+        _deleteComponentTimer += time.asSeconds();
         Time::update(time);
-        _gameComponentGrid.update();
-        render();
+        _gameComponentGrid.Update();
+        Render();
     }
 }
 
-void GameWindow::processEvents()
+void GameWindow::ProcessEvents()
 {
     while (const std::optional event = _window.pollEvent())
     {
@@ -70,7 +74,7 @@ void GameWindow::processEvents()
     }
 }
 
-void GameWindow::render()
+void GameWindow::Render()
 {
     // Clear background with White color.
     _window.clear();
@@ -109,17 +113,18 @@ void GameWindow::render()
     }
 
 
-    if (deleteComponentTimer >= 10.f)
+    if (_deleteComponentTimer >= 10.f)
     {
-        deleteComponentsOutOfWindow();
-        deleteComponentTimer -= 10.f;
+        DeleteComponentsOutOfWindow();
+        _deleteComponentTimer -= 10.f;
     }
     _collisionSystem.compute(_gameComponentGrid);
 
     _window.display();
 }
 
-void GameWindow::preLoadTexture()
+
+void GameWindow::PreLoadTexture()
 {
     auto pAssetLoader = AssetLoader::getInstance();
     pAssetLoader->loadTexture("ressources/images/player_textures/spaceship_1.png");
@@ -128,9 +133,9 @@ void GameWindow::preLoadTexture()
     pAssetLoader->loadTexture("ressources/images/player_textures/spaceship_4.png");
 }
 
-void GameWindow::deleteComponentsOutOfWindow()
+void GameWindow::DeleteComponentsOutOfWindow()
 {
-    const auto& outOfWindowComponent = _gameComponentGrid.getOutOfGridsComponents();
+    const auto& outOfWindowComponent = _gameComponentGrid.GetOutOfGridsComponents();
     
     // std::cout << "NB OUT OF GRID : " << outOfWindowComponent.size();
     if (outOfWindowComponent.empty())

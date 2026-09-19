@@ -5,28 +5,30 @@
 #include "CollisionSystem.h"
 
 #include <iostream> 
-#include <SFML/Graphics/RectangleShape.hpp>
+#include "Game/GameComponentGrid/GameComponentGrid.h"
 #include <IGameComponent/IGameComponent.h>
-#include "Debug.h"
 
 
 
 void CollisionSystem::compute(const GameComponentGrid& _componentsGrid)
 {
-    for (const auto& component : *_componentsGrid.getComponents())
+    for (const auto& component : *_componentsGrid.GetComponents())
     {
         // DEBUG_ONLY(
         //     std::cout << "COMPONENT 1\n";
         // )
 
         for (
-            auto nearEntities = _componentsGrid.getNearComponents(component);
+            auto nearEntities = _componentsGrid.GetNearComponents(component);
             const auto& entity : nearEntities
         )
         {
-            if (const auto optional_value = entity->getBounds().findIntersection(component->getBounds()); 
+            std::cout << "entites proche : " << nearEntities.size() << "\n";
+
+            if (const auto optional_value = entity->GetBounds().findIntersection(component->GetBounds()); 
                 optional_value.has_value())
             {
+                std::cout << "test 2\n";
                 entity->Collision(component);
                 component->Collision(entity);
             }

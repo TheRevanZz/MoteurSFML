@@ -3,8 +3,6 @@
 //
 
 #include "IGameComponent.h"
-#include <iostream>
-
 #include "Debug.h"
 
 IGameComponent::IGameComponent(const char* texture_path)
@@ -15,6 +13,11 @@ IGameComponent::IGameComponent(const char* texture_path)
 IGameComponent::IGameComponent(sf::Texture texture)
     : _mainTexture(std::move(texture)), _sprite(_mainTexture)
 {
+}
+
+void IGameComponent::SetPosition(const CoordinateSystem::WorldPoint& position)
+{
+    _sprite.setPosition(sf::Vector2f(CoordinateSystem::ToScreenPoint(position)));
 }
 
 void IGameComponent::Collision(const std::shared_ptr<IGameComponent>& otherComponent)

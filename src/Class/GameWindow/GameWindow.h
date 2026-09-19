@@ -3,16 +3,14 @@
 
 #include <SFML/Graphics.hpp>
 #include <string>
-#include "CollisionSystem/CollisionSystem.h"
-#include "Entity/StaticEntity/StaticEntity.h"
+
 #include "Entity/Ennemy/EnnemyFactory.h"
-
-
-using WorldPoint = sf::Vector2f;
-using ScreenPoint = sf::Vector2i;
+#include "Entity/StaticEntity/StaticEntityFactory.h"
+#include "Game/CollisionSystem/CollisionSystem.h"
+#include "Game/GameComponentGrid/GameComponentGrid.h"
+#include "Game/WindowData/WindowData.h"
 
 class Player;
-class EnnemyFactory;
 
 class GameWindow
 {
@@ -27,11 +25,7 @@ class GameWindow
         //  * title: window title.
         // Output:
         //  * Nothing.
-        void show(int width, int height, const std::string& title);
-
-        static ScreenPoint toScreenPoint(const WorldPoint& worldPoint, const sf::Vector2u &screenSize);
-
-        static WorldPoint toWorldPoint(const ScreenPoint& screenPoint,const sf::Vector2u &screenSize);
+        void Show(int width, int height, const std::string& title);
 
     private:
         sf::RenderWindow _window;
@@ -45,33 +39,22 @@ class GameWindow
         // à réfléchir
         sf::Texture _asteroidTexture;
 
-        sf::Clock fpsClock;
-        float deleteComponentTimer = 0.0f;
+        float _deleteComponentTimer = 0.0f;
+
+        StaticEntityFactory _staticEntityFactory;
+
+        sf::Clock _clock;
 
         std::vector<std::shared_ptr<IGameComponent>> _components = {};
 
-        void processEvents();
-        void render();
+        void ProcessEvents();
+        void Render();
     
-        void preLoadTexture();
+        void PreLoadTexture();
     
-        void deleteComponentsOutOfWindow();
+        void DeleteComponentsOutOfWindow();
     
 };
-
-inline ScreenPoint GameWindow::toScreenPoint(const WorldPoint &worldPoint,const sf::Vector2u &screenSize) {
-    return {
-        static_cast<int>(screenSize.x / 2) + static_cast<int>(worldPoint.x),
-        static_cast<int>(screenSize.y) - (static_cast<int>(worldPoint.y) + static_cast<int>(screenSize.y / 2))
-    };
-}
-
-inline WorldPoint GameWindow::toWorldPoint(const ScreenPoint &screenPoint,const sf::Vector2u &screenSize) {
-    return {
-        static_cast<float>(screenPoint.x) - static_cast<float>(screenSize.x) / 2.f,
-       static_cast<float>(screenSize.y) / 2.f - static_cast<float>(screenPoint.y)
-    };
-}
 
 
 

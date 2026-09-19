@@ -12,22 +12,22 @@ GameComponentGrid::GameComponentGrid(const int cellSize)
 {
 }
 
-void GameComponentGrid::update()
+void GameComponentGrid::Update()
 {
-    clear();
+    Clear();
     assert(_components != nullptr && "LE COMPONENT NOT INITIALIZED");
     for (const auto& cell : *_components)
     {
-        insert(cell);
+        Insert(cell);
     }
 }
 
-void GameComponentGrid::setComponents(std::vector<std::shared_ptr<IGameComponent>>* components)
+void GameComponentGrid::SetComponents(std::vector<std::shared_ptr<IGameComponent>>* components)
 {
     _components = components;
 }
 
-void GameComponentGrid::clear()
+void GameComponentGrid::Clear()
 {
     _outOfGridsComponents.clear();
     for (auto& column : _grids)
@@ -39,14 +39,14 @@ void GameComponentGrid::clear()
     }
 }
 
-void GameComponentGrid::insert(const std::shared_ptr<IGameComponent>& component)
+void GameComponentGrid::Insert(const std::shared_ptr<IGameComponent>& component)
 {
-    auto [x,y] = getCellPosition(component);
-    if (const auto bounds = component->getBounds();
+    auto [x,y] = GetCellPosition(component);
+    if (const auto bounds = component->GetBounds();
         static_cast<float>(x) < -bounds.size.x ||
         static_cast<float>(y) < -bounds.size.y ||
-        std::cmp_greater(x, WindowData::getScreenSize().x) ||
-        std::cmp_greater(y, WindowData::getScreenSize().y)
+        std::cmp_greater(x, WindowData::GetScreenSize().x) ||
+        std::cmp_greater(y, WindowData::GetScreenSize().y)
     )
     {
         this->_outOfGridsComponents.push_back(component);
@@ -55,10 +55,10 @@ void GameComponentGrid::insert(const std::shared_ptr<IGameComponent>& component)
     this->_grids[x][y].push_back(component);
 }
 
-std::vector<std::shared_ptr<IGameComponent>> GameComponentGrid::getNearComponents(
+std::vector<std::shared_ptr<IGameComponent>> GameComponentGrid::GetNearComponents(
     const std::shared_ptr<IGameComponent>& gameComponent) const
 {
-    auto [x,y] = getCellPosition(gameComponent);
+    auto [x,y] = GetCellPosition(gameComponent);
 
     auto entities = this->_grids[x][y];
 
@@ -66,14 +66,14 @@ std::vector<std::shared_ptr<IGameComponent>> GameComponentGrid::getNearComponent
     {
         const int nx = x + dx;
 
-        if (nx < 0 || nx >= static_cast<int>(_grids.size()))
+        if (nx < 0 || std::cmp_greater_equal(nx, _grids.size()))
             continue;
 
         for (int dy = -1; dy <= 1; ++dy)
         {
             const int ny = y + dy;
 
-            if (ny < 0 || ny >= static_cast<int>(_grids[nx].size()))
+            if (ny < 0 || std::cmp_greater_equal(ny, _grids[nx].size()))
                 continue;
 
             entities.insert(
@@ -92,24 +92,24 @@ std::vector<std::shared_ptr<IGameComponent>> GameComponentGrid::getNearComponent
     return {filteredEntities.begin(), filteredEntities.end()};
 }
 
-std::pair<int, int> GameComponentGrid::getCellPosition(const std::shared_ptr<IGameComponent>& component)
+std::pair<int, int> GameComponentGrid::GetCellPosition(const std::shared_ptr<IGameComponent>& component)
 {
-    const int x = static_cast<int>(component->getPosition().x / CELL_SIZE);
-    const int y = static_cast<int>(component->getPosition().y / CELL_SIZE);
+    const int x = static_cast<int>(component->GetPosition().x / CELL_SIZE);
+    const int y = static_cast<int>(component->GetPosition().y / CELL_SIZE);
     return {x, y};
 }
 
-std::vector<std::shared_ptr<IGameComponent>>* GameComponentGrid::getComponents() const
+std::vector<std::shared_ptr<IGameComponent>>* GameComponentGrid::GetComponents() const
 {
     return _components;
 }
 
-std::vector<std::shared_ptr<IGameComponent>>* GameComponentGrid::getComponents()
+std::vector<std::shared_ptr<IGameComponent>>* GameComponentGrid::GetComponents()
 {
     return _components;
 }
 
-const std::vector<std::shared_ptr<IGameComponent>>& GameComponentGrid::getOutOfGridsComponents() const
+const std::vector<std::shared_ptr<IGameComponent>>& GameComponentGrid::GetOutOfGridsComponents() const
 {
     return _outOfGridsComponents;
 }

@@ -3,4 +3,3 @@ build/
 .idea/
 out/
 CMakeUserPresets.json
-.run/

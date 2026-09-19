@@ -3,9 +3,12 @@
 //
 
 #pragma once
-#include <SFML/Graphics/Sprite.hpp>
-
 #include "IGameComponent/IGameComponent.h"
+
+namespace sf
+{
+    class Texture;
+}
 
 class BaseEntity :
     public IGameComponent

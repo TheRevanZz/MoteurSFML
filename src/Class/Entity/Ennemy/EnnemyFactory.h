@@ -10,7 +10,7 @@ class EnnemyFactory
 public:
     EnnemyFactory();
     
-    const std::vector<std::shared_ptr<Ennemy>>& getEnnemies() const { return _ennemies; }
+    const std::vector<std::shared_ptr<Ennemy>>& GetEnnemies() const { return _ennemies; }
     
 private:
     
