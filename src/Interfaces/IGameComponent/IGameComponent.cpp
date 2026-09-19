@@ -17,7 +17,7 @@ IGameComponent::IGameComponent(sf::Texture texture)
 {
 }
 
-void IGameComponent::Collision(const std::shared_ptr<IGameComponent>& otherComponent) const
+void IGameComponent::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
 {
     DEBUG_ONLY(
         std::cout << "COLLISION\n";    

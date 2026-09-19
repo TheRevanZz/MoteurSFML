@@ -87,7 +87,7 @@ public:
         multipleSpriteComponent.ChangeTexture(id);
     }
     
-    void Collision(const std::shared_ptr<IGameComponent>& otherComponent) const override;
+    void Collision(const std::shared_ptr<IGameComponent>& otherComponent) override;
 
 private:
     float applyBonusToStat(const float& stat, EBonusCategory bonusCategory) const;

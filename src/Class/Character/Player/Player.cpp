@@ -261,7 +261,7 @@ bool Player::ChangeKey(const EActionTag& action_tag, const sf::Keyboard::Key& ne
     return true;
 }
 
-void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent) const
+void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
 {
     IGameComponent::Collision(otherComponent);
     if (std::dynamic_pointer_cast<StaticEntity>(otherComponent))

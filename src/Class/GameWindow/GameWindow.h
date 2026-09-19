@@ -39,12 +39,14 @@ class GameWindow
         std::shared_ptr<Player> _player;
         std::shared_ptr<Player> _player2;
         CollisionSystem _collisionSystem;
+        GameComponentGrid _gameComponentGrid;
         EnnemyFactory _ennemyFactory;
     
         // à réfléchir
         sf::Texture _asteroidTexture;
 
-        sf::Clock _clock;
+        sf::Clock fpsClock;
+        float deleteComponentTimer = 0.0f;
 
         std::vector<std::shared_ptr<IGameComponent>> _components = {};
 
@@ -52,6 +54,9 @@ class GameWindow
         void render();
     
         void preLoadTexture();
+    
+        void deleteComponentsOutOfWindow();
+    
 };
 
 inline ScreenPoint GameWindow::toScreenPoint(const WorldPoint &worldPoint,const sf::Vector2u &screenSize) {

@@ -1,5 +1,6 @@
 #include "GameWindow.h"
 #include <iostream>
+#include <ranges>
 
 #include "Character/Player/Player.h"
 #include "Macro/Debug.h"
@@ -34,27 +35,28 @@ void GameWindow::show(const int width, const int height, const std::string& titl
         })
     );
     this->_player->setPosition({-_player->getScaledSize().x / 2.f, _player->getScaledSize().y / 2.f});
-    
+
     this->_player2 = std::make_shared<Player>(
         std::vector({
-                "ressources/images/player_textures/spaceship_1.png",
-                "ressources/images/player_textures/spaceship_2.png",
-                "ressources/images/player_textures/spaceship_3.png",
-                "ressources/images/player_textures/spaceship_4.png",
+            "ressources/images/player_textures/spaceship_1.png",
+            "ressources/images/player_textures/spaceship_2.png",
+            "ressources/images/player_textures/spaceship_3.png",
+            "ressources/images/player_textures/spaceship_4.png",
         }), 1);
     this->_player2->setPosition({-100, -100});
 
     _components = {_player, _player2, entity};
-    _collisionSystem.setComponents(_components);
+    _gameComponentGrid.setComponents(&_components);
 
-    _clock.start();
+    fpsClock.start();
 
     while (_window.isOpen())
     {
         processEvents();
-        auto time = _clock.restart();
+        auto time = fpsClock.restart();
+        deleteComponentTimer += time.asSeconds();
         Time::update(time);
-        // std::cout << 1 / time.asSeconds() << std::endl;
+        _gameComponentGrid.update();
         render();
     }
 }
@@ -101,13 +103,18 @@ void GameWindow::render()
             // bounds.setOutlineThickness(4.f);
             // bounds.setOutlineColor(sf::Color::Red);
             // _window.draw(bounds);
-
-            std::cout << component->getPosition().x << " " << component->getPosition().y << "\n";
+            //
+            // std::cout << component->getPosition().x << " " << component->getPosition().y << "\n";
         )
     }
 
 
-    _collisionSystem.update();
+    if (deleteComponentTimer >= 10.f)
+    {
+        deleteComponentsOutOfWindow();
+        deleteComponentTimer -= 10.f;
+    }
+    _collisionSystem.compute(_gameComponentGrid);
 
     _window.display();
 }
@@ -119,4 +126,32 @@ void GameWindow::preLoadTexture()
     pAssetLoader->loadTexture("ressources/images/player_textures/spaceship_2.png");
     pAssetLoader->loadTexture("ressources/images/player_textures/spaceship_3.png");
     pAssetLoader->loadTexture("ressources/images/player_textures/spaceship_4.png");
+}
+
+void GameWindow::deleteComponentsOutOfWindow()
+{
+    const auto& outOfWindowComponent = _gameComponentGrid.getOutOfGridsComponents();
+    
+    // std::cout << "NB OUT OF GRID : " << outOfWindowComponent.size();
+    if (outOfWindowComponent.empty())
+        return;
+    
+    for (auto it = _components.begin(); it != _components.end();)
+    {
+        //Si la view n'est pas empty, ça veut dire qu'une correspondance a été trouvé dans outOfWindowComponent par rapport à it.
+        auto IsPresent = outOfWindowComponent | std::ranges::views::filter([it](const std::shared_ptr<IGameComponent>& component)
+        {
+           return component == *it;
+        });
+        
+        if (IsPresent.empty())
+        {
+            ++it;
+        }
+        else
+        {
+            it = _components.erase(it);
+        }
+    }
+    
 }
