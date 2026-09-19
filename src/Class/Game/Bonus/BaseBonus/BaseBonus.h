@@ -3,7 +3,8 @@
 #define BONUS_CONSTRUCTOR_ARGS \
     const float bonus, \
     const EBonusCategory bonusCategory, \
-    const bool cumulable = true
+    const bool cumulable = true, \
+    const float life = 10
 
 #include <SFML/System/Clock.hpp>
 
@@ -17,11 +18,11 @@ public:
 
     explicit BaseBonus(
         BONUS_CONSTRUCTOR_ARGS
-    ) : _bonus(bonus), _cumulable(cumulable), _bonusCategory(bonusCategory) {}
+    ) : _bonus(bonus), _cumulable(cumulable), _bonusCategory(bonusCategory), _life(life) {}
 
     virtual float GetApplyedBonus(float value) const = 0;
 
-    bool BonusIsElapsed() const;
+    bool IsElapsed() const;
     
     void UpdateTimer();
 

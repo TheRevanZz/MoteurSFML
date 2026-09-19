@@ -2,5 +2,5 @@
 
 float DirectBonus::GetApplyedBonus(const float value) const
 {
-    return value + _bonus;
+    return std::max(value + _bonus,0.f);
 }

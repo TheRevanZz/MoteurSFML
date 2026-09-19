@@ -150,6 +150,7 @@ void Player::update()
     HandleMovement();
     HandleRotation();
     ProgressiveRotate(_targetRotation);
+    UpdateBonusesTimers();
 }
 
 void Player::HandleMovement()

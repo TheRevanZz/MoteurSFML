@@ -8,7 +8,6 @@
 #include "Enum/EBonusCategory.h"
 #include "Game/Bonus/PourcentageBonus/PourcentageBonus.h"
 
-
 class BaseBonus;
 
 class BonusConsumer {
@@ -17,8 +16,11 @@ public:
     BonusConsumer() = default;
 
     void AddBonus(const std::shared_ptr<BaseBonus>& bonus);
-
-    void RemoveBonus(const BaseBonus* bonus);
+    
+    void UpdateBonusesTimers();
+    
+private:
+    void RemoveElapsedBonus();
 
     // const auto& getBonuses() const { return _bonuses; }
 

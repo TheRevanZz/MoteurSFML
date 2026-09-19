@@ -5,7 +5,7 @@ class DirectBonus : public BaseBonus {
 
 public:
     explicit DirectBonus(BONUS_CONSTRUCTOR_ARGS)
-        : BaseBonus(bonus, bonusCategory, cumulable) {}
+        : BaseBonus(bonus, bonusCategory, cumulable, life) {}
 
     float GetApplyedBonus(const float value) const override;
 };

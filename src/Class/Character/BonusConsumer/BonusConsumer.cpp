@@ -9,14 +9,24 @@ void BonusConsumer::AddBonus(const std::shared_ptr<BaseBonus>& bonus)
     _bonuses.push_back(bonus);
 }
 
-void BonusConsumer::RemoveBonus(const BaseBonus* bonus)
+void BonusConsumer::UpdateBonusesTimers()
+{
+    for (const auto &bonus : _bonuses)
+        bonus->UpdateTimer();
+    RemoveElapsedBonus();
+}
+
+void BonusConsumer::RemoveElapsedBonus()
 {
     for (auto it = _bonuses.begin(); it != _bonuses.end();)
     {
-        if (it->get() == bonus)
+        if ((*it)->IsElapsed())
         {
             it = _bonuses.erase(it);
         }
-        ++it;
+        else
+        {
+            ++it;
+        }
     }
 }

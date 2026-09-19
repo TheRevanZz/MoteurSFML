@@ -21,7 +21,7 @@ ComponentsList* StaticEntityFactory::GetComponentsList() const
 
 std::shared_ptr<StaticEntity> StaticEntityFactory::CreateStaticEntity()
 {
-    DirectBonus bonus{1.f, EBonusCategory::SPEED, true};
+    DirectBonus bonus{-300, EBonusCategory::SPEED, true,3};
 
     if (!_asteroidTexture.loadFromFile("ressources/images/entity_textures/static_entity_0.png"))
     {
