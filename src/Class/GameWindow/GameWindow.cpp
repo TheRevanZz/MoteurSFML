@@ -50,7 +50,7 @@ void GameWindow::Show(const int width, const int height, const std::string& titl
 
     _staticEntityFactory.SetComponentsList(&_components);
     
-    _staticEntityFactory.CreateStaticEntity();
+    // _staticEntityFactory.CreateStaticEntity();
     
     _clock.start();
     
@@ -111,6 +111,7 @@ void GameWindow::Render()
             // std::cout << component->getPosition().x << " " << component->getPosition().y << "\n";
         )
     }
+    _staticEntityFactory.update();
 
 
     if (_deleteComponentTimer >= 10.f)
