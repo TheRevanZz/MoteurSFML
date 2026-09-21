@@ -2,7 +2,7 @@
 
 #include <ranges>
 #include <utility>
-#include <IGameComponent/IGameComponent.h>
+#include <Class/Core/GameObject/IGameComponent/IGameComponent.h>
 
 #include "Game/WindowData/WindowData.h"
 
@@ -42,11 +42,11 @@ void GameComponentGrid::Clear()
 void GameComponentGrid::Insert(const std::shared_ptr<IGameComponent>& component)
 {
     auto [x,y] = GetCellPosition(component);
-    if (const auto bounds = component->GetBounds();
-        static_cast<float>(x) < -bounds.size.x ||
-        static_cast<float>(y) < -bounds.size.y ||
-        std::cmp_greater(x, WindowData::GetScreenSize().x) ||
-        std::cmp_greater(y, WindowData::GetScreenSize().y)
+    if (
+        static_cast<float>(x) < 0 ||
+        static_cast<float>(y) < 0||
+        std::cmp_greater(x, WindowData::GetScreenSize().x / CELL_SIZE) ||
+        std::cmp_greater(y, WindowData::GetScreenSize().y / CELL_SIZE) 
     )
     {
         this->_outOfGridsComponents.push_back(component);
@@ -60,6 +60,13 @@ std::vector<std::shared_ptr<IGameComponent>> GameComponentGrid::GetNearComponent
 {
     auto [x,y] = GetCellPosition(gameComponent);
 
+    if (static_cast<size_t>(x) >= _grids.size() ||
+        static_cast<size_t>(y) >= _grids[x].size() ||
+        x < 0  || y < 0)
+    {
+        return {};
+    }
+    
     auto entities = this->_grids[x][y];
 
     for (int dx = -1; dx <= 1; ++dx)

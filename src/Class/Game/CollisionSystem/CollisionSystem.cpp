@@ -6,7 +6,7 @@
 
 #include <iostream> 
 #include "Game/GameComponentGrid/GameComponentGrid.h"
-#include <IGameComponent/IGameComponent.h>
+#include <Class/Core/GameObject/IGameComponent/IGameComponent.h>
 
 
 
@@ -23,12 +23,12 @@ void CollisionSystem::compute(const GameComponentGrid& _componentsGrid)
             const auto& entity : nearEntities
         )
         {
-            std::cout << "entites proche : " << nearEntities.size() << "\n";
+            // std::cout << "entites proche : " << nearEntities.size() << "\n";
 
             if (const auto optional_value = entity->GetBounds().findIntersection(component->GetBounds()); 
                 optional_value.has_value())
             {
-                std::cout << "test 2\n";
+                // std::cout << "test 2\n";
                 entity->Collision(component);
                 component->Collision(entity);
             }

@@ -10,10 +10,12 @@
 
 #include "Character/BaseCharacter/BaseCharacter.h"
 #include "Character/BonusConsumer/BonusConsumer.h"
-#include "Component/MultipleSprite/MultipleSpriteComponent.h"
 #include "Enum/EBonusCategory.h"
 #include "Enum/EKeyTag.h"
+#include "IShooter/IShooter.h"
 
+class ShootComponent;
+class MultipleSpriteComponent;
 
 //Description de la touche
 using KeyDisplayName = std::string;
@@ -27,17 +29,15 @@ using KeyValue = std::pair<
     std::optional<sf::Keyboard::Key>
 >;
 
-class Player : public BaseCharacter, public BonusConsumer {
-
+class Player : public BaseCharacter, public BonusConsumer, public IShooter
+{
 public:
     static int _count;
 
-    explicit Player(std::vector<const char *> texturesPaths, uint8_t textureIndex = 0);
+    explicit Player(std::vector<const char*> texturesPaths, uint8_t textureIndex = 0);
     explicit Player(std::vector<std::string> texturesPaths, uint8_t textureIndex = 0);
-    
+
     int GetId() const { return this->_id; }
-    
-    const sf::Sprite& GetSprite() const { return this->_sprite; }
     
     sf::Vector2f GetSize() const { return this->_sprite.getLocalBounds().size; }
 
@@ -48,8 +48,11 @@ public:
     const sf::Transform GetTransform() const override;
 
     void Move(const sf::Vector2f& offset);
+    
+    CoordinateSystem::WorldPoint GetBulletStartPosition() const override;
 
 
+    void Shoot();
     void Rotate(float angle);
     void ProgressiveRotate(float targetAngle);
 
@@ -73,14 +76,16 @@ public:
 
     void takeDamage(const float& damage) override { this->_life -= damage; }
 
-    void Collision(const std::shared_ptr<IGameComponent> &otherComponent) override;
+    void Collision(const std::shared_ptr<IGameComponent>& otherComponent) override;
+
     void Destruct() override
     {
+        // _pMultipleSpriteComponent->ChangeTexture(3);
         // auto pAssetLoader = AssetLoader::getInstance();
         // _sprite.setTexture(*pAssetLoader->getImage("ressources/images/player_textures/spaceship_1.png"));
         // multipleSpriteComponent.changeTexture(0u);
     }
-    
+
     void ChangeSprite(uint8_t id);
 
 private:
@@ -91,14 +96,14 @@ protected:
     CoordinateSystem::WorldPoint _position;
     sf::Vector2u _screenSize;
     float _speed = 160.f; //pixel par seconde;
-    
+
     float _velocityX = 0.f;
     float _velocityY = 0.f;
     float _mass = 1.f;
     float _maxSpeed = 300.f;
     float _friction = 0.95f;
     float _thrustForce = 300.f;
-    
+
     int _id = 0;
     std::string _keymapPath = "ressources/config/keymap1.yml";
 
@@ -107,13 +112,15 @@ protected:
         {EActionTag::LEFT, {"Aller à gauche", {}}},
         {EActionTag::UP, {"Aller en haut", {}}},
         {EActionTag::DOWN, {"Aller en bas", {}}},
-        {EActionTag::DASH, {"Dash", {}}}
+        {EActionTag::DASH, {"Dash", {}}},
+        {EActionTag::SHOOT, {"Tirer", {}}}
     });
-    
+
     float _rotateSpeed = 500.f;
     float _targetRotation = 0.f;
-    
-    MultipleSpriteComponent _multipleSpriteComponent;
+
+    std::shared_ptr<MultipleSpriteComponent> _pMultipleSpriteComponent;
+    std::shared_ptr<ShootComponent> _pShootComponent;
 
 private:
     void HandleMovement();

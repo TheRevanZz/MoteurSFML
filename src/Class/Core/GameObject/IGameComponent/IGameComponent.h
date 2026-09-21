@@ -23,6 +23,7 @@ public:
     void SetPosition(const CoordinateSystem::WorldPoint& position);
     virtual const sf::FloatRect GetBounds() const = 0;
     virtual const sf::Transform GetTransform() const = 0;
+    const sf::Sprite& GetSprite() const;
 
     virtual void Collision(const std::shared_ptr<IGameComponent>& otherComponent);
     
