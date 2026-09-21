@@ -99,10 +99,21 @@ protected:
     float _friction = 0.90f;
     float _thrustForce = 500.f;
     
+    float _dashForce = 2500.f;
+    float _dashDuration = 0.25f;
+    float _dashTimer = 0.f;
+    float _dashMaxSpeed = 700.f;
+
+    sf::Vector2f _dashDirection{0.f, 0.f};
+
+    bool _isDashing = false;
+    bool _canDash = true;
+    
     int _id = 0;
     std::string _keymapPath = "ressources/config/keymap1.yml";
 
     LockedMap<EActionTag, KeyValue> _keymap = LockedMap<EActionTag, KeyValue>({
+        
         {EActionTag::RIGHT, {"Aller à droite", {}}},
         {EActionTag::LEFT, {"Aller à gauche", {}}},
         {EActionTag::UP, {"Aller en haut", {}}},
@@ -117,6 +128,7 @@ protected:
 
 private:
     void HandleMovement();
+    void HandleDash();
     void HandleRotation();
     bool PlayerIsDoingAction(EActionTag action_tag) const;
     void Init();
