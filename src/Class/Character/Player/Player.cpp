@@ -6,16 +6,17 @@
 #include <iostream>
 #include <ryml.hpp>
 #include <ryml_std.hpp>
+#include <ranges>
+
 
 #include "Player.h"
 #include "Debug.h"
+#include "Entity/StaticEntity/StaticEntity.h"
 #include "Game/Utils/Utils.h"
 #include "Game/WindowData/WindowData.h"
 #include "Game/Time/Time.h"
 
-
-Player::Player(const sf::Texture& texture)
-    : BaseCharacter(texture, 150), _screenSize(WindowData::getScreenSize())
+void Player::Init()
 {
     _id = _count;
     _sprite.setScale({.15f, .15f});
@@ -28,20 +29,34 @@ Player::Player(const sf::Texture& texture)
     {
         _keymapPath = "ressources/config/keymap2.yml";
     }
-    assert(LoadKeymap(_keymapPath) == true && ("ERREUR DANS LE CHARGEMENT " + _keymapPath).c_str());
+
+    bool sucessLoading = LoadKeymap(_keymapPath);
+    if (!sucessLoading)
+        abort();
+    // assert( sucessLoading == true && ("ERREUR DANS LE CHARGEMENT " + _keymapPath).c_str());
     // keymap.at("Left").second = sf::Keyboard::Key::Left;
-    
-     _sprite.setOrigin({_sprite.getLocalBounds().size.x / 2.f, _sprite.getLocalBounds().size.y / 2.f});
+
+    _sprite.setOrigin({_sprite.getLocalBounds().size.x / 2.f, _sprite.getLocalBounds().size.y / 2.f});
     _count++;
 }
 
-void Player::setPosition(const WorldPoint& newPosition)
+Player::Player(std::vector<const char*> texturesPaths, const uint8_t textureIndex)
+    : BaseCharacter(texturesPaths[textureIndex], PLAYER_LIFE),
+      _screenSize(WindowData::GetScreenSize()),
+      _multipleSpriteComponent(texturesPaths, &_sprite, textureIndex)
 {
-    _position = newPosition;
-    _sprite.setPosition(sf::Vector2f(GameWindow::toScreenPoint(newPosition, _screenSize)));
+    Init();
 }
 
-sf::Vector2f Player::getScaledSize() const
+Player::Player(std::vector<std::string> texturesPaths, const uint8_t textureIndex)
+    : BaseCharacter(texturesPaths[textureIndex].c_str(), PLAYER_LIFE),
+      _screenSize(WindowData::GetScreenSize()),
+      _multipleSpriteComponent(texturesPaths, &_sprite, textureIndex)
+{
+    Init();
+}
+
+sf::Vector2f Player::GetScaledSize() const
 {
     const auto& scale = this->_sprite.getScale();
     const auto& size = this->_sprite.getLocalBounds().size;
@@ -49,49 +64,49 @@ sf::Vector2f Player::getScaledSize() const
     return {scale.x * size.x, scale.y * size.y};
 }
 
-const sf::Transform Player::getTransform() const
+const sf::Transform Player::GetTransform() const
 {
     return this->_sprite.getTransform();
 }
 
-void Player::move(const sf::Vector2f& offset)
+void Player::Move(const sf::Vector2f& offset)
 {
     //Si offset.length = offset.x c'est équivalent à ce que offset.y soit egal a 0.
     // offset.length c'est Vx**2 + y**2 donc si Vx**2 + y**2 = 0 alors c'est que y = 0 car Vx**2 + 0 = x
     _sprite.move({offset.x, -offset.y});
 
     //si à droite de l'écran
-    if (_sprite.getPosition().x > _screenSize.x - getScaledSize().x / 2)
+    if (_sprite.getPosition().x > _screenSize.x - GetScaledSize().x / 2)
     {
         //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(_screenSize.x - getScaledSize().x / 2, _sprite.getPosition().y));
+        _sprite.setPosition(sf::Vector2f(_screenSize.x - GetScaledSize().x / 2, _sprite.getPosition().y));
     }
     //si à gauche de l'écran
-    if (_sprite.getPosition().x < 0 + getScaledSize().x / 2)
+    if (_sprite.getPosition().x < 0 + GetScaledSize().x / 2)
     {
         //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(0 + getScaledSize().x / 2, _sprite.getPosition().y));
+        _sprite.setPosition(sf::Vector2f(0 + GetScaledSize().x / 2, _sprite.getPosition().y));
     }
     //si en bas de l'écran
-    if (_sprite.getPosition().y > _screenSize.y - getScaledSize().y / 2)
+    if (_sprite.getPosition().y > _screenSize.y - GetScaledSize().y / 2)
     {
         //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x, _screenSize.y - getScaledSize().y / 2));
+        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x, _screenSize.y - GetScaledSize().y / 2));
     }
     //si en haut de l'écran
-    if (_sprite.getPosition().y < 0 + getScaledSize().y / 2)
+    if (_sprite.getPosition().y < 0 + GetScaledSize().y / 2)
     {
         //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x, 0 + getScaledSize().y / 2));
+        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x, 0 + GetScaledSize().y / 2));
     }
 }
 
-void Player::rotate(float angle)
+void Player::Rotate(float angle)
 {
     _sprite.rotate(sf::degrees(angle));
 }
 
-void Player::progressiveRotate(float targetAngle)
+void Player::ProgressiveRotate(float targetAngle)
 {
     const auto& dt = Time::deltaTime();
 
@@ -117,7 +132,7 @@ void Player::progressiveRotate(float targetAngle)
         else
             tempRotation = angle;
 
-        rotate(tempRotation);
+        Rotate(tempRotation);
     }
     else if (angle < 0.f)
     {
@@ -126,21 +141,22 @@ void Player::progressiveRotate(float targetAngle)
         else
             tempRotation = -angle;
 
-        rotate(-tempRotation);
+        Rotate(-tempRotation);
     }
 }
 
 void Player::update()
 {
-    handleMovement();
-    handleRotation();
-    progressiveRotate(_targetRotation);
+    HandleMovement();
+    HandleRotation();
+    ProgressiveRotate(_targetRotation);
+    UpdateBonusesTimers();
 }
 
-void Player::handleMovement()
+void Player::HandleMovement()
 {
     const float dt = Time::deltaTime();
-    
+
     //calcul forces selon input
     sf::Vector2f input(0.f, 0.f);
     if (PlayerIsDoingAction(EActionTag::LEFT))
@@ -159,30 +175,30 @@ void Player::handleMovement()
     {
         input.y -= 1.f;
     }
-    
+
     // calcul forces
     float forceX = 0.f;
     float forceY = 0.f;
-    
+
     if (input.length() > 0.f)
     {
         input = input.normalized();
-        
+
         // application de la force dans la direction indiquee par le joueur
         forceX = input.x * _thrustForce;
         forceY = input.y * _thrustForce;
     }
-    
+
     // euler velocity: v_{n+1} = v_n + (F/m) * dt
-    
+
     // acceleration: a = F / m
     float accelerationX = forceX / _mass;
     float accelerationY = forceY / _mass;
-    
+
     // update velocity
     _velocityX += accelerationX * dt;
     _velocityY += accelerationY * dt;
-    
+
     // deceleration
     // approximation discrète : v(n+1) = friction * v(n)
     // cela simule une diminution exponentielle de la vitesse
@@ -191,36 +207,36 @@ void Player::handleMovement()
         _velocityX *= _friction;
         _velocityY *= _friction;
     }
-    
+
     // limitation de la vitesse maximale
-    float speed = std::sqrt(_velocityX * _velocityX + _velocityY * _velocityY);
+    const float speed = std::sqrt(_velocityX * _velocityX + _velocityY * _velocityY);
 
-    float maxSpeed = applyBonusToStat(_maxSpeed, EBonusCategory::SPEED);
-
-    if (speed > maxSpeed)
+    if (
+        const float maxSpeed = ApplyBonusToStat(_maxSpeed, EBonusCategory::SPEED);
+        speed > maxSpeed
+    )
     {
-        float scale = maxSpeed / speed;
+        const float scale = maxSpeed / speed;
         _velocityX *= scale;
         _velocityY *= scale;
     }
-    
+
     // methode d'Euler pour calculer la position :
     // x(n+1) = x(n) + v(n) * dt
     // cela correspond à l'approximation discrète de dx/dt = v
-    sf::Vector2f displacement(_velocityX * dt, _velocityY * dt);
-    move(displacement);
-    
+    const sf::Vector2f displacement(_velocityX * dt, _velocityY * dt);
+    Move(displacement);
 }
 
 
 bool Player::PlayerIsDoingAction(const EActionTag action_tag) const
 {
-    const auto KeymapValue = keymap.get(action_tag);
-    if (!KeymapValue.has_value())
+    const auto keymapValue = _keymap.get(action_tag);
+    if (!keymapValue.has_value())
         return false;
-    if (!KeymapValue.value().second.has_value())
+    if (!keymapValue.value().second.has_value())
         return false;
-    return sf::Keyboard::isKeyPressed(KeymapValue.value().second.value());
+    return sf::Keyboard::isKeyPressed(keymapValue.value().second.value());
 }
 
 bool Player::LoadKeymap(const std::string& keymapPath)
@@ -251,14 +267,14 @@ bool Player::LoadKeymap(const std::string& keymapPath)
         {
             int KeyCode = std::stoi(Utils::csubtrToString(KeyCodeCSubStr));
 
-            auto OptionalKeymapValue = keymap.get(keyTag.value());
+            auto OptionalKeymapValue = _keymap.get(keyTag.value());
             if (!OptionalKeymapValue.has_value())
                 return false;
 
             auto KeymapValue = OptionalKeymapValue.value();
             KeymapValue.second = static_cast<sf::Keyboard::Key>(KeyCode);
 
-            keymap.update(keyTag.value(), KeymapValue);
+            _keymap.update(keyTag.value(), KeymapValue);
         }
         catch (...)
         {
@@ -276,7 +292,7 @@ bool Player::LoadKeymap(const std::string& keymapPath)
 
 bool Player::ChangeKey(const EActionTag& action_tag, const sf::Keyboard::Key& new_key)
 {
-    auto OptionalValue = keymap.get(action_tag);
+    auto OptionalValue = _keymap.get(action_tag);
     if (!OptionalValue.has_value())
         return false;
 
@@ -284,7 +300,7 @@ bool Player::ChangeKey(const EActionTag& action_tag, const sf::Keyboard::Key& ne
     auto [keyDisplayName, KeyValue] = OptionalValue.value();
     KeyValue = new_key;
 
-    keymap.update(action_tag, {keyDisplayName, KeyValue});
+    _keymap.update(action_tag, {keyDisplayName, KeyValue});
 
     const auto& content = Utils::getFileContent(_keymapPath);
     if (!content.has_value())
@@ -323,38 +339,44 @@ bool Player::ChangeKey(const EActionTag& action_tag, const sf::Keyboard::Key& ne
     return true;
 }
 
-void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent) const
+void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
 {
+    std::cout << "test collision\n";
     IGameComponent::Collision(otherComponent);
     if (std::dynamic_pointer_cast<StaticEntity>(otherComponent))
     {
-        auto pEntity = std::dynamic_pointer_cast<StaticEntity>(otherComponent);
-        std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->getId() + 1 << std::endl;
+        const auto pEntity = std::dynamic_pointer_cast<StaticEntity>(otherComponent);
+        std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->GetId() + 1 << "\n";
     }
     // abort();
 }
 
-float Player::applyBonusToStat(const float& stat, const EBonusCategory bonusCategory) const
+void Player::ChangeSprite(const uint8_t id)
 {
-    auto _targetBonuses = _bonuses | std::views::filter([bonusCategory](const auto& bonus)
+    _multipleSpriteComponent.ChangeTexture(id);
+}
+
+float Player::ApplyBonusToStat(const float& stat, const EBonusCategory bonusCategory) const
+{
+    auto targetBonuses = _bonuses | std::views::filter([bonusCategory](const auto& bonus)
     {
-        return bonus->getBonusCategory() == bonusCategory;
+        return bonus->GetBonusCategory() == bonusCategory;
     });
 
-    if (_targetBonuses.empty())
+    if (targetBonuses.empty())
         return stat;
 
-    float final_stat = (*_targetBonuses.begin())->getApplyedBonus(stat);
-    auto it = _targetBonuses.begin();
+    float final_stat = (*targetBonuses.begin())->GetApplyedBonus(stat);
+    auto it = targetBonuses.begin();
     ++it;
-    for (; it != _targetBonuses.end(); ++it)
+    for (; it != targetBonuses.end(); ++it)
     {
-        final_stat = (*it)->getApplyedBonus(final_stat);
+        final_stat = (*it)->GetApplyedBonus(final_stat);
     }
     return final_stat;
 }
 
-void Player::handleRotation()
+void Player::HandleRotation()
 {
     if (PlayerIsDoingAction(EActionTag::LEFT))
     {
@@ -390,5 +412,5 @@ void Player::handleRotation()
             _targetRotation -= 45.f;
         }
     }
-    std::cout << "rotation : " << _targetRotation << std::endl;
+    std::cout << "rotation : " << _targetRotation << "\n";
 }

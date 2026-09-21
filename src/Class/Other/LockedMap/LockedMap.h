@@ -1,14 +1,14 @@
 ﻿#pragma once
-#include <map>
 #include <optional>
+#include <unordered_map>
 
 template<typename TKey, typename TValue>
 class LockedMap {
     
-    std::map<TKey, TValue> map;
+    std::unordered_map<TKey, TValue> map;
 
 public:
-    explicit LockedMap(const std::map<TKey, TValue> &init_map) : map(init_map) {
+    explicit LockedMap(const std::unordered_map<TKey, TValue> &init_map) : map(init_map) {
     }
 
     void update(const TKey key, const TValue new_val) {

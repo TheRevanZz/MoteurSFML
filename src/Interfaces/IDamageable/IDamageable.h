@@ -3,19 +3,22 @@
 //
 
 #pragma once
+#include "IDestructable/IDestructable.h"
 
 
-
-class IDamageable {
+class IDamageable : public IDestructable
+{
 
 protected:
-    int _life = 50;
-    int _maxLife = 50;
+    float _life = 50;
+    float _maxLife = 50;
 
 public:
-    virtual ~IDamageable() = default;
+    ~IDamageable() override = default;
 
-    virtual void takeDamage(const int& damage) = 0;
+    virtual void takeDamage(const float& damage) = 0;
+    
+    bool IsDead() const final  { return _life <= 0; }
 };
 
 

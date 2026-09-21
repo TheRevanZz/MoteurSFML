@@ -4,7 +4,16 @@
 
 #include "BaseCharacter.h"
 
-BaseCharacter::BaseCharacter(const sf::Texture& texture, const int life) : _sprite(texture) {
+BaseCharacter::BaseCharacter(const sf::Texture& texture, const float life) 
+    : IGameComponent(texture) 
+{
+    _life = life;
+    _maxLife = life;
+}
+
+BaseCharacter::BaseCharacter(const char* texture_path, float life)
+    : IGameComponent(texture_path)
+{
     _life = life;
     _maxLife = life;
 }

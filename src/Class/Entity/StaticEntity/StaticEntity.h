@@ -5,43 +5,50 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include "Entity/BaseEntity/BaseEntity.h"
-#include "Enum/EBonusCategory.h"
-using WorldPoint = sf::Vector2f;
 
+#include "StaticEntityFactory.h"
+#include "Entity/BaseEntity/BaseEntity.h"
+
+class BaseBonus;
+class StaticEntityFactory;
 
 class StaticEntity : public BaseEntity
 {
 public:
     static int _count;
 
-    StaticEntity(const sf::Texture &texture, const sf::Vector2u &screenSize, std::shared_ptr<BaseBonus> bonus);
+    StaticEntity(const sf::Texture &texture, const std::shared_ptr<BaseBonus>& bonus, StaticEntityFactory* factory);
+    StaticEntity(const char* texturePath, std::shared_ptr<BaseBonus> bonus, StaticEntityFactory* factory);
 
-    const sf::Sprite &getSprite() const { return this->_sprite; };
-    const int getId() const { return this->_id; };
+    const sf::Sprite &GetSprite() const { return this->_sprite; }
+    const int GetId() const { return this->_id; }
+    
+    sf::Vector2f GetSize() const { return this->_sprite.getLocalBounds().size; }
 
-    void setPosition(const WorldPoint &newPosition);
+    sf::Vector2f GetScaledSize() const;
 
-    sf::Vector2f getSize() const { return this->_sprite.getLocalBounds().size; };
+    std::shared_ptr<BaseBonus> GetBonus() const { return this->_bonus; }
 
-    sf::Vector2f getScaledSize() const;
-
-    std::shared_ptr<BaseBonus> getBonus() const { return this->_bonusCategory; };
-
-    const sf::Vector2f getPosition() const override { return this->_sprite.getPosition(); };
-    const sf::FloatRect getBounds() const override { return this->_sprite.getGlobalBounds(); };
-    const sf::Transform getTransform() const override { return this->_sprite.getTransform();};
+    const sf::Vector2f GetPosition() const override { return this->_sprite.getPosition(); }
+    const sf::FloatRect GetBounds() const override { return this->_sprite.getGlobalBounds(); }
+    const sf::Transform GetTransform() const override { return this->_sprite.getTransform();}
 
     const sf::Drawable& getDrawable() const override { return this->_sprite; }
 
+    void Collision(const std::shared_ptr<IGameComponent> &otherComponent) override;
 
+    // void setFactory(StaticEntityFactory* pFactory) { _factory = pFactory; }
+
+    void Destroy();
 
 protected:
-    WorldPoint _position;
+    CoordinateSystem::WorldPoint _position;
     sf::Vector2u _screenSize;
     int _id = 0;
 
-    std::shared_ptr<BaseBonus> _bonusCategory;
+    std::shared_ptr<BaseBonus> _bonus;
+
+    StaticEntityFactory* _factory;
 
 };
 

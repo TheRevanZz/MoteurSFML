@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.31.12)
-
 #project(R5A12 LANGUAGES CXX)
-
-
 # Linux: install libsfml-dev package.
 find_package(SFML REQUIRED)
 #COMPONENTS graphics window system)

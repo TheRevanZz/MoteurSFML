@@ -5,13 +5,23 @@
 #pragma once
 
 #include "Character/BaseCharacter/BaseCharacter.h"
-#include "GameWindow/GameWindow.h"
-
 
 class Ennemy: public BaseCharacter {
 
 public:
-    Ennemy(const sf::Texture& texture, const ScreenPoint& screenSize, int life);
+    Ennemy(const sf::Texture& texture, float life);
+    
+    void Destruct() override;
+    
+    const sf::Drawable& getDrawable() const override;
+    const sf::Vector2f GetPosition() const override;
+    const sf::FloatRect GetBounds() const override;
+    const sf::Transform GetTransform() const override { return _sprite.getTransform();}
+    void takeDamage(const float& damage) override {}
+
+
+    void update() override {}
+
 };
 
 
