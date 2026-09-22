@@ -2,41 +2,51 @@
 
 #include "ShootComponent.h"
 #include "Character/BonusConsumer/BonusConsumer.h"
-#include "Core/GameplayData/GameplayData.h"
 #include "Game/Time/Time.h"
 #include "IBonusConsumer/IBonusConsumer.h"
 #include "IBonusGiver/IBonusGiver.h"
 #include "IDamageable/IDamageable.h"
+#include "IDestructable/IDestructable.h"
 
-Bullet::Bullet(sf::Vector2f direction, CoordinateSystem::WorldPoint position, const ShootComponent *shootComponent,
-               IGameComponent *owner)
-    : IGameComponent("ressources/images/aoba.png"), _direction(direction), _shootComponent(shootComponent),
-      _owner(owner) {
-    SetPosition(position);
-    _sprite.setScale({.25f, .1f});
+Bullet::Bullet(sf::Vector2f direction, CoordinateSystem::WorldPoint position, const ShootComponent *shootComponent)
+    : IGameComponent(), _direction(direction), _shootComponent(shootComponent)
+{
+    const auto& size = _shape.getGlobalBounds().size;
+
+    _shape.setOrigin({ 0, size.y /2 });
+    Bullet::SetPosition(position);
+    const auto player = shootComponent->GetParent();
+    _shape.setRotation(player->GetTransformable().getRotation());
+    // _transform.setScale({.25f, .1f});
 }
 
 void Bullet::update() {
     const auto &offset = _direction.normalized() * _speed * Time::deltaTime();
-    _sprite.move(offset);
+    _shape.move(offset);
     _currentDistance += offset.length();
 
     if (_currentDistance > _maxDistance) {
-        _shootComponent->DeleteBullet(this);
+        this->SetMustDie();
     }
 }
 
 void Bullet::Collision(const std::shared_ptr<IGameComponent> &otherComponent) {
+    
+    const auto owner = _shootComponent->GetParent();
+    if (otherComponent.get() == owner)
+        return;
+    
+    
     if (
         const auto &damageable = std::dynamic_pointer_cast<IDamageable>(otherComponent);
         damageable != nullptr
     ) {
-        damageable->takeDamage(20);
+        damageable->TakeDamage(20);
 
-        _shootComponent->DeleteBullet(this);
+        // _shootComponent->DeleteBullet(this);
     }
 
-    if (const auto pBonusConsumer = dynamic_cast<IBonusConsumer*>(_owner)) {
+    if (const auto pBonusConsumer = dynamic_cast<const IBonusConsumer*>(_shootComponent->GetParent()); pBonusConsumer != nullptr) {
         if (const auto &pBonusGiver = std::dynamic_pointer_cast<IBonusGiver>(otherComponent);
             pBonusGiver != nullptr) {
 
@@ -49,20 +59,31 @@ void Bullet::Collision(const std::shared_ptr<IGameComponent> &otherComponent) {
     if (const auto& destructible = std::dynamic_pointer_cast<IDestructable>(otherComponent)) {
         destructible->Destruct();
     }
+    
+    this->SetMustDie();
 }
 
-const sf::Drawable &Bullet::getDrawable() const {
-    return _sprite;
+const sf::Transformable& Bullet::GetTransformable() const
+{
+    return _shape;
 }
 
-const sf::FloatRect Bullet::GetBounds() const {
-    return _sprite.getGlobalBounds();
+sf::Transformable& Bullet::GetTransformable()
+{
+    return _shape;
 }
 
-const sf::Transform Bullet::GetTransform() const {
-    return _sprite.getTransform();
+const sf::FloatRect Bullet::GetBounds() const
+{
+    return _shape.getGlobalBounds();
 }
 
-const sf::Vector2f Bullet::GetPosition() const {
-    return _sprite.getPosition();
+void Bullet::SetPosition(const CoordinateSystem::WorldPoint& position)
+{
+    IGameComponent::SetPosition(position);
+}
+
+const sf::Drawable& Bullet::getDrawable() const
+{
+    return _shape;
 }

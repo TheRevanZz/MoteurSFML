@@ -9,19 +9,3 @@ Ennemy::Ennemy(const sf::Texture &texture, const float life)
 {
 
 }
-
-
-const sf::Drawable& Ennemy::getDrawable() const
-{
-    return _sprite;
-}
-
-const sf::Vector2f Ennemy::GetPosition() const
-{
-    return _sprite.getPosition();
-}
-
-const sf::FloatRect Ennemy::GetBounds() const
-{
-    return _sprite.getGlobalBounds();
-}

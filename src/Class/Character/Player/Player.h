@@ -9,10 +9,16 @@
 #include "Other/LockedMap/LockedMap.h"
 
 #include "Character/BaseCharacter/BaseCharacter.h"
+#include "Core/Animation/Animation.h"
 #include "Enum/EBonusCategory.h"
 #include "Enum/EKeyTag.h"
 #include "IBonusConsumer/IBonusConsumer.h"
 #include "IShooter/IShooter.h"
+
+namespace se3
+{
+    class Animation;
+}
 
 class BonusConsumer;
 class ShootComponent;
@@ -32,6 +38,8 @@ using KeyValue = std::pair<
 
 class Player : public BaseCharacter, public IShooter, public IBonusConsumer
 {
+    using HitAnimation = se3::Animation;
+    
 public:
     static int _count;
 
@@ -39,17 +47,15 @@ public:
     explicit Player(std::vector<std::string> texturesPaths, uint8_t textureIndex = 0);
 
     int GetId() const { return this->_id; }
-    
+
     sf::Vector2f GetSize() const { return this->_sprite.getLocalBounds().size; }
 
     sf::Vector2f GetScaledSize() const;
 
-    const sf::Vector2f GetPosition() const override { return this->_sprite.getPosition(); }
     const sf::FloatRect GetBounds() const override { return this->_sprite.getGlobalBounds(); }
-    const sf::Transform GetTransform() const override;
 
     void Move(const sf::Vector2f& offset);
-    
+
     CoordinateSystem::WorldPoint GetBulletStartPosition() const override;
 
 
@@ -75,7 +81,7 @@ public:
     [[nodiscard("Il faut vérifier si l'opération a réussi")]]
     bool ChangeKey(const EActionTag& action_tag, const sf::Keyboard::Key& new_key);
 
-    void takeDamage(const float& damage) override { this->_life -= damage; }
+    void TakeDamage(const float& damage) override { this->_life -= damage; }
 
     void Collision(const std::shared_ptr<IGameComponent>& otherComponent) override;
 
@@ -88,8 +94,7 @@ public:
     }
 
     void ChangeSprite(uint8_t id);
-    const std::shared_ptr<BonusConsumer> &GetBonusConsumer() const override;
-
+    const std::shared_ptr<BonusConsumer>& GetBonusConsumer() const override;
 
 private:
     float ApplyBonusToStat(const float& stat, EBonusCategory bonusCategory) const;
@@ -126,12 +131,19 @@ protected:
     std::shared_ptr<ShootComponent> _pShootComponent;
     std::shared_ptr<BonusConsumer> _pBonusConsumer;
 
+    bool _isBeingHit = false;
+    HitAnimation _hitAnimation;
+    
+
+    void ChangeSpriteColor(sf::Color newColor);
 
 private:
     void HandleMovement();
     void HandleRotation();
     bool PlayerIsDoingAction(EActionTag action_tag) const;
     void Init();
+    
+    HitAnimation CreateHitAnimation();
 };
 
 inline int Player::_count = 0;

@@ -29,24 +29,16 @@ public:
     sf::Vector2f GetScaledSize() const;
 
     const std::shared_ptr<BaseBonus>& GetBonus() const override { return this->_bonus; }
-
-    const sf::Vector2f GetPosition() const override { return this->_sprite.getPosition(); }
-    const sf::FloatRect GetBounds() const override { return this->_sprite.getGlobalBounds(); }
-    const sf::Transform GetTransform() const override { return this->_sprite.getTransform();}
-
-    const sf::Drawable& getDrawable() const override { return this->_sprite; }
-
+    
     void Collision(const std::shared_ptr<IGameComponent> &otherComponent) override;
 
     // void setFactory(StaticEntityFactory* pFactory) { _factory = pFactory; }
 
 
     void Destruct() override;
-    sf::Vector2f getPosition() {return this->_sprite.getPosition();}
 
 protected:
     CoordinateSystem::WorldPoint _position;
-    sf::Vector2u _screenSize;
     int _id = 0;
 
     std::shared_ptr<BaseBonus> _bonus;

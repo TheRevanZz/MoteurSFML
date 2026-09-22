@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <SFML/Graphics/RectangleShape.hpp>
+
 #include "Core/GameObject/IGameComponent/IGameComponent.h"
 #include "IUpdateable/IUpdateable.h"
 
@@ -7,19 +9,19 @@ class ShootComponent;
 class Bullet : public IGameComponent, public IUpdateable {
 public:
     explicit Bullet(sf::Vector2f direction, CoordinateSystem::WorldPoint position,
-                    const ShootComponent *shootComponent, IGameComponent *owner);
+                    const ShootComponent *shootComponent);
 
     void update() override;
 
     void Collision(const std::shared_ptr<IGameComponent> &otherComponent) override;
-
-    const sf::Drawable &getDrawable() const override;
-
+    
+    const sf::Transformable& GetTransformable() const override;
+    sf::Transformable& GetTransformable() override;
+    
     const sf::FloatRect GetBounds() const override;
-
-    const sf::Transform GetTransform() const override;
-
-    const sf::Vector2f GetPosition() const override;
+    void SetPosition(const CoordinateSystem::WorldPoint& position) override;
+    
+    const sf::Drawable& getDrawable() const override;
 
 protected:
     sf::Vector2f _direction;
@@ -27,6 +29,7 @@ protected:
     float _currentDistance = 0.f;
     float _speed = 200.0f;
 
-    const ShootComponent *_shootComponent;
-    IGameComponent* _owner;
+    const ShootComponent *_shootComponent = nullptr;
+    
+    sf::RectangleShape _shape{{15,5}};
 };

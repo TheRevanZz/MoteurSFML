@@ -3,8 +3,6 @@
 //
 
 #pragma once
-#include "IDestructable/IDestructable.h"
-
 
 class IDamageable
 {
@@ -16,7 +14,7 @@ protected:
 public:
     virtual ~IDamageable() = default;
 
-    virtual void takeDamage(const float& damage) = 0;
+    virtual void TakeDamage(const float& damage) = 0;
     
     bool IsDead() const { return _life <= 0; }
 };

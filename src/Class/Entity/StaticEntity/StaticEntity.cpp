@@ -57,19 +57,19 @@ void StaticEntity::Collision(const std::shared_ptr<IGameComponent>& otherCompone
     BaseEntity::Collision(otherComponent);
     std::cout << "ok y'a une collision la\n";
     if (
-        const auto pBonusConsumer = std::dynamic_pointer_cast<BonusConsumer>(otherComponent);
+        const auto pBonusConsumer = std::dynamic_pointer_cast<IBonusConsumer>(otherComponent);
         pBonusConsumer != nullptr
     )
     {
         std::cout << "Static Entity " << this->_id + 1 << " : Collision avec un bonus consumer\n";
-        pBonusConsumer->AddBonus(_bonus);
+        pBonusConsumer->GetBonusConsumer()->AddBonus(_bonus);
         Destruct();
     }
 }
 
 void StaticEntity::Destruct() {
     // _factory->DeleteStaticEntity(this);
-    setMustDie();
+    SetMustDie();
 }
 
 

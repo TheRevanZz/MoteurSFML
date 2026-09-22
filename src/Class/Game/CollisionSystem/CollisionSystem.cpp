@@ -31,7 +31,7 @@ void CollisionSystem::compute(const GameComponentGrid& _componentsGrid)
         //     std::cout << "COMPONENT 1\n";
         // )
 
-        if ((*it)->getMustDie() == true)
+        if ((*it)->GetMustDie() == true)
             it = _componentsGrid.GetComponents()->erase(it);
         else
         {

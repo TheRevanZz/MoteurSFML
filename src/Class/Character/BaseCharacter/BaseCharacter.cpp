@@ -4,16 +4,38 @@
 
 #include "BaseCharacter.h"
 
-BaseCharacter::BaseCharacter(const sf::Texture& texture, const float life) 
-    : IGameComponent(texture) 
+#include "Other/AssetLoader/AssetLoader.h"
+
+BaseCharacter::BaseCharacter(sf::Texture texture, const float life) 
+    : _mainTexture(std::move(texture)), _sprite(_mainTexture)
 {
     _life = life;
     _maxLife = life;
 }
 
-BaseCharacter::BaseCharacter(const char* texture_path, float life)
-    : IGameComponent(texture_path)
+BaseCharacter::BaseCharacter(const char* texture_path, const float life)
+    : _mainTexture(AssetLoader::LoadAndGetTexture(texture_path)), _sprite(_mainTexture)
 {
     _life = life;
     _maxLife = life;
+}
+
+sf::Transformable& BaseCharacter::GetTransformable()
+{
+    return _sprite;
+}
+
+const sf::Transformable& BaseCharacter::GetTransformable() const
+{
+    return _sprite;
+}
+
+const sf::FloatRect BaseCharacter::GetBounds() const
+{
+    return _sprite.getGlobalBounds();
+}
+
+const sf::Drawable& BaseCharacter::getDrawable() const
+{
+    return _sprite;
 }
