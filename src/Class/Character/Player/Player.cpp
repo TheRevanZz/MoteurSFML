@@ -255,7 +255,7 @@ void Player::HandleDash()
     if (PlayerIsDoingAction(EActionTag::DASH) && _canDash)
     {
         sf::Vector2f direction(0.f, 0.f);
-
+        
         if (PlayerIsDoingAction(EActionTag::LEFT))
             direction.x -= 1.f;
 
