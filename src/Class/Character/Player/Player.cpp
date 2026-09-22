@@ -283,7 +283,7 @@ void Player::HandleMovement()
         _velocityX * dt,
         _velocityY * dt
     );
-
+    
     Move(displacement);
 }
 
@@ -316,10 +316,10 @@ void Player::HandleDash()
             direction.x += 1.f;
 
         if (PlayerIsDoingAction(EActionTag::UP))
-            direction.y += 1.f;
+            direction.y -= 1.f;
 
         if (PlayerIsDoingAction(EActionTag::DOWN))
-            direction.y -= 1.f;
+            direction.y += 1.f;
 
         // Si aucune direction n'est donnée,
         // dash dans la direction vers laquelle regarde le joueur
@@ -329,7 +329,7 @@ void Player::HandleDash()
 
             direction = sf::Vector2f(
                 std::cos(rotation),
-                std::sin(rotation)
+                -std::sin(rotation)
             );
         }
 
