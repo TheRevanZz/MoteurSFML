@@ -25,7 +25,7 @@ void ShootComponent::Shoot()
     if (const auto shooter = dynamic_cast<const IShooter*>(parent); shooter != nullptr)
     {
         auto bullet = std::make_shared<Bullet>(
-            sf::Vector2f(std::cosf(rotation.asRadians()), std::sinf(rotation.asRadians())),
+            sf::Vector2f(std::cos(rotation.asRadians()), std::sin(rotation.asRadians())),
             CoordinateSystem::ToWorldPoint(sf::Vector2i(shooter->GetBulletStartPosition())),
             this
         );
