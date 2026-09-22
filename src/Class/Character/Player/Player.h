@@ -103,6 +103,7 @@ protected:
     float _velocityX = 0.f;
     float _velocityY = 0.f;
     float _mass = 1.f;
+
     float _maxSpeed = 150.f;
     float _friction = 0.90f;
     float _thrustForce = 500.f;
