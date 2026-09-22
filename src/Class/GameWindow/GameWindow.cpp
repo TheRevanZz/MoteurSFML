@@ -3,6 +3,7 @@
 #include <ranges>
 
 #include "Character/Player/Player.h"
+#include "Core/GameplayData/GameplayData.h"
 #include "Macro/Debug.h"
 #include "Game/Time/Time.h"
 #include "Game/WindowData/WindowData.h"
@@ -14,6 +15,7 @@ GameWindow::GameWindow()
     PreLoadTexture();
     if (!_asteroidTexture.loadFromFile("ressources/images/entity_textures/static_entity_0.png"))
         abort();
+    GameplayData::SetComponents(&_components);
 }
 
 void GameWindow::Show(const int width, const int height, const std::string& title)
@@ -39,6 +41,7 @@ void GameWindow::Show(const int width, const int height, const std::string& titl
             "ressources/images/player_textures/spaceship_4.png",
         }),2);
     this->_player2->SetPosition({-100, -100});
+    
     // if (this->_player2->ChangeKey(EActionTag::UP, sf::Keyboard::Key::Num0))
     // {
     //
@@ -71,6 +74,10 @@ void GameWindow::ProcessEvents()
     {
         if (event->is<sf::Event::Closed>() || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
             _window.close();
+        if (event->is<sf::Event::KeyPressed>() && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::C))
+        {
+            _player->Shoot();
+        }
     }
 }
 
@@ -113,11 +120,13 @@ void GameWindow::Render()
     }
 
 
-    if (_deleteComponentTimer >= 10.f)
+    if (_deleteComponentTimer >= 2.f)
     {
         DeleteComponentsOutOfWindow();
-        _deleteComponentTimer -= 10.f;
+        _deleteComponentTimer -= 2.f;
     }
+    
+    std::cout << _components.size() << "\n";
     _collisionSystem.compute(_gameComponentGrid);
 
     _window.display();
@@ -126,11 +135,11 @@ void GameWindow::Render()
 
 void GameWindow::PreLoadTexture()
 {
-    auto pAssetLoader = AssetLoader::getInstance();
-    pAssetLoader->loadTexture("ressources/images/player_textures/spaceship_1.png");
-    pAssetLoader->loadTexture("ressources/images/player_textures/spaceship_2.png");
-    pAssetLoader->loadTexture("ressources/images/player_textures/spaceship_3.png");
-    pAssetLoader->loadTexture("ressources/images/player_textures/spaceship_4.png");
+    auto pAssetLoader = AssetLoader::GetInstance();
+    pAssetLoader->LoadTexture("ressources/images/player_textures/spaceship_1.png");
+    pAssetLoader->LoadTexture("ressources/images/player_textures/spaceship_2.png");
+    pAssetLoader->LoadTexture("ressources/images/player_textures/spaceship_3.png");
+    pAssetLoader->LoadTexture("ressources/images/player_textures/spaceship_4.png");
 }
 
 void GameWindow::DeleteComponentsOutOfWindow()
