@@ -38,6 +38,8 @@ public:
 
     // void setFactory(StaticEntityFactory* pFactory) { _factory = pFactory; }
 
+    sf::Vector2f getPosition() {return this->_sprite.getPosition();}
+
     void Destroy();
 
 protected:

@@ -10,6 +10,7 @@ public:
     
     template<typename T>
     static T toPositif(T value);
+    static float randf(float min, float max);
 };
 
 template <typename T>
