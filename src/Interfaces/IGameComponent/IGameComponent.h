@@ -21,7 +21,7 @@ public:
 
     virtual const sf::Vector2f GetPosition() const = 0;
     void SetPosition(const CoordinateSystem::WorldPoint& position);
-    virtual const sf::FloatRect GetBounds() const = 0;
+    virtual const sf::FloatRect& GetBounds() const;
     virtual const sf::Transform GetTransform() const = 0;
 
     virtual void Collision(const std::shared_ptr<IGameComponent>& otherComponent);
@@ -29,6 +29,7 @@ public:
 protected:
     sf::Texture _mainTexture;
     sf::Sprite _sprite;
+    sf::FloatRect _rect;
 };
 
 

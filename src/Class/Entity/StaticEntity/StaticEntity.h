@@ -30,7 +30,6 @@ public:
     std::shared_ptr<BaseBonus> GetBonus() const { return this->_bonus; }
 
     const sf::Vector2f GetPosition() const override { return this->_sprite.getPosition(); }
-    const sf::FloatRect GetBounds() const override { return this->_sprite.getGlobalBounds(); }
     const sf::Transform GetTransform() const override { return this->_sprite.getTransform();}
 
     const sf::Drawable& getDrawable() const override { return this->_sprite; }

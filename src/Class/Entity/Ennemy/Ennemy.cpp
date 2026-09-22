@@ -7,7 +7,7 @@
 Ennemy::Ennemy(const sf::Texture &texture, const float life)
     : BaseCharacter(texture, life)
 {
-
+    
 }
 
 void Ennemy::Destruct()
@@ -22,9 +22,4 @@ const sf::Drawable& Ennemy::getDrawable() const
 const sf::Vector2f Ennemy::GetPosition() const
 {
     return _sprite.getPosition();
-}
-
-const sf::FloatRect Ennemy::GetBounds() const
-{
-    return _sprite.getGlobalBounds();
 }

@@ -101,14 +101,14 @@ void GameWindow::Render()
         }
         _window.draw(component->getDrawable());
         DEBUG_ONLY(
-            // sf::RectangleShape bounds(sf::Vector2f(component->getBounds().size.x, component->getBounds().size.y));
-            // bounds.setPosition(component->getPosition());
-            // bounds.setFillColor(sf::Color::Transparent);
-            // bounds.setOutlineThickness(4.f);
-            // bounds.setOutlineColor(sf::Color::Red);
-            // _window.draw(bounds);
-            //
-            // std::cout << component->getPosition().x << " " << component->getPosition().y << "\n";
+            sf::RectangleShape bounds(sf::Vector2f(component->GetBounds().size.x, component->GetBounds().size.y));
+            bounds.setPosition(component->GetPosition());
+            bounds.setFillColor(sf::Color::Transparent);
+            bounds.setOutlineThickness(4.f);
+            bounds.setOutlineColor(sf::Color::Red);
+            _window.draw(bounds);
+            
+            std::cout << component->GetPosition().x << " " << component->GetPosition().y << "\n";
         )
     }
 

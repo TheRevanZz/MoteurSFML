@@ -15,7 +15,6 @@ public:
     
     const sf::Drawable& getDrawable() const override;
     const sf::Vector2f GetPosition() const override;
-    const sf::FloatRect GetBounds() const override;
     const sf::Transform GetTransform() const override { return _sprite.getTransform();}
     void takeDamage(const float& damage) override {}
 

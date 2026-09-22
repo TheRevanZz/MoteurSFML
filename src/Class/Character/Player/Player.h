@@ -44,7 +44,6 @@ public:
     sf::Vector2f GetScaledSize() const;
 
     const sf::Vector2f GetPosition() const override { return this->_sprite.getPosition(); }
-    const sf::FloatRect GetBounds() const override { return this->_sprite.getGlobalBounds(); }
     const sf::Transform GetTransform() const override;
 
     void Move(const sf::Vector2f& offset);
