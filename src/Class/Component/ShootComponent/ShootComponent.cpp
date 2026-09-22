@@ -22,11 +22,25 @@ void ShootComponent::Shoot()
         auto bullet = std::make_shared<Bullet>(
             sf::Vector2f(std::cos(rotation.asRadians()), std::sin(rotation.asRadians())),
             CoordinateSystem::ToWorldPoint(sf::Vector2i(shooter->GetBulletStartPosition())),
-            []()
-            {
-                // std::cout << "DESTROYED\n";
-            }
+            this, const_cast<IGameComponent *>(GetParent())
+            
         );
         GameplayData::GetComponents()->push_back(std::move(bullet));
+    }
+}
+
+void ShootComponent::DeleteBullet(const Bullet* bullet) const
+{
+    const auto component = GameplayData::GetComponents();
+    for (auto it = component->begin(); it != component->end();)
+    {
+        if (it->get() == bullet)
+        {
+            it = component->erase(it);
+        }
+        else
+        {
+            ++it;
+        }
     }
 }

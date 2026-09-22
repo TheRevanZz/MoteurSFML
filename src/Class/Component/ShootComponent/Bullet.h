@@ -2,18 +2,23 @@
 #include "Core/GameObject/IGameComponent/IGameComponent.h"
 #include "IUpdateable/IUpdateable.h"
 
-class Bullet : public IGameComponent, public IUpdateable
-{
+class ShootComponent;
+
+class Bullet : public IGameComponent, public IUpdateable {
 public:
-    explicit Bullet(sf::Vector2f direction,CoordinateSystem::WorldPoint position, void (*onDestroy)());
+    explicit Bullet(sf::Vector2f direction, CoordinateSystem::WorldPoint position,
+                    const ShootComponent *shootComponent, IGameComponent *owner);
 
     void update() override;
 
-    void Collision(const std::shared_ptr<IGameComponent>& otherComponent) override;
+    void Collision(const std::shared_ptr<IGameComponent> &otherComponent) override;
 
-    const sf::Drawable& getDrawable() const override;
+    const sf::Drawable &getDrawable() const override;
+
     const sf::FloatRect GetBounds() const override;
+
     const sf::Transform GetTransform() const override;
+
     const sf::Vector2f GetPosition() const override;
 
 protected:
@@ -21,5 +26,7 @@ protected:
     float _maxDistance = 200.0f;
     float _currentDistance = 0.f;
     float _speed = 200.0f;
-    void (*_onDestroy)();
+
+    const ShootComponent *_shootComponent;
+    IGameComponent* _owner;
 };

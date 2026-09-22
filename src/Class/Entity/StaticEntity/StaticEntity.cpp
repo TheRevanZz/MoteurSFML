@@ -54,11 +54,12 @@ void StaticEntity::Collision(const std::shared_ptr<IGameComponent>& otherCompone
     {
         std::cout << "Static Entity " << this->_id + 1 << " : Collision avec un bonus consumer\n";
         pBonusConsumer->AddBonus(_bonus);
-        Destroy();
+        Destruct();
     }
 }
 
-void StaticEntity::Destroy()
-{
+void StaticEntity::Destruct() {
     _factory->DeleteStaticEntity(this);
 }
+
+

@@ -8,11 +8,13 @@
 
 #include "StaticEntityFactory.h"
 #include "Entity/BaseEntity/BaseEntity.h"
+#include "IBonusGiver/IBonusGiver.h"
+#include "IDestructable/IDestructable.h"
 
 class BaseBonus;
 class StaticEntityFactory;
 
-class StaticEntity : public BaseEntity
+class StaticEntity : public BaseEntity, public IBonusGiver, public IDestructable
 {
 public:
     static int _count;
@@ -26,7 +28,7 @@ public:
 
     sf::Vector2f GetScaledSize() const;
 
-    std::shared_ptr<BaseBonus> GetBonus() const { return this->_bonus; }
+    const std::shared_ptr<BaseBonus>& GetBonus() const override { return this->_bonus; }
 
     const sf::Vector2f GetPosition() const override { return this->_sprite.getPosition(); }
     const sf::FloatRect GetBounds() const override { return this->_sprite.getGlobalBounds(); }
@@ -38,7 +40,8 @@ public:
 
     // void setFactory(StaticEntityFactory* pFactory) { _factory = pFactory; }
 
-    void Destroy();
+
+    void Destruct() override;
 
 protected:
     CoordinateSystem::WorldPoint _position;

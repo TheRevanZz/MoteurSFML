@@ -11,8 +11,7 @@ class Ennemy: public BaseCharacter {
 public:
     Ennemy(const sf::Texture& texture, float life);
     
-    void Destruct() override;
-    
+
     const sf::Drawable& getDrawable() const override;
     const sf::Vector2f GetPosition() const override;
     const sf::FloatRect GetBounds() const override;

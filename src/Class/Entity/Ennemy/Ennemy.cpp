@@ -10,9 +10,6 @@ Ennemy::Ennemy(const sf::Texture &texture, const float life)
 
 }
 
-void Ennemy::Destruct()
-{
-}
 
 const sf::Drawable& Ennemy::getDrawable() const
 {

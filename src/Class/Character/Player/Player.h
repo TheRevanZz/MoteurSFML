@@ -9,11 +9,12 @@
 #include "Other/LockedMap/LockedMap.h"
 
 #include "Character/BaseCharacter/BaseCharacter.h"
-#include "Character/BonusConsumer/BonusConsumer.h"
 #include "Enum/EBonusCategory.h"
 #include "Enum/EKeyTag.h"
+#include "IBonusConsumer/IBonusConsumer.h"
 #include "IShooter/IShooter.h"
 
+class BonusConsumer;
 class ShootComponent;
 class MultipleSpriteComponent;
 
@@ -29,7 +30,7 @@ using KeyValue = std::pair<
     std::optional<sf::Keyboard::Key>
 >;
 
-class Player : public BaseCharacter, public BonusConsumer, public IShooter
+class Player : public BaseCharacter, public IShooter, public IBonusConsumer
 {
 public:
     static int _count;
@@ -78,7 +79,7 @@ public:
 
     void Collision(const std::shared_ptr<IGameComponent>& otherComponent) override;
 
-    void Destruct() override
+    void Destruct()
     {
         // _pMultipleSpriteComponent->ChangeTexture(3);
         // auto pAssetLoader = AssetLoader::getInstance();
@@ -87,6 +88,8 @@ public:
     }
 
     void ChangeSprite(uint8_t id);
+    const std::shared_ptr<BonusConsumer> &GetBonusConsumer() const override;
+
 
 private:
     float ApplyBonusToStat(const float& stat, EBonusCategory bonusCategory) const;
@@ -121,6 +124,8 @@ protected:
 
     std::shared_ptr<MultipleSpriteComponent> _pMultipleSpriteComponent;
     std::shared_ptr<ShootComponent> _pShootComponent;
+    std::shared_ptr<BonusConsumer> _pBonusConsumer;
+
 
 private:
     void HandleMovement();

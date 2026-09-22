@@ -6,7 +6,7 @@
 #include "IDestructable/IDestructable.h"
 
 
-class IDamageable : public IDestructable
+class IDamageable
 {
 
 protected:
@@ -14,11 +14,11 @@ protected:
     float _maxLife = 50;
 
 public:
-    ~IDamageable() override = default;
+    virtual ~IDamageable() = default;
 
     virtual void takeDamage(const float& damage) = 0;
     
-    bool IsDead() const final  { return _life <= 0; }
+    bool IsDead() const { return _life <= 0; }
 };
 
 
