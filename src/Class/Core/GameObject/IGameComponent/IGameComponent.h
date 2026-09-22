@@ -26,10 +26,14 @@ public:
     const sf::Sprite& GetSprite() const;
 
     virtual void Collision(const std::shared_ptr<IGameComponent>& otherComponent);
+
+    const bool getMustDie() { return _mustDie; }
+    void setMustDie() { _mustDie = true; }
     
 protected:
     sf::Texture _mainTexture;
     sf::Sprite _sprite;
+    bool _mustDie = false;
 };
 
 

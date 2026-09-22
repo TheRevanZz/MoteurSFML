@@ -42,6 +42,7 @@ public:
 
 
     void Destruct() override;
+    sf::Vector2f getPosition() {return this->_sprite.getPosition();}
 
 protected:
     CoordinateSystem::WorldPoint _position;
