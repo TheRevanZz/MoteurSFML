@@ -5,7 +5,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "IDamageable/IDamageable.h"
-#include "IGameComponent/IGameComponent.h"
+#include "Class/Core/GameObject/IGameComponent/IGameComponent.h"
 #include "IUpdateable/IUpdateable.h"
 
 class BaseBonus;

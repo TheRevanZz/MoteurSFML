@@ -4,6 +4,9 @@
 
 #include "BonusConsumer.h"
 
+#include "Game/Bonus/BaseBonus/BaseBonus.h"
+
+
 void BonusConsumer::AddBonus(const std::shared_ptr<BaseBonus>& bonus)
 {
     _bonuses.push_back(bonus);

@@ -11,10 +11,14 @@
 
 #include "Player.h"
 #include "Debug.h"
-#include "Entity/StaticEntity/StaticEntity.h"
 #include "Game/Utils/Utils.h"
 #include "Game/WindowData/WindowData.h"
 #include "Game/Time/Time.h"
+#include "Class/Component/MultipleSprite/MultipleSpriteComponent.h"
+#include "Class/Component/ShootComponent/ShootComponent.h"
+#include "Entity/StaticEntity/StaticEntity.h"
+#include "Class/Game/Bonus/BaseBonus/BaseBonus.h"
+
 
 void Player::Init()
 {
@@ -43,7 +47,16 @@ void Player::Init()
 Player::Player(std::vector<const char*> texturesPaths, const uint8_t textureIndex)
     : BaseCharacter(texturesPaths[textureIndex], PLAYER_LIFE),
       _screenSize(WindowData::GetScreenSize()),
-      _multipleSpriteComponent(texturesPaths, &_sprite, textureIndex)
+      _pMultipleSpriteComponent(
+          se3::CreateComponent<MultipleSpriteComponent>(
+              this,
+              texturesPaths,
+              &_sprite,
+              textureIndex)
+      ),
+      _pShootComponent(
+          CreateComponent<ShootComponent>(this)
+      )
 {
     Init();
 }
@@ -51,7 +64,17 @@ Player::Player(std::vector<const char*> texturesPaths, const uint8_t textureInde
 Player::Player(std::vector<std::string> texturesPaths, const uint8_t textureIndex)
     : BaseCharacter(texturesPaths[textureIndex].c_str(), PLAYER_LIFE),
       _screenSize(WindowData::GetScreenSize()),
-      _multipleSpriteComponent(texturesPaths, &_sprite, textureIndex)
+      _pMultipleSpriteComponent(
+          se3::CreateComponent<MultipleSpriteComponent>(
+              this,
+              texturesPaths,
+              &_sprite,
+              textureIndex
+          )
+      ),
+      _pShootComponent(
+          CreateComponent<ShootComponent>(this)
+      )
 {
     Init();
 }
@@ -99,6 +122,20 @@ void Player::Move(const sf::Vector2f& offset)
         //remplacer par une force
         _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x, 0 + GetScaledSize().y / 2));
     }
+}
+
+CoordinateSystem::WorldPoint Player::GetBulletStartPosition() const
+{
+    const auto rotation = _sprite.getRotation().asRadians();
+    const auto direction = sf::Vector2f(std::cos(rotation), std::sin(rotation)).normalized();
+    const auto size = _sprite.getGlobalBounds().size;
+    const auto add = sf::Vector2f{size.x * direction.x / 2, size.y * direction.y / 2};
+    return {_sprite.getPosition().x + add.x , _sprite.getPosition().y + add.y};
+}
+
+void Player::Shoot()
+{
+    _pShootComponent->Shoot();
 }
 
 void Player::Rotate(float angle)
@@ -353,7 +390,7 @@ void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
 
 void Player::ChangeSprite(const uint8_t id)
 {
-    _multipleSpriteComponent.ChangeTexture(id);
+    _pMultipleSpriteComponent->ChangeTexture(id);
 }
 
 float Player::ApplyBonusToStat(const float& stat, const EBonusCategory bonusCategory) const
@@ -412,5 +449,5 @@ void Player::HandleRotation()
             _targetRotation -= 45.f;
         }
     }
-    std::cout << "rotation : " << _targetRotation << "\n";
+    // std::cout << "rotation : " << _targetRotation << "\n";
 }

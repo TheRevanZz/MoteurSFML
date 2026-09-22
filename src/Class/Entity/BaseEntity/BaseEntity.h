@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "IGameComponent/IGameComponent.h"
+#include "Class/Core/GameObject/IGameComponent/IGameComponent.h"
 
 namespace sf
 {

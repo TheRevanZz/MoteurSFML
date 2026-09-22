@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -12,10 +13,12 @@ class AssetLoader
 {
     
 public:
-    static AssetLoader* getInstance();
+    static AssetLoader* GetInstance();
     
-    std::string loadTexture(const char* _path);
-    std::shared_ptr<sf::Texture> getTexture(const char* texturePath) const;
+    std::string LoadTexture(const char* _path);
+    
+    static sf::Texture LoadAndGetTexture(const char* path);
+    std::shared_ptr<sf::Texture> GetTexture(const char* texturePath) const;
 
 private:
     static AssetLoader* _pAssetLoader;

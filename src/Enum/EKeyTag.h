@@ -13,7 +13,8 @@
     X(DOWN) \
     X(LEFT) \
     X(RIGHT) \
-    X(DASH)
+    X(DASH) \
+    X(SHOOT)
 
 enum class EActionTag {
     #define X(value) value,
