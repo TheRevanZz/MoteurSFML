@@ -34,7 +34,6 @@ public:
     ComponentsList* GetComponentsList() const;
 
     std::shared_ptr<StaticEntity> CreateStaticEntity();
-    void DeleteStaticEntity(const StaticEntity* pEntity) const;
 
     void update() override;
 

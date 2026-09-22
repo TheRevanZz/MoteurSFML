@@ -18,8 +18,8 @@ StaticEntity::StaticEntity(const sf::Texture& texture, const std::shared_ptr<Bas
                            StaticEntityFactory* factory)
     : BaseEntity(texture), _bonus(bonus), _factory(factory)
 {
-    float xpos = CMath::randf(-(WindowData::GetScreenSize().x / 2), WindowData::GetScreenSize().x / 2);
-    float ypos = CMa::randf(-(WindowData::GetScreethnSize().y / 2), WindowData::GetScreenSize().y / 2);
+    float xpos = CMath::randf(-(static_cast<int>(WindowData::GetScreenSize().x / 2)), static_cast<int>(WindowData::GetScreenSize().x / 2));
+    float ypos = CMath::randf(-(static_cast<int>(WindowData::GetScreenSize().x / 2)), static_cast<int>(WindowData::GetScreenSize().x / 2));
 
     _id = _count;
     _sprite.setScale({.15f, .15f});
@@ -69,5 +69,6 @@ void StaticEntity::Collision(const std::shared_ptr<IGameComponent>& otherCompone
 
 void StaticEntity::Destroy()
 {
-    _factory->DeleteStaticEntity(this);
+    // _factory->DeleteStaticEntity(this);
+    setMustDie();
 }
