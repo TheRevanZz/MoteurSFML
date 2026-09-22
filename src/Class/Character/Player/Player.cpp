@@ -289,10 +289,26 @@ void Player::HandleMovement()
 
 void Player::HandleDash()
 {
-    if (PlayerIsDoingAction(EActionTag::DASH) && _canDash)
+    const float dt = Time::deltaTime();
+
+    // Cooldown du dash
+    if (!_canDash)
+    {
+        _dashTimer -= dt;
+
+        if (_dashTimer <= 0.f)
+        {
+            _dashTimer = 0.f;
+            _canDash = true;
+        }
+
+        return;
+    }
+
+    if (PlayerIsDoingAction(EActionTag::DASH))
     {
         sf::Vector2f direction(0.f, 0.f);
-        
+
         if (PlayerIsDoingAction(EActionTag::LEFT))
             direction.x -= 1.f;
 
@@ -305,13 +321,22 @@ void Player::HandleDash()
         if (PlayerIsDoingAction(EActionTag::DOWN))
             direction.y -= 1.f;
 
-        if (direction.length() > 0.f)
+        // Si aucune direction n'est donnée,
+        // dash dans la direction vers laquelle regarde le joueur
+        if (direction.length() == 0.f)
         {
-            _dashDirection = direction.normalized();
-            _isDashing = true;
-            _canDash = false;
-            _dashTimer = _dashDuration;
+            const float rotation = _sprite.getRotation().asRadians();
+
+            direction = sf::Vector2f(
+                std::cos(rotation),
+                std::sin(rotation)
+            );
         }
+
+        _dashDirection = direction.normalized();
+        _isDashing = true;
+        _canDash = false;
+        _dashTimer = _dashDuration;
     }
 }
 
