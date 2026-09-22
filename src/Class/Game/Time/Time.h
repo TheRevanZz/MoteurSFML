@@ -13,7 +13,6 @@ class Time
         static float deltaTime() { return _deltaTime * _timeSpeed; }
         static void setTimeSpeed(const float& timeSpeed) { _timeSpeed = timeSpeed; }
         static float getFPS() { return 1 / _deltaTime; }
-        static float randf(float min, float max);
 };
 
 inline float Time::_deltaTime = 0.0f;

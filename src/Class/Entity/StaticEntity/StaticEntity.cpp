@@ -12,13 +12,14 @@
 #include <random>
 
 #include "Game/Time/Time.h"
+#include "Other/Math/CMath.h"
 
 StaticEntity::StaticEntity(const sf::Texture& texture, const std::shared_ptr<BaseBonus>& bonus,
                            StaticEntityFactory* factory)
     : BaseEntity(texture), _bonus(bonus), _factory(factory)
 {
-    float xpos = Time::randf(-(WindowData::GetScreenSize().x / 2), WindowData::GetScreenSize().x / 2);
-    float ypos = Time::randf(-(WindowData::GetScreenSize().y / 2), WindowData::GetScreenSize().y / 2);
+    float xpos = CMath::randf(-(WindowData::GetScreenSize().x / 2), WindowData::GetScreenSize().x / 2);
+    float ypos = CMa::randf(-(WindowData::GetScreethnSize().y / 2), WindowData::GetScreenSize().y / 2);
 
     _id = _count;
     _sprite.setScale({.15f, .15f});
