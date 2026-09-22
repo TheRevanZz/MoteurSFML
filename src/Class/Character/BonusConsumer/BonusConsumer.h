@@ -4,9 +4,7 @@
 
 #pragma once
 #include <memory>
-
-#include "Enum/EBonusCategory.h"
-#include "Game/Bonus/PourcentageBonus/PourcentageBonus.h"
+#include <vector>
 
 class BaseBonus;
 

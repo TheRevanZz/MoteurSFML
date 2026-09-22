@@ -6,7 +6,7 @@
 
 AssetLoader* AssetLoader::_pAssetLoader = nullptr;
 
-AssetLoader* AssetLoader::getInstance()
+AssetLoader* AssetLoader::GetInstance()
 {
     if(_pAssetLoader == nullptr)
     {
@@ -16,7 +16,7 @@ AssetLoader* AssetLoader::getInstance()
 }
 
 
-std::string AssetLoader::loadTexture(const char* _path)
+std::string AssetLoader::LoadTexture(const char* _path)
 {
     if (_textures.contains(_path))
         return _path;
@@ -29,7 +29,14 @@ std::string AssetLoader::loadTexture(const char* _path)
     return _path;
 }
 
-std::shared_ptr<sf::Texture> AssetLoader::getTexture(const char* texturePath) const
+sf::Texture AssetLoader::LoadAndGetTexture(const char* path)
+{
+    const auto p = GetInstance();
+    p->LoadTexture(path);
+    return *p->GetTexture(path);
+}
+
+std::shared_ptr<sf::Texture> AssetLoader::GetTexture(const char* texturePath) const
 {
     if (!_textures.contains(texturePath))
         return nullptr;
