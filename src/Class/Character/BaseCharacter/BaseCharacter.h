@@ -21,6 +21,15 @@ class BaseCharacter :
     public IDamageable
 {
 public:
-    BaseCharacter(const sf::Texture& texture, float life);
+    BaseCharacter(sf::Texture texture, float life);
     BaseCharacter(const char* texture_path, float life);
+    
+    sf::Transformable& GetTransformable() override;
+    const sf::Transformable& GetTransformable() const override;
+    const sf::FloatRect GetBounds() const override;
+    const sf::Drawable& getDrawable() const override;
+
+protected:    
+    sf::Texture _mainTexture;
+    sf::Sprite _sprite;
 };

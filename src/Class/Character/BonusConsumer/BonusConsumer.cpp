@@ -12,6 +12,11 @@ void BonusConsumer::AddBonus(const std::shared_ptr<BaseBonus>& bonus)
     _bonuses.push_back(bonus);
 }
 
+const std::vector<std::shared_ptr<BaseBonus>>& BonusConsumer::GetBonuses() const
+{
+    return _bonuses;
+}
+
 void BonusConsumer::UpdateBonusesTimers()
 {
     for (const auto &bonus : _bonuses)

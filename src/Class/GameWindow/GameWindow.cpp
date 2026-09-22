@@ -100,13 +100,19 @@ void GameWindow::Render()
         _window.draw(y_line);
     )
 
-    for (const auto& component : _components)
+    for (auto it = _components.begin(); it != _components.end();)
     {
+        const auto& component = *it;
+        if (component->GetMustDie()) {
+            it = _components.erase(it);
+            continue;
+        }
+        _window.draw(component->getDrawable());
+
         if (auto* UpdateableCompoent = dynamic_cast<IUpdateable*>(component.get()); UpdateableCompoent != nullptr)
         {
             UpdateableCompoent->update();
         }
-        _window.draw(component->getDrawable());
         DEBUG_ONLY(
             sf::RectangleShape bounds(sf::Vector2f(component->GetBounds().size.x, component->GetBounds().size.y));
             bounds.setPosition(component->GetPosition());
@@ -117,8 +123,9 @@ void GameWindow::Render()
 
             // std::cout << component->getPosition().x << " " << component->getPosition().y << "\n";
         )
+        ++it;
     }
-    _staticEntityFactory.update();
+    // _staticEntityFactory.update();
 
 
     if (_deleteComponentTimer >= 2.f)
