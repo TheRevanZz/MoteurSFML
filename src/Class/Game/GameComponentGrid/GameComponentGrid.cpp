@@ -94,8 +94,9 @@ std::vector<std::shared_ptr<IGameComponent>> GameComponentGrid::GetNearComponent
 
 std::pair<int, int> GameComponentGrid::GetCellPosition(const std::shared_ptr<IGameComponent>& component)
 {
-    const int x = static_cast<int>(component->GetPosition().x / CELL_SIZE);
-    const int y = static_cast<int>(component->GetPosition().y / CELL_SIZE);
+    const auto& bounds = component->GetBounds();
+    const int x = static_cast<int>((bounds.position.x + bounds.size.x / 2.f) / CELL_SIZE);
+    const int y = static_cast<int>((bounds.position.y + bounds.size.y / 2.f) / CELL_SIZE);
     return {x, y};
 }
 

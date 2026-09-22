@@ -29,8 +29,7 @@ public:
 protected:
     sf::Texture _mainTexture;
     sf::Sprite _sprite;
-    sf::FloatRect _rect;
+    mutable sf::FloatRect _rect;
 };
-
 
 

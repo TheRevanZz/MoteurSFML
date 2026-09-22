@@ -60,7 +60,6 @@ void GameWindow::Show(const int width, const int height, const std::string& titl
         auto time = _clock.restart();
         _deleteComponentTimer += time.asSeconds();
         Time::update(time);
-        _gameComponentGrid.Update();
         Render();
     }
 }
@@ -101,8 +100,9 @@ void GameWindow::Render()
         }
         _window.draw(component->getDrawable());
         DEBUG_ONLY(
-            sf::RectangleShape bounds(sf::Vector2f(component->GetBounds().size.x, component->GetBounds().size.y));
-            bounds.setPosition(component->GetPosition());
+            const auto& componentBounds = component->GetBounds();
+            sf::RectangleShape bounds(sf::Vector2f(componentBounds.size.x, componentBounds.size.y));
+            bounds.setPosition(componentBounds.position);
             bounds.setFillColor(sf::Color::Transparent);
             bounds.setOutlineThickness(4.f);
             bounds.setOutlineColor(sf::Color::Red);
@@ -118,6 +118,7 @@ void GameWindow::Render()
         DeleteComponentsOutOfWindow();
         _deleteComponentTimer -= 10.f;
     }
+    _gameComponentGrid.Update();
     _collisionSystem.compute(_gameComponentGrid);
 
     _window.display();
