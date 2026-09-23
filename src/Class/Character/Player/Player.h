@@ -86,7 +86,7 @@ public:
     [[nodiscard("Il faut vérifier si l'opération a réussi")]]
     bool ChangeKey(const EActionTag& action_tag, const sf::Keyboard::Key& new_key);
 
-    void TakeDamage(const float& damage) override { this->_life -= damage; }
+    void TakeDamage(const float& damage) override;
 
     void Collision(const std::shared_ptr<IGameComponent>& otherComponent) override;
 
@@ -97,9 +97,12 @@ public:
         // _sprite.setTexture(*pAssetLoader->getImage("ressources/images/player_textures/spaceship_1.png"));
         // multipleSpriteComponent.changeTexture(0u);
     }
+    
 
     void ChangeSprite(uint8_t id);
     const std::shared_ptr<BonusConsumer>& GetBonusConsumer() const override;
+    
+    
 
 private:
     float ApplyBonusToStat(const float& stat, EBonusCategory bonusCategory) const;

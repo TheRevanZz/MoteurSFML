@@ -11,12 +11,13 @@
 #include <memory>
 #include <random>
 
+#include "Game/Bonus/BaseBonus/BaseBonus.h"
 #include "Game/Time/Time.h"
 #include "Other/Math/CMath.h"
 
-StaticEntity::StaticEntity(const sf::Texture& texture, const std::shared_ptr<BaseBonus>& bonus,
-                           StaticEntityFactory* factory)
-    : BaseEntity(texture), _bonus(bonus), _factory(factory)
+StaticEntity::StaticEntity(const sf::Texture& texture, const std::shared_ptr<BaseBonus>& projectileBonus,
+    const std::shared_ptr<DamageBonus>& physiqueBonus)
+    : BaseEntity(texture), _projectileBonus(projectileBonus), _physiqueBonus(physiqueBonus)
 {
     float xpos = CMath::randf(-(static_cast<int>(WindowData::GetScreenSize().x / 2)), static_cast<int>(WindowData::GetScreenSize().x / 2));
     float ypos = CMath::randf(-(static_cast<int>(WindowData::GetScreenSize().x / 2)), static_cast<int>(WindowData::GetScreenSize().x / 2));
@@ -27,12 +28,13 @@ StaticEntity::StaticEntity(const sf::Texture& texture, const std::shared_ptr<Bas
     // _sprite.setOrigin({_sprite.getGlobalBounds().size.x / 2.f, _sprite.getGlobalBounds().size.y / 2.f});
 
     // SetPosition({static_cast<float>(std::rand()%WindowData::GetScreenSize().x), static_cast<float>(std::rand()%WindowData::GetScreenSize().y)});
-    SetPosition({xpos, ypos});
+    StaticEntity::SetPosition({xpos, ypos});
     _count++;
 }
 
-StaticEntity::StaticEntity(const char* texturePath, std::shared_ptr<BaseBonus> bonus, StaticEntityFactory* factory)
-    : BaseEntity(texturePath), _factory(factory)
+StaticEntity::StaticEntity(const char* texturePath,  const std::shared_ptr<BaseBonus>& projectileBonus,
+    const std::shared_ptr<DamageBonus>& physiqueBonus)
+    : BaseEntity(texturePath), _projectileBonus(projectileBonus), _physiqueBonus(physiqueBonus)
 {
     _id = _count;
     _sprite.setScale({.15f, .15f});
@@ -40,7 +42,7 @@ StaticEntity::StaticEntity(const char* texturePath, std::shared_ptr<BaseBonus> b
     // _sprite.setOrigin({_sprite.getGlobalBounds().size.x / 2.f, _sprite.getGlobalBounds().size.y / 2.f});
 
     // SetPosition({static_cast<float>(std::rand()%WindowData::GetScreenSize().x), static_cast<float>(std::rand()%WindowData::GetScreenSize().y)});
-    SetPosition({0, 0});
+    StaticEntity::SetPosition({0, 0});
     _count++;
 }
 
@@ -62,7 +64,7 @@ void StaticEntity::Collision(const std::shared_ptr<IGameComponent>& otherCompone
     )
     {
         std::cout << "Static Entity " << this->_id + 1 << " : Collision avec un bonus consumer\n";
-        pBonusConsumer->GetBonusConsumer()->AddBonus(_bonus);
+        pBonusConsumer->GetBonusConsumer()->AddBonus(_projectileBonus);
         Destruct();
     }
 }

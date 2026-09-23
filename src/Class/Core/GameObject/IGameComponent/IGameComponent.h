@@ -4,8 +4,8 @@
 
 #pragma once
 #include <memory>
+#include <unordered_set>
 #include <SFML/Graphics/Rect.hpp>
-#include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Transformable.hpp>
 
@@ -31,9 +31,11 @@ public:
     const bool& GetMustDie() const { return _mustDie; }
     void SetMustDie() { _mustDie = true; }
     
+    virtual const std::pmr::unordered_set<char*>& GetTags() const ;
+    
 protected:
-
     bool _mustDie = false;
+    std::pmr::unordered_set<char*> _tags = {};
 };
 
 
