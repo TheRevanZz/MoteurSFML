@@ -7,9 +7,11 @@
 #include <ryml.hpp>
 #include <ryml_std.hpp>
 #include <ranges>
+#include <utility>
 
 #include "Player.h"
 #include "Debug.h"
+#include "Character/BonusConsumer/BonusConsumer.h"
 #include "Game/Utils/Utils.h"
 #include "Game/WindowData/WindowData.h"
 #include "Game/Time/Time.h"
@@ -17,6 +19,7 @@
 #include "Class/Component/ShootComponent/ShootComponent.h"
 #include "Entity/StaticEntity/StaticEntity.h"
 #include "Class/Game/Bonus/BaseBonus/BaseBonus.h"
+#include "Component/ShootComponent/Bullet.h"
 
 
 void Player::Init()
@@ -41,6 +44,23 @@ void Player::Init()
 
     _sprite.setOrigin({_sprite.getLocalBounds().size.x / 2.f, _sprite.getLocalBounds().size.y / 2.f});
     _count++;
+    // _sprite.setColor(sf::Color(255,0,0));
+}
+
+Player::HitAnimation Player::CreateHitAnimation()
+{
+    return {
+        {
+            {0,  [this] { ChangeSpriteColor(sf::Color::Red); }},
+            {15, [this] { ChangeSpriteColor(sf::Color::White); }},
+            {30, [this] { ChangeSpriteColor(sf::Color::Red); }},
+            {45, [this] { ChangeSpriteColor(sf::Color::White); }},
+            {60, [this] { ChangeSpriteColor(sf::Color::Red); }},
+            {75, [this] { ChangeSpriteColor(sf::Color::White); }}
+        },
+        [this] { _isBeingHit = false; },
+        .5f
+    };
 }
 
 Player::Player(std::vector<const char*> texturesPaths, const uint8_t textureIndex)
@@ -55,7 +75,9 @@ Player::Player(std::vector<const char*> texturesPaths, const uint8_t textureInde
       ),
       _pShootComponent(
           CreateComponent<ShootComponent>(this)
-      )
+      ),
+      _pBonusConsumer(CreateComponent<BonusConsumer>(this)),
+      _hitAnimation(CreateHitAnimation())
 {
     Init();
 }
@@ -73,7 +95,9 @@ Player::Player(std::vector<std::string> texturesPaths, const uint8_t textureInde
       ),
       _pShootComponent(
           CreateComponent<ShootComponent>(this)
-      )
+      ),
+      _pBonusConsumer(CreateComponent<BonusConsumer>(this)),
+      _hitAnimation(CreateHitAnimation())
 {
     Init();
 }
@@ -84,11 +108,6 @@ sf::Vector2f Player::GetScaledSize() const
     const auto& size = this->_sprite.getLocalBounds().size;
 
     return {scale.x * size.x, scale.y * size.y};
-}
-
-const sf::Transform Player::GetTransform() const
-{
-    return this->_sprite.getTransform();
 }
 
 void Player::Move(const sf::Vector2f& offset)
@@ -129,7 +148,7 @@ CoordinateSystem::WorldPoint Player::GetBulletStartPosition() const
     const auto direction = sf::Vector2f(std::cos(rotation), std::sin(rotation)).normalized();
     const auto size = _sprite.getGlobalBounds().size;
     const auto add = sf::Vector2f{size.x * direction.x / 2, size.y * direction.y / 2};
-    return {_sprite.getPosition().x + add.x , _sprite.getPosition().y + add.y};
+    return {_sprite.getPosition().x + add.x, _sprite.getPosition().y + add.y};
 }
 
 void Player::Shoot()
@@ -187,7 +206,16 @@ void Player::update()
     HandleMovement();
     HandleRotation();
     ProgressiveRotate(_targetRotation);
-    UpdateBonusesTimers();
+    _pBonusConsumer->UpdateBonusesTimers();
+    if (_isBeingHit)
+    {
+        _hitAnimation.Animate();
+    }
+}
+
+void Player::ChangeSpriteColor(const sf::Color newColor)
+{
+    _sprite.setColor(newColor);
 }
 
 void Player::HandleMovement()
@@ -459,6 +487,10 @@ void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
         const auto pEntity = std::dynamic_pointer_cast<StaticEntity>(otherComponent);
         std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->GetId() + 1 << "\n";
     }
+    if (auto bullet = std::dynamic_pointer_cast<Bullet>(otherComponent); bullet != nullptr)
+    {
+        _isBeingHit = true;
+    }
     // abort();
 }
 
@@ -467,9 +499,15 @@ void Player::ChangeSprite(const uint8_t id)
     _pMultipleSpriteComponent->ChangeTexture(id);
 }
 
+const std::shared_ptr<BonusConsumer>& Player::GetBonusConsumer() const
+{
+    return _pBonusConsumer;
+}
+
+
 float Player::ApplyBonusToStat(const float& stat, const EBonusCategory bonusCategory) const
 {
-    auto targetBonuses = _bonuses | std::views::filter([bonusCategory](const auto& bonus)
+    auto targetBonuses = _pBonusConsumer->GetBonuses() | std::views::filter([bonusCategory](const auto& bonus)
     {
         return bonus->GetBonusCategory() == bonusCategory;
     });

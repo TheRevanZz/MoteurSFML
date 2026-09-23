@@ -6,15 +6,19 @@
 #include <memory>
 #include <vector>
 
+#include "Core/Component/BaseComponent.h"
+
 class BaseBonus;
 
-class BonusConsumer {
+class BonusConsumer : public se3::BaseComponent {
 
 public:
-    BonusConsumer() = default;
+    explicit BonusConsumer(IGameComponent* owner)
+        : BaseComponent(owner) {}
 
     void AddBonus(const std::shared_ptr<BaseBonus>& bonus);
     
+    const std::vector<std::shared_ptr<BaseBonus>>& GetBonuses() const;
     void UpdateBonusesTimers();
     
 private:

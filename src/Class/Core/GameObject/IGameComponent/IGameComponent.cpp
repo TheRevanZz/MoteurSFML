@@ -11,24 +11,20 @@
     #include <iostream>
 #endif
 
-IGameComponent::IGameComponent(const char* texture_path)
-    : _mainTexture(AssetLoader::LoadAndGetTexture(texture_path)), _sprite(_mainTexture)
-{
-}
 
-IGameComponent::IGameComponent(sf::Texture texture)
-    : _mainTexture(std::move(texture)), _sprite(_mainTexture)
+sf::Vector2f IGameComponent::GetPosition() const
 {
+    return GetTransformable().getPosition();
 }
 
 void IGameComponent::SetPosition(const CoordinateSystem::WorldPoint& position)
 {
-    _sprite.setPosition(sf::Vector2f(CoordinateSystem::ToScreenPoint(position)));
+    GetTransformable().setPosition(sf::Vector2f(CoordinateSystem::ToScreenPoint(position)));
 }
 
-const sf::Sprite& IGameComponent::GetSprite() const
+sf::Transform IGameComponent::GetTransform() const
 {
-    return _sprite;
+    return GetTransformable().getTransform();
 }
 
 void IGameComponent::Collision(const std::shared_ptr<IGameComponent>& otherComponent)

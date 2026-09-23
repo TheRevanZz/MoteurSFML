@@ -53,7 +53,7 @@ void GameWindow::Show(const int width, const int height, const std::string& titl
 
     _staticEntityFactory.SetComponentsList(&_components);
     
-    _staticEntityFactory.CreateStaticEntity();
+    // _staticEntityFactory.CreateStaticEntity();
     
     _clock.start();
     
@@ -63,8 +63,8 @@ void GameWindow::Show(const int width, const int height, const std::string& titl
         auto time = _clock.restart();
         _deleteComponentTimer += time.asSeconds();
         Time::update(time);
-        _gameComponentGrid.Update();
         Render();
+        _gameComponentGrid.Update();
     }
 }
 
@@ -100,24 +100,32 @@ void GameWindow::Render()
         _window.draw(y_line);
     )
 
-    for (const auto& component : _components)
+    for (auto it = _components.begin(); it != _components.end();)
     {
+        const auto& component = *it;
+        if (component->GetMustDie()) {
+            it = _components.erase(it);
+            continue;
+        }
+        _window.draw(component->getDrawable());
+
         if (auto* UpdateableCompoent = dynamic_cast<IUpdateable*>(component.get()); UpdateableCompoent != nullptr)
         {
             UpdateableCompoent->update();
         }
-        _window.draw(component->getDrawable());
         DEBUG_ONLY(
-            // sf::RectangleShape bounds(sf::Vector2f(component->getBounds().size.x, component->getBounds().size.y));
-            // bounds.setPosition(component->getPosition());
-            // bounds.setFillColor(sf::Color::Transparent);
-            // bounds.setOutlineThickness(4.f);
-            // bounds.setOutlineColor(sf::Color::Red);
-            // _window.draw(bounds);
-            //
+            sf::RectangleShape bounds(sf::Vector2f(component->GetBounds().size.x, component->GetBounds().size.y));
+            bounds.setPosition(component->GetPosition());
+            bounds.setFillColor(sf::Color::Transparent);
+            bounds.setOutlineThickness(4.f);
+            bounds.setOutlineColor(sf::Color::Red);
+            _window.draw(bounds);
+
             // std::cout << component->getPosition().x << " " << component->getPosition().y << "\n";
         )
+        ++it;
     }
+    // _staticEntityFactory.update();
 
 
     if (_deleteComponentTimer >= 2.f)

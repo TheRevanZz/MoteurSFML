@@ -16,20 +16,24 @@
 class IGameComponent : public IDrawable {
 
 public:
-    explicit IGameComponent(const char* texture_path);
-    explicit IGameComponent(sf::Texture texture);
+    IGameComponent() = default;
 
-    virtual const sf::Vector2f GetPosition() const = 0;
-    void SetPosition(const CoordinateSystem::WorldPoint& position);
+    virtual sf::Vector2f GetPosition() const;
+    virtual void SetPosition(const CoordinateSystem::WorldPoint& position);
+    virtual sf::Transform GetTransform() const;
+    
     virtual const sf::FloatRect GetBounds() const = 0;
-    virtual const sf::Transform GetTransform() const = 0;
-    const sf::Sprite& GetSprite() const;
+    virtual const sf::Transformable& GetTransformable() const = 0;
+    virtual sf::Transformable& GetTransformable() = 0;
 
     virtual void Collision(const std::shared_ptr<IGameComponent>& otherComponent);
+
+    const bool& GetMustDie() const { return _mustDie; }
+    void SetMustDie() { _mustDie = true; }
     
 protected:
-    sf::Texture _mainTexture;
-    sf::Sprite _sprite;
+
+    bool _mustDie = false;
 };
 
 

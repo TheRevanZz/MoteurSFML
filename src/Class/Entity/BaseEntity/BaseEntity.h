@@ -16,4 +16,14 @@ class BaseEntity :
 public:
     explicit BaseEntity(const sf::Texture& texture);
     explicit BaseEntity(const char* texturePath);
+    
+    const sf::Transformable& GetTransformable() const override;
+    sf::Transformable& GetTransformable() override;
+    const sf::Drawable& getDrawable() const override;
+    const sf::FloatRect GetBounds() const override;
+
+    
+protected: 
+    sf::Texture _mainTexture;
+    sf::Sprite _sprite;
 };

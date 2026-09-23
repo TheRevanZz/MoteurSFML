@@ -3,12 +3,37 @@
 //
 #include "BaseEntity.h"
 
+#include "Other/AssetLoader/AssetLoader.h"
+
 BaseEntity::BaseEntity(const sf::Texture& texture)
-    : IGameComponent(texture)
+    :_mainTexture(texture), _sprite(_mainTexture)
 {
 }
 
 BaseEntity::BaseEntity(const char* texturePath)
-    : IGameComponent(texturePath)
+    : _mainTexture(AssetLoader::LoadAndGetTexture(texturePath)), _sprite(_mainTexture)
 {
 }
+
+const sf::Transformable& BaseEntity::GetTransformable() const
+{
+    return _sprite;
+}
+
+sf::Transformable& BaseEntity::GetTransformable()
+{
+    return _sprite;
+}
+
+const sf::Drawable& BaseEntity::getDrawable() const
+{
+    return _sprite;
+}
+
+const sf::FloatRect BaseEntity::GetBounds() const
+{
+    return _sprite.getGlobalBounds();
+}
+
+
+
