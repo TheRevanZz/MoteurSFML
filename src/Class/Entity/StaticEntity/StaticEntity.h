@@ -11,6 +11,8 @@
 #include "IBonusGiver/IBonusGiver.h"
 #include "IDestructable/IDestructable.h"
 
+
+class DamageBonus;
 class BaseBonus;
 class StaticEntityFactory;
 
@@ -19,8 +21,10 @@ class StaticEntity : public BaseEntity, public IBonusGiver, public IDestructable
 public:
     static int _count;
 
-    StaticEntity(const sf::Texture &texture, const std::shared_ptr<BaseBonus>& bonus, StaticEntityFactory* factory);
-    StaticEntity(const char* texturePath, std::shared_ptr<BaseBonus> bonus, StaticEntityFactory* factory);
+    StaticEntity(const sf::Texture& texture, const std::shared_ptr<BaseBonus>& projectileBonus,
+    const std::shared_ptr<DamageBonus>& physiqueBonus);
+    StaticEntity(const char* texturePath,  const std::shared_ptr<BaseBonus>& projectileBonus,
+    const std::shared_ptr<DamageBonus>& physiqueBonus);
 
     const int GetId() const { return this->_id; }
     
@@ -28,7 +32,7 @@ public:
 
     sf::Vector2f GetScaledSize() const;
 
-    const std::shared_ptr<BaseBonus>& GetBonus() const override { return this->_bonus; }
+    const std::shared_ptr<BaseBonus>& GetBonus() const override { return this->_projectileBonus; }
     
     void Collision(const std::shared_ptr<IGameComponent> &otherComponent) override;
 
@@ -41,7 +45,11 @@ protected:
     CoordinateSystem::WorldPoint _position;
     int _id = 0;
 
-    std::shared_ptr<BaseBonus> _bonus;
+    //Bonus donner quand c'est un projectile qui touche le staticEntity
+    std::shared_ptr<BaseBonus> _projectileBonus;
+    
+    //Bonus donner quand c'est pas un projectile qui touche
+    std::shared_ptr<DamageBonus> _physiqueBonus;
 
     StaticEntityFactory* _factory;
 

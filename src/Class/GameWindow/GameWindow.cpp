@@ -64,6 +64,7 @@ void GameWindow::Show(const int width, const int height, const std::string& titl
         _deleteComponentTimer += time.asSeconds();
         Time::update(time);
         Render();
+        std::cout << 1 / time.asSeconds() << "\n";
         _gameComponentGrid.Update();
     }
 }
@@ -125,7 +126,7 @@ void GameWindow::Render()
         )
         ++it;
     }
-    // _staticEntityFactory.update();
+    _staticEntityFactory.update();
 
 
     if (_deleteComponentTimer >= 2.f)

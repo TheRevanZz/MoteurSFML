@@ -404,19 +404,25 @@ bool Player::ChangeKey(const EActionTag& action_tag, const sf::Keyboard::Key& ne
     return true;
 }
 
+void Player::TakeDamage(const float& damage)
+{
+    _life -= damage;
+    _isBeingHit = true;
+}
+
 void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
 {
     std::cout << "test collision\n";
     IGameComponent::Collision(otherComponent);
-    if (std::dynamic_pointer_cast<StaticEntity>(otherComponent))
-    {
-        const auto pEntity = std::dynamic_pointer_cast<StaticEntity>(otherComponent);
-        std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->GetId() + 1 << "\n";
-    }
-    if (auto bullet = std::dynamic_pointer_cast<Bullet>(otherComponent); bullet != nullptr)
-    {
-        _isBeingHit = true;
-    }
+    // if (std::dynamic_pointer_cast<StaticEntity>(otherComponent))
+    // {
+    //     const auto pEntity = std::dynamic_pointer_cast<StaticEntity>(otherComponent);
+    //     std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->GetId() + 1 << "\n";
+    // }
+    // if (auto bullet = std::dynamic_pointer_cast<Bullet>(otherComponent); bullet != nullptr)
+    // {
+    //     _isBeingHit = true;
+    // }
     // abort();
 }
 
