@@ -5,6 +5,9 @@
 #include "BonusConsumer.h"
 
 #include "Game/Bonus/BaseBonus/BaseBonus.h"
+#include "Game/Bonus/DirectBonus/DirectBonus.h"
+#include "IDamageable/IDamageable.h"
+#include "Core/GameObject/IGameComponent/IGameComponent.h"
 
 
 void BonusConsumer::AddBonus(const std::shared_ptr<BaseBonus>& bonus)
@@ -19,7 +22,7 @@ const std::vector<std::shared_ptr<BaseBonus>>& BonusConsumer::GetBonuses() const
 
 void BonusConsumer::UpdateBonusesTimers()
 {
-    for (const auto &bonus : _bonuses)
+    for (const auto& bonus : _bonuses)
         bonus->UpdateTimer();
     RemoveElapsedBonus();
 }

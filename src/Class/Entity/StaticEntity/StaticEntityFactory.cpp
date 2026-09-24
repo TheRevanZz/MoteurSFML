@@ -35,8 +35,8 @@ ComponentsList* StaticEntityFactory::GetComponentsList() const
 
 std::shared_ptr<StaticEntity> StaticEntityFactory::CreateStaticEntity()
 {
-    DirectBonus bonus{-500, EBonusCategory::DAMAGE, true,3};
-    DamageBonus damage{10, true, 3};
+    DirectBonus bonus{-500, EBonusCategory::SPEED, true, 3};
+    // DamageBonus damage{10, true, 3};
 
     if (!_asteroidTexture.loadFromFile("ressources/images/entity_textures/static_entity_0.png"))
     {
@@ -45,10 +45,11 @@ std::shared_ptr<StaticEntity> StaticEntityFactory::CreateStaticEntity()
     _asteroidTexture.setSmooth(true);
 
 
-    auto entity = std::make_shared<StaticEntity>(_asteroidTexture, std::make_shared<DirectBonus>(std::move(bonus)), std::make_shared<DamageBonus>(std::move(damage)));
+    auto entity = std::make_shared<StaticEntity>(_asteroidTexture,
+                                                 std::make_shared<DirectBonus>(std::move(bonus)));
     _pComponents->push_back(std::move(entity));
     DEBUG_ONLY(
-        std::cout << _pComponents->size() << std::endl;
+        std::cout << _pComponents->size() << "\n";
     )
 
     return nullptr;
@@ -63,7 +64,8 @@ void StaticEntityFactory::update()
         _generationTimer = sf::seconds(5);
         DEBUG_ONLY(
             for (size_t i = 0; i < 100; ++i)
-                std::cout << "teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeest" << _generationTimer.asSeconds() << "\n";
+            std::cout << "teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeest" << _generationTimer.asSeconds()
+            << "\n";
             std::cout << -(static_cast<int>(WindowData::GetScreenSize().y / 2)) << std::endl;
             std::cout << "Generation d'un static entity : " << "\n";
             std::cout << "Prochaine generation dans " << _generationTimer.asSeconds() << "s\n";
