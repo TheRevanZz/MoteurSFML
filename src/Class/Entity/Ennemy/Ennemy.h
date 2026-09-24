@@ -7,14 +7,14 @@
 #include "Character/BaseCharacter/BaseCharacter.h"
 #include "IDestructable/IDestructable.h"
 
-class Ennemy: public BaseCharacter, IDestructable {
+class Ennemy: public BaseCharacter, public IDestructable {
 
 public:
     static int _count;
 
     Ennemy(const sf::Texture& texture, float life);
     
-    void TakeDamage(const float& damage) override {}
+    void TakeDamage(const float& damage) override;
     
     void update() override {}
 
@@ -39,5 +39,4 @@ protected:
 };
 
 inline int Ennemy::_count = 0;
-
 

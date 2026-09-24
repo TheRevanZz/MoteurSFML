@@ -45,14 +45,10 @@ void Bullet::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
     }
 
 
-    if (
-        const auto& damageable = std::dynamic_pointer_cast<IDamageable>(otherComponent);
-        damageable != nullptr
-    )
+    const auto damageable = std::dynamic_pointer_cast<IDamageable>(otherComponent);
+    if (damageable != nullptr)
     {
         damageable->TakeDamage(20);
-
-        // _shootComponent->DeleteBullet(this);
     }
 
     if (const auto pBonusConsumer = dynamic_cast<const IBonusConsumer*>(_shootComponent->GetParent()); pBonusConsumer !=
@@ -67,9 +63,13 @@ void Bullet::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
         }
     }
 
-    if (const auto& destructible = std::dynamic_pointer_cast<IDestructable>(otherComponent))
+    // A damageable object decides itself when it should be destroyed.
+    // Destructible objects without health (such as bonus entities) are
+    // destroyed directly on impact.
+    if (damageable == nullptr)
     {
-        destructible->Destruct();
+        if (const auto& destructible = std::dynamic_pointer_cast<IDestructable>(otherComponent))
+            destructible->Destruct();
     }
 
     this->SetMustDie();

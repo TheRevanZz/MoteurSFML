@@ -34,7 +34,7 @@ void EnnemyFactory::CreateEnnemy()
     _ennemyTexture.setSmooth(true);
 
 
-    auto ennemy = std::make_shared<Ennemy>(_ennemyTexture, CMath::randf(0, 200));
+    auto ennemy = std::make_shared<Ennemy>(_ennemyTexture, CMath::randf(100, 200));
     _pComponents->push_back(std::move(ennemy));
     DEBUG_ONLY(
         std::cout << _pComponents->size() << std::endl;

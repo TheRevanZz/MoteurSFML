@@ -32,6 +32,14 @@ sf::Vector2f Ennemy::GetScaledSize() const
     return {scale.x * size.x, scale.y * size.y};
 }
 
+void Ennemy::TakeDamage(const float& damage)
+{
+    _life -= damage;
+
+    if (IsDead())
+        Destruct();
+}
+
 void Ennemy::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
 {
     BaseCharacter::Collision(otherComponent);
