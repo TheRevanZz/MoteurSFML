@@ -1,6 +1,5 @@
 ﻿#include "BaseBonus.h"
 
-#include <SFML/System/Time.hpp>
 
 #include "Game/Time/Time.h"
 #include "Other/Math/CMath.h"

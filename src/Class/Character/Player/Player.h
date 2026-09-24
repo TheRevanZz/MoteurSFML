@@ -9,6 +9,8 @@
 #include "Other/LockedMap/LockedMap.h"
 
 #include "Character/BaseCharacter/BaseCharacter.h"
+#include "Character/BonusConsumer/BonusConsumer.h"
+#include "Component/MultipleSprite/MultipleSpriteComponent.h"
 #include "Core/Animation/Animation.h"
 #include "Enum/EBonusCategory.h"
 #include "Enum/EKeyTag.h"
@@ -47,6 +49,9 @@ public:
     explicit Player(std::vector<std::string> texturesPaths, uint8_t textureIndex = 0);
 
     int GetId() const { return this->_id; }
+    
+    const sf::Sprite& GetSprite() const { return this->_sprite; }
+    
 
     sf::Vector2f GetSize() const { return this->_sprite.getLocalBounds().size; }
 
@@ -81,7 +86,7 @@ public:
     [[nodiscard("Il faut vérifier si l'opération a réussi")]]
     bool ChangeKey(const EActionTag& action_tag, const sf::Keyboard::Key& new_key);
 
-    void TakeDamage(const float& damage) override { this->_life -= damage; }
+    void TakeDamage(const float& damage) override;
 
     void Collision(const std::shared_ptr<IGameComponent>& otherComponent) override;
 
@@ -92,9 +97,12 @@ public:
         // _sprite.setTexture(*pAssetLoader->getImage("ressources/images/player_textures/spaceship_1.png"));
         // multipleSpriteComponent.changeTexture(0u);
     }
+    
 
     void ChangeSprite(uint8_t id);
     const std::shared_ptr<BonusConsumer>& GetBonusConsumer() const override;
+    
+    
 
 private:
     float ApplyBonusToStat(const float& stat, EBonusCategory bonusCategory) const;
@@ -108,14 +116,26 @@ protected:
     float _velocityX = 0.f;
     float _velocityY = 0.f;
     float _mass = 1.f;
-    float _maxSpeed = 300.f;
-    float _friction = 0.95f;
-    float _thrustForce = 300.f;
 
+    float _maxSpeed = 150.f;
+    float _friction = 0.90f;
+    float _thrustForce = 500.f;
+    
+    float _dashForce = 2500.f;
+    float _dashDuration = 0.25f;
+    float _dashTimer = 0.f;
+    float _dashMaxSpeed = 700.f;
+
+    sf::Vector2f _dashDirection{0.f, 0.f};
+
+    bool _isDashing = false;
+    bool _canDash = true;
+    
     int _id = 0;
     std::string _keymapPath = "ressources/config/keymap1.yml";
 
     LockedMap<EActionTag, KeyValue> _keymap = LockedMap<EActionTag, KeyValue>({
+        
         {EActionTag::RIGHT, {"Aller à droite", {}}},
         {EActionTag::LEFT, {"Aller à gauche", {}}},
         {EActionTag::UP, {"Aller en haut", {}}},
@@ -139,6 +159,7 @@ protected:
 
 private:
     void HandleMovement();
+    void HandleDash();
     void HandleRotation();
     bool PlayerIsDoingAction(EActionTag action_tag) const;
     void Init();

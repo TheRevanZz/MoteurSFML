@@ -6,7 +6,6 @@
     const bool cumulable = true, \
     const float life = 10
 
-#include <SFML/System/Clock.hpp>
 
 class BonusConsumer;
 enum class EBonusCategory;

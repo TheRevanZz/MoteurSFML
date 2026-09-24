@@ -9,7 +9,6 @@
 #include <ranges>
 #include <utility>
 
-
 #include "Player.h"
 #include "Debug.h"
 #include "Character/BonusConsumer/BonusConsumer.h"
@@ -203,6 +202,7 @@ void Player::ProgressiveRotate(float targetAngle)
 
 void Player::update()
 {
+    HandleDash();
     HandleMovement();
     HandleRotation();
     ProgressiveRotate(_targetRotation);
@@ -222,20 +222,24 @@ void Player::HandleMovement()
 {
     const float dt = Time::deltaTime();
 
-    //calcul forces selon input
+    // calcul forces selon input
     sf::Vector2f input(0.f, 0.f);
+
     if (PlayerIsDoingAction(EActionTag::LEFT))
     {
         input.x -= 1.f;
     }
+
     if (PlayerIsDoingAction(EActionTag::RIGHT))
     {
         input.x += 1.f;
     }
+
     if (PlayerIsDoingAction(EActionTag::UP))
     {
         input.y += 1.f;
     }
+
     if (PlayerIsDoingAction(EActionTag::DOWN))
     {
         input.y -= 1.f;
@@ -249,50 +253,120 @@ void Player::HandleMovement()
     {
         input = input.normalized();
 
-        // application de la force dans la direction indiquee par le joueur
+        // force normale
         forceX = input.x * _thrustForce;
         forceY = input.y * _thrustForce;
     }
 
-    // euler velocity: v_{n+1} = v_n + (F/m) * dt
+    // Force du dash
+    if (_isDashing)
+    {
+        forceX += _dashDirection.x * _dashForce;
+        forceY += _dashDirection.y * _dashForce;
 
-    // acceleration: a = F / m
-    float accelerationX = forceX / _mass;
-    float accelerationY = forceY / _mass;
+        _dashTimer -= dt;
 
-    // update velocity
+        if (_dashTimer <= 0.f)
+        {
+            _dashTimer = 0.f;
+            _isDashing = false;
+        }
+    }
+
+    // Euler : v(n+1) = v(n) + (F/m) * dt
+
+    const float accelerationX = forceX / _mass;
+    const float accelerationY = forceY / _mass;
+
     _velocityX += accelerationX * dt;
     _velocityY += accelerationY * dt;
 
-    // deceleration
-    // approximation discrète : v(n+1) = friction * v(n)
-    // cela simule une diminution exponentielle de la vitesse
-    if (input.length() == 0.f)
+    // décélération
+    if (input.length() == 0.f && !_isDashing)
     {
         _velocityX *= _friction;
         _velocityY *= _friction;
     }
 
     // limitation de la vitesse maximale
-    const float speed = std::sqrt(_velocityX * _velocityX + _velocityY * _velocityY);
+    const float speed =
+        std::sqrt(_velocityX * _velocityX +
+                  _velocityY * _velocityY);
 
-    if (
-        const float maxSpeed = ApplyBonusToStat(_maxSpeed, EBonusCategory::SPEED);
-        speed > maxSpeed
-    )
+    const float maxSpeed = _isDashing
+        ? _dashMaxSpeed
+        : ApplyBonusToStat(_maxSpeed, EBonusCategory::SPEED);
+
+    if (speed > maxSpeed)
     {
         const float scale = maxSpeed / speed;
+
         _velocityX *= scale;
         _velocityY *= scale;
     }
 
-    // methode d'Euler pour calculer la position :
-    // x(n+1) = x(n) + v(n) * dt
-    // cela correspond à l'approximation discrète de dx/dt = v
-    const sf::Vector2f displacement(_velocityX * dt, _velocityY * dt);
+    // Euler : x(n+1) = x(n) + v(n) * dt
+
+    const sf::Vector2f displacement(
+        _velocityX * dt,
+        _velocityY * dt
+    );
+    
     Move(displacement);
 }
 
+void Player::HandleDash()
+{
+    const float dt = Time::deltaTime();
+
+    // Cooldown du dash
+    if (!_canDash)
+    {
+        _dashTimer -= dt;
+
+        if (_dashTimer <= 0.f)
+        {
+            _dashTimer = 0.f;
+            _canDash = true;
+        }
+
+        return;
+    }
+
+    if (PlayerIsDoingAction(EActionTag::DASH))
+    {
+        sf::Vector2f direction(0.f, 0.f);
+
+        if (PlayerIsDoingAction(EActionTag::LEFT))
+            direction.x -= 1.f;
+
+        if (PlayerIsDoingAction(EActionTag::RIGHT))
+            direction.x += 1.f;
+
+        if (PlayerIsDoingAction(EActionTag::UP))
+            direction.y -= 1.f;
+
+        if (PlayerIsDoingAction(EActionTag::DOWN))
+            direction.y += 1.f;
+
+        // Si aucune direction n'est donnée,
+        // dash dans la direction vers laquelle regarde le joueur
+        if (direction.length() == 0.f)
+        {
+            const float rotation = _sprite.getRotation().asRadians();
+
+            direction = sf::Vector2f(
+                std::cos(rotation),
+                -std::sin(rotation)
+            );
+        }
+
+        _dashDirection = direction.normalized();
+        _isDashing = true;
+        _canDash = false;
+        _dashTimer = _dashDuration;
+    }
+}
 
 bool Player::PlayerIsDoingAction(const EActionTag action_tag) const
 {
@@ -406,21 +480,28 @@ bool Player::ChangeKey(const EActionTag& action_tag, const sf::Keyboard::Key& ne
     return true;
 }
 
+void Player::TakeDamage(const float& damage)
+{
+    _life -= damage;
+    _isBeingHit = true;
+}
+
 void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
 {
     // std::cout << "test collision\n";
     IGameComponent::Collision(otherComponent);
-    if (std::dynamic_pointer_cast<StaticEntity>(otherComponent))
-    {
-        const auto pEntity = std::dynamic_pointer_cast<StaticEntity>(otherComponent);
-        DEBUG_ONLY(
-            std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->GetId() + 1 << "\n";
-        )
-    }
-    if (auto bullet = std::dynamic_pointer_cast<Bullet>(otherComponent); bullet != nullptr)
-    {
-        _isBeingHit = true;
-    }
+    
+    // if (std::dynamic_pointer_cast<StaticEntity>(otherComponent))
+    // {
+    //     const auto pEntity = std::dynamic_pointer_cast<StaticEntity>(otherComponent);
+        // DEBUG_ONLY(
+        //     std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->GetId() + 1 << "\n";
+        // )
+    // }
+    // if (auto bullet = std::dynamic_pointer_cast<Bullet>(otherComponent); bullet != nullptr)
+    // {
+    //     _isBeingHit = true;
+    // }
     // abort();
 }
 

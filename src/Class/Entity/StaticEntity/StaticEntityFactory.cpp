@@ -36,7 +36,8 @@ ComponentsList* StaticEntityFactory::GetComponentsList() const
 
 std::shared_ptr<StaticEntity> StaticEntityFactory::CreateStaticEntity()
 {
-    DirectBonus bonus{300, EBonusCategory::SPEED, true,3};
+    DirectBonus bonus{-500, EBonusCategory::SPEED, true, 3};
+    // DamageBonus damage{10, true, 3};
 
     if (!_asteroidTexture.loadFromFile("ressources/images/entity_textures/static_entity_textures/static_entity_0.png"))
     {
@@ -48,7 +49,7 @@ std::shared_ptr<StaticEntity> StaticEntityFactory::CreateStaticEntity()
     auto entity = std::make_shared<StaticEntity>(_asteroidTexture, std::make_shared<DirectBonus>(std::move(bonus)));
     _pComponents->push_back(std::move(entity));
     DEBUG_ONLY(
-        std::cout << _pComponents->size() << std::endl;
+        std::cout << _pComponents->size() << "\n";
     )
 
     return nullptr;

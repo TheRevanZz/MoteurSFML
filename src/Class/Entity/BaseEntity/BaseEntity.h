@@ -5,10 +5,7 @@
 #pragma once
 #include "Class/Core/GameObject/IGameComponent/IGameComponent.h"
 
-namespace sf
-{
-    class Texture;
-}
+#include <SFML/Graphics/Sprite.hpp>
 
 class BaseEntity :
     public IGameComponent

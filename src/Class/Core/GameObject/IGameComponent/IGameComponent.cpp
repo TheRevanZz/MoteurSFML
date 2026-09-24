@@ -33,3 +33,8 @@ void IGameComponent::Collision(const std::shared_ptr<IGameComponent>& otherCompo
         std::cout << "COLLISION\n";
     )
 }
+
+const std::pmr::unordered_set<char*>& IGameComponent::GetTags() const
+{
+    return _tags;
+}
