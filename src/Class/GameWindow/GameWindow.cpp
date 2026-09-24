@@ -13,7 +13,7 @@
 GameWindow::GameWindow()
 {
     PreLoadTexture();
-    if (!_asteroidTexture.loadFromFile("ressources/images/entity_textures/static_entity_0.png"))
+    if (!_asteroidTexture.loadFromFile("ressources/images/entity_textures/static_entity_textures/static_entity_0.png"))
         abort();
     GameplayData::SetComponents(&_components);
 }
