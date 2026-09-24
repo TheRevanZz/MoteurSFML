@@ -490,7 +490,7 @@ void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
 {
     // std::cout << "test collision\n";
     IGameComponent::Collision(otherComponent);
-    
+
     // if (std::dynamic_pointer_cast<StaticEntity>(otherComponent))
     // {
     //     const auto pEntity = std::dynamic_pointer_cast<StaticEntity>(otherComponent);

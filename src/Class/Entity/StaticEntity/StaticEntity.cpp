@@ -18,6 +18,8 @@
 StaticEntity::StaticEntity(const sf::Texture& texture, const std::shared_ptr<BaseBonus>& projectileBonus)
     : BaseEntity(texture), _projectileBonus(projectileBonus)
 {
+    _sprite.setScale({.15f, .15f});
+
     float xpos = CMath::randf(-(static_cast<int>(WindowData::GetScreenSize().x / 2)), static_cast<int>(WindowData::GetScreenSize().x / 2 - _sprite.getGlobalBounds().size.x));
     float ypos = CMath::randf(-(static_cast<int>(WindowData::GetScreenSize().y / 2 - _sprite.getGlobalBounds().size.y)), static_cast<int>(WindowData::GetScreenSize().y / 2));
 
