@@ -34,14 +34,14 @@ class GameWindow
         std::shared_ptr<Player> _player2;
         CollisionSystem _collisionSystem;
         GameComponentGrid _gameComponentGrid;
-        EnnemyFactory _ennemyFactory;
-    
+
         // à réfléchir
         sf::Texture _asteroidTexture;
 
         float _deleteComponentTimer = 0.0f;
 
         StaticEntityFactory _staticEntityFactory;
+        EnnemyFactory _ennemyFactory;
 
         sf::Clock _clock;
 

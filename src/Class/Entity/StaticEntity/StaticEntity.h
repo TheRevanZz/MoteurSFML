@@ -23,7 +23,7 @@ public:
     StaticEntity(const sf::Texture& texture, const std::shared_ptr<BaseBonus>& projectileBonus);
     StaticEntity(const char* texturePath,  const std::shared_ptr<BaseBonus>& projectileBonus);
 
-    const int GetId() const { return this->_id; }
+    int GetId() const { return this->_id; }
     
     sf::Vector2f GetSize() const { return this->_sprite.getLocalBounds().size; }
 
