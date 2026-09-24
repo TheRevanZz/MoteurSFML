@@ -8,6 +8,7 @@
 #include "Game/Time/Time.h"
 #include "Game/WindowData/WindowData.h"
 #include "Other/AssetLoader/AssetLoader.h"
+#include "UI/HealthBar/UIHealthBar.h"
 
 
 GameWindow::GameWindow()
@@ -30,32 +31,43 @@ void GameWindow::Show(const int width, const int height, const std::string& titl
         "ressources/images/player_textures/spaceship_3.png",
         "ressources/images/player_textures/spaceship_4.png",
     }));
-    
+
+    this->_player->Initialize();
     this->_player->SetPosition({-_player->GetScaledSize().x / 2.f, _player->GetScaledSize().y / 2.f});
-    
+
     this->_player2 = std::make_shared<Player>(
         std::vector({
             "ressources/images/player_textures/spaceship_1.png",
             "ressources/images/player_textures/spaceship_2.png",
             "ressources/images/player_textures/spaceship_3.png",
             "ressources/images/player_textures/spaceship_4.png",
-        }),2);
+        }), 2);
+    this->_player2->Initialize();
     this->_player2->SetPosition({-100, -100});
-    
+
+    _healthBar = std::make_shared<UIHealthBar>(
+        UIHealthBar(
+            {255, 0, 0},
+            {100, 0, 0},
+            _player, {200, 30}
+        )
+    );
+
+    _UIComponents = {_healthBar};
     // if (this->_player2->ChangeKey(EActionTag::UP, sf::Keyboard::Key::Num0))
     // {
     //
     // }
 
-    _components = { _player, _player2 };
+    _components = {_player, _player2};
 
     _gameComponentGrid.SetComponents(&_components);
 
     _staticEntityFactory.SetComponentsList(&_components);
     _ennemyFactory.SetComponentsList(&_components);
-    
+
     _clock.start();
-    
+
     while (_window.isOpen())
     {
         ProcessEvents();
@@ -83,8 +95,13 @@ void GameWindow::ProcessEvents()
 
 void GameWindow::Render()
 {
+    for (const auto& ui : _UIComponents)
+    {
+        ui->Update();
+    }
     // Clear background with White color.
     _window.clear();
+
 
     DEBUG_ONLY(
         sf::RectangleShape x_line({ 10000.f, 2.f});
@@ -103,11 +120,12 @@ void GameWindow::Render()
     for (auto it = _components.begin(); it != _components.end();)
     {
         const auto& component = *it;
-        if (component->GetMustDie()) {
+        if (component->GetMustDie())
+        {
             it = _components.erase(it);
             continue;
         }
-        _window.draw(component->getDrawable());
+        component->Draw(_window);
 
         if (auto* UpdateableCompoent = dynamic_cast<IUpdateable*>(component.get()); UpdateableCompoent != nullptr)
         {
@@ -134,7 +152,11 @@ void GameWindow::Render()
         DeleteComponentsOutOfWindow();
         _deleteComponentTimer -= 2.f;
     }
-    
+
+    for (const auto& ui : _UIComponents)
+    {
+        ui->Draw(_window);
+    }
     // std::cout << _components.size() << "\n";
     _collisionSystem.compute(_gameComponentGrid);
 
@@ -154,19 +176,20 @@ void GameWindow::PreLoadTexture()
 void GameWindow::DeleteComponentsOutOfWindow()
 {
     const auto& outOfWindowComponent = _gameComponentGrid.GetOutOfGridsComponents();
-    
+
     // std::cout << "NB OUT OF GRID : " << outOfWindowComponent.size();
     if (outOfWindowComponent.empty())
         return;
-    
+
     for (auto it = _components.begin(); it != _components.end();)
     {
         //Si la view n'est pas empty, ça veut dire qu'une correspondance a été trouvé dans outOfWindowComponent par rapport à it.
-        auto IsPresent = outOfWindowComponent | std::ranges::views::filter([it](const std::shared_ptr<IGameComponent>& component)
-        {
-           return component == *it;
-        });
-        
+        auto IsPresent = outOfWindowComponent | std::ranges::views::filter(
+            [it](const std::shared_ptr<IGameComponent>& component)
+            {
+                return component == *it;
+            });
+
         if (IsPresent.empty())
         {
             ++it;
@@ -176,5 +199,4 @@ void GameWindow::DeleteComponentsOutOfWindow()
             it = _components.erase(it);
         }
     }
-    
 }

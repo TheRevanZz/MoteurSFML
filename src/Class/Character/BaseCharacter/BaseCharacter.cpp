@@ -35,7 +35,7 @@ const sf::FloatRect BaseCharacter::GetBounds() const
     return _sprite.getGlobalBounds();
 }
 
-const sf::Drawable& BaseCharacter::getDrawable() const
+const sf::Drawable& BaseCharacter::GetDrawable() const
 {
     return _sprite;
 }

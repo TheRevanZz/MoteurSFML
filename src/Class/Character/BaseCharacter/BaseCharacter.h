@@ -27,7 +27,7 @@ public:
     sf::Transformable& GetTransformable() override;
     const sf::Transformable& GetTransformable() const override;
     const sf::FloatRect GetBounds() const override;
-    const sf::Drawable& getDrawable() const override;
+    const sf::Drawable& GetDrawable() const override;
 
 protected:    
     sf::Texture _mainTexture;

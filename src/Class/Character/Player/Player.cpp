@@ -20,13 +20,14 @@
 #include "Entity/StaticEntity/StaticEntity.h"
 #include "Class/Game/Bonus/BaseBonus/BaseBonus.h"
 #include "Component/ShootComponent/Bullet.h"
+#include "UI/HealthBar/UIHealthBar.h"
 
 
 void Player::Init()
 {
     _id = _count;
     _sprite.setScale({.15f, .15f});
-
+    
     if (_id == 0)
     {
         _keymapPath = "ressources/config/keymap1.yml";
@@ -151,6 +152,13 @@ CoordinateSystem::WorldPoint Player::GetBulletStartPosition() const
     return {_sprite.getPosition().x + add.x, _sprite.getPosition().y + add.y};
 }
 
+void Player::Draw(sf::RenderWindow& window)
+{
+    assert(_healthBar && "HEALTH BAR NULLPTR");
+    _healthBar->Draw(window);
+    BaseCharacter::Draw(window);
+}
+
 void Player::Shoot()
 {
     _pShootComponent->Shoot();
@@ -211,6 +219,7 @@ void Player::update()
     {
         _hitAnimation.Animate();
     }
+    UpdateHealthBar();
 }
 
 void Player::ChangeSpriteColor(const sf::Color newColor)
@@ -505,6 +514,11 @@ void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
     // abort();
 }
 
+void Player::Initialize()
+{
+    _healthBar = std::make_unique<UIHealthBar>(UIHealthBar({255,0,0}, {100,0,0}, shared_from_this()));
+}
+
 void Player::ChangeSprite(const uint8_t id)
 {
     _pMultipleSpriteComponent->ChangeTexture(id);
@@ -534,6 +548,15 @@ float Player::ApplyBonusToStat(const float& stat, const EBonusCategory bonusCate
         final_stat = (*it)->GetApplyedBonus(final_stat);
     }
     return final_stat;
+}
+
+void Player::UpdateHealthBar()
+{
+    _healthBar->Update();
+    auto position = GetPosition();
+    position.x -= _healthBar->GetWidth() / 2;
+    position.y -= GetBounds().size.y / 2 + 10.f;
+    _healthBar->SetPosition(position);
 }
 
 void Player::HandleRotation()
