@@ -9,18 +9,18 @@
 #include "GameWindow/GameWindow.h"
 #include  <iostream>
 #include <memory>
-#include <random>
 
 #include "Game/Bonus/BaseBonus/BaseBonus.h"
-#include "Game/Time/Time.h"
+#include "Game/Bonus/DirectBonus/DirectBonus.h"
 #include "Other/Math/CMath.h"
 
-StaticEntity::StaticEntity(const sf::Texture& texture, const std::shared_ptr<BaseBonus>& projectileBonus,
-    const std::shared_ptr<DamageBonus>& physiqueBonus)
-    : BaseEntity(texture), _projectileBonus(projectileBonus), _physiqueBonus(physiqueBonus)
+StaticEntity::StaticEntity(const sf::Texture& texture, const std::shared_ptr<BaseBonus>& projectileBonus)
+    : BaseEntity(texture), _projectileBonus(projectileBonus)
 {
-    float xpos = CMath::randf(-(static_cast<int>(WindowData::GetScreenSize().x / 2)), static_cast<int>(WindowData::GetScreenSize().x / 2));
-    float ypos = CMath::randf(-(static_cast<int>(WindowData::GetScreenSize().x / 2)), static_cast<int>(WindowData::GetScreenSize().x / 2));
+    float xpos = CMath::randf(-(static_cast<int>(WindowData::GetScreenSize().x / 2)),
+                              static_cast<int>(WindowData::GetScreenSize().x / 2));
+    float ypos = CMath::randf(-(static_cast<int>(WindowData::GetScreenSize().x / 2)),
+                              static_cast<int>(WindowData::GetScreenSize().x / 2));
 
     _id = _count;
     _sprite.setScale({.15f, .15f});
@@ -32,9 +32,8 @@ StaticEntity::StaticEntity(const sf::Texture& texture, const std::shared_ptr<Bas
     _count++;
 }
 
-StaticEntity::StaticEntity(const char* texturePath,  const std::shared_ptr<BaseBonus>& projectileBonus,
-    const std::shared_ptr<DamageBonus>& physiqueBonus)
-    : BaseEntity(texturePath), _projectileBonus(projectileBonus), _physiqueBonus(physiqueBonus)
+StaticEntity::StaticEntity(const char* texturePath, const std::shared_ptr<BaseBonus>& projectileBonus)
+    : BaseEntity(texturePath), _projectileBonus(projectileBonus)
 {
     _id = _count;
     _sprite.setScale({.15f, .15f});
@@ -54,24 +53,31 @@ sf::Vector2f StaticEntity::GetScaledSize() const
     return {scale.x * size.x, scale.y * size.y};
 }
 
+const std::shared_ptr<BaseBonus>& StaticEntity::GetBonus() const
+{
+    return this->_projectileBonus;
+}
+
 void StaticEntity::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
 {
     BaseEntity::Collision(otherComponent);
     std::cout << "ok y'a une collision la\n";
     if (
-        const auto pBonusConsumer = std::dynamic_pointer_cast<IBonusConsumer>(otherComponent);
-        pBonusConsumer != nullptr
+        const auto pDamageable = std::dynamic_pointer_cast<IDamageable>(otherComponent);
+        pDamageable != nullptr
     )
     {
-        std::cout << "Static Entity " << this->_id + 1 << " : Collision avec un bonus consumer\n";
-        pBonusConsumer->GetBonusConsumer()->AddBonus(_projectileBonus);
+        pDamageable->TakeDamage(20);
         Destruct();
+        // std::cout << "Static Entity " << this->_id + 1 << " : Collision avec un bonus consumer\n";
+        // pBonusConsumer->GetBonusConsumer()->AddBonus(_physiqueBonus);
+        // Destruct();
     }
+    
 }
 
-void StaticEntity::Destruct() {
+void StaticEntity::Destruct()
+{
     // _factory->DeleteStaticEntity(this);
     SetMustDie();
 }
-
-

@@ -12,6 +12,7 @@ namespace se3
     {
     public:
         [[nodiscard]] const IGameComponent* GetParent() const;
+        IGameComponent* GetParent();
 
     protected:
         explicit BaseComponent(IGameComponent* owner);
