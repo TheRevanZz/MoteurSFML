@@ -17,6 +17,8 @@
 #include "IBonusConsumer/IBonusConsumer.h"
 #include "IShooter/IShooter.h"
 
+class UIHealthBar;
+
 namespace se3
 {
     class Animation;
@@ -38,7 +40,11 @@ using KeyValue = std::pair<
     std::optional<sf::Keyboard::Key>
 >;
 
-class Player : public BaseCharacter, public IShooter, public IBonusConsumer
+class Player :
+    public std::enable_shared_from_this<Player>,
+    public BaseCharacter,
+    public IShooter,
+    public IBonusConsumer
 {
     using HitAnimation = se3::Animation;
     
@@ -63,6 +69,7 @@ public:
 
     CoordinateSystem::WorldPoint GetBulletStartPosition() const override;
 
+    void Draw(sf::RenderWindow& window) override;
 
     void Shoot();
     void Rotate(float angle);
@@ -72,7 +79,7 @@ public:
 
     void update() override;
 
-    const sf::Drawable& getDrawable() const override { return this->_sprite; }
+    const sf::Drawable& GetDrawable() const override { return this->_sprite; }
 
     [[nodiscard("Il faut vérifier si l'opération a réussi")]]
     bool LoadKeymap(const std::string& keymapPath);
@@ -98,6 +105,7 @@ public:
         // multipleSpriteComponent.changeTexture(0u);
     }
     
+    void Initialize();
 
     void ChangeSprite(uint8_t id);
     const std::shared_ptr<BonusConsumer>& GetBonusConsumer() const override;
@@ -106,6 +114,7 @@ public:
 
 private:
     float ApplyBonusToStat(const float& stat, EBonusCategory bonusCategory) const;
+    void UpdateHealthBar();
 
 protected:
     std::vector<const char*> _texturesPaths;
@@ -154,6 +163,7 @@ protected:
     bool _isBeingHit = false;
     HitAnimation _hitAnimation;
     
+    std::unique_ptr<UIHealthBar> _healthBar = nullptr;
 
     void ChangeSpriteColor(sf::Color newColor);
 

@@ -9,6 +9,7 @@
 #include "Game/CollisionSystem/CollisionSystem.h"
 #include "Game/GameComponentGrid/GameComponentGrid.h"
 #include "Game/WindowData/WindowData.h"
+#include "UI/HealthBar/UIHealthBar.h"
 
 class Player;
 
@@ -30,8 +31,9 @@ class GameWindow
     private:
         sf::RenderWindow _window;
 
-        std::shared_ptr<Player> _player;
-        std::shared_ptr<Player> _player2;
+        std::shared_ptr<UIHealthBar> _healthBar;
+        std::shared_ptr<Player> _player = nullptr;
+        std::shared_ptr<Player> _player2 = nullptr;
         CollisionSystem _collisionSystem;
         GameComponentGrid _gameComponentGrid;
 
@@ -46,6 +48,7 @@ class GameWindow
         sf::Clock _clock;
 
         std::vector<std::shared_ptr<IGameComponent>> _components = {};
+        std::vector<std::shared_ptr<se3::UIGameComponent>> _UIComponents = {};
 
         void ProcessEvents();
         void Render();

@@ -6,6 +6,7 @@
 #include <memory>
 #include <unordered_set>
 #include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Transformable.hpp>
 
@@ -25,6 +26,7 @@ public:
     virtual const sf::FloatRect GetBounds() const = 0;
     virtual const sf::Transformable& GetTransformable() const = 0;
     virtual sf::Transformable& GetTransformable() = 0;
+    virtual void Draw(sf::RenderWindow& window);
 
     virtual void Collision(const std::shared_ptr<IGameComponent>& otherComponent);
 

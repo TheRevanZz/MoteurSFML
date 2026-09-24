@@ -3,8 +3,9 @@
 //
 
 #pragma once
+#include "ILife/ILife.h"
 
-class IDamageable
+class IDamageable : public ILife
 {
 
 protected:
@@ -17,6 +18,10 @@ public:
     virtual void TakeDamage(const float& damage) = 0;
     
     bool IsDead() const { return _life <= 0; }
+
+    [[nodiscard]] const float& GetLife() const override;
+    [[nodiscard]] float GetLifePourcent() const override;
+    [[nodiscard]] const float& GetMaxLife() const override;
 };
 
 

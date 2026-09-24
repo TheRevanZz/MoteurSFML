@@ -16,7 +16,7 @@ public:
     
     const sf::Transformable& GetTransformable() const override;
     sf::Transformable& GetTransformable() override;
-    const sf::Drawable& getDrawable() const override;
+    const sf::Drawable& GetDrawable() const override;
     const sf::FloatRect GetBounds() const override;
 
     
