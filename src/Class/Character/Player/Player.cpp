@@ -393,7 +393,9 @@ bool Player::ChangeKey(const EActionTag& action_tag, const sf::Keyboard::Key& ne
         return false;
 
     ryml::emit_yaml(YamlContent, yamlFile);
-    std::cout << "[KEYMAP] Keymap " << _keymapPath << " updated\n";
+    DEBUG_ONLY(
+        std::cout << "[KEYMAP] Keymap " << _keymapPath << " updated\n";
+    )
     if (int returnCode = fclose(yamlFile); returnCode == EOF)
     {
         DEBUG_ONLY(
@@ -406,12 +408,14 @@ bool Player::ChangeKey(const EActionTag& action_tag, const sf::Keyboard::Key& ne
 
 void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
 {
-    std::cout << "test collision\n";
+    // std::cout << "test collision\n";
     IGameComponent::Collision(otherComponent);
     if (std::dynamic_pointer_cast<StaticEntity>(otherComponent))
     {
         const auto pEntity = std::dynamic_pointer_cast<StaticEntity>(otherComponent);
-        std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->GetId() + 1 << "\n";
+        DEBUG_ONLY(
+            std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->GetId() + 1 << "\n";
+        )
     }
     if (auto bullet = std::dynamic_pointer_cast<Bullet>(otherComponent); bullet != nullptr)
     {

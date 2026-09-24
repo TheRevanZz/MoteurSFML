@@ -52,8 +52,7 @@ void GameWindow::Show(const int width, const int height, const std::string& titl
     _gameComponentGrid.SetComponents(&_components);
 
     _staticEntityFactory.SetComponentsList(&_components);
-    
-    // _staticEntityFactory.CreateStaticEntity();
+    _ennemyFactory.SetComponentsList(&_components);
     
     _clock.start();
     
@@ -125,7 +124,8 @@ void GameWindow::Render()
         )
         ++it;
     }
-    // _staticEntityFactory.update();
+    _staticEntityFactory.update();
+    _ennemyFactory.update();
 
 
     if (_deleteComponentTimer >= 2.f)
@@ -134,7 +134,7 @@ void GameWindow::Render()
         _deleteComponentTimer -= 2.f;
     }
     
-    std::cout << _components.size() << "\n";
+    // std::cout << _components.size() << "\n";
     _collisionSystem.compute(_gameComponentGrid);
 
     _window.display();

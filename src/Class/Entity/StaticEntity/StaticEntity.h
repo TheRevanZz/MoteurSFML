@@ -19,10 +19,10 @@ class StaticEntity : public BaseEntity, public IBonusGiver, public IDestructable
 public:
     static int _count;
 
-    StaticEntity(const sf::Texture &texture, const std::shared_ptr<BaseBonus>& bonus, StaticEntityFactory* factory);
-    StaticEntity(const char* texturePath, std::shared_ptr<BaseBonus> bonus, StaticEntityFactory* factory);
+    StaticEntity(const sf::Texture &texture, const std::shared_ptr<BaseBonus>& bonus);
+    StaticEntity(const char* texturePath, std::shared_ptr<BaseBonus> bonus);
 
-    const int GetId() const { return this->_id; }
+    int GetId() const { return this->_id; }
     
     sf::Vector2f GetSize() const { return this->_sprite.getLocalBounds().size; }
 
@@ -42,8 +42,6 @@ protected:
     int _id = 0;
 
     std::shared_ptr<BaseBonus> _bonus;
-
-    StaticEntityFactory* _factory;
 
 };
 

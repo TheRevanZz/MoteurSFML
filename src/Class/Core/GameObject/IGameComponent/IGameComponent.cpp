@@ -30,6 +30,6 @@ sf::Transform IGameComponent::GetTransform() const
 void IGameComponent::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
 {
     DEBUG_ONLY(
-        std::cout << "COLLISION\n";    
+        std::cout << "COLLISION\n";
     )
 }

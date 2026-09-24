@@ -43,8 +43,6 @@ protected:
     // à réfléchir
     sf::Texture _asteroidTexture;
 
-    std::array<int,4> mm = {1,2,3,4 };
-
     sf::Time _generationTimer;
     sf::Clock _clock;
 };

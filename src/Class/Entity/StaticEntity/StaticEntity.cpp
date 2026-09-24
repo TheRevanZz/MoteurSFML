@@ -11,18 +11,19 @@
 #include <memory>
 #include <random>
 
+#include "Debug.h"
 #include "Game/Time/Time.h"
 #include "Other/Math/CMath.h"
 
-StaticEntity::StaticEntity(const sf::Texture& texture, const std::shared_ptr<BaseBonus>& bonus,
-                           StaticEntityFactory* factory)
-    : BaseEntity(texture), _bonus(bonus), _factory(factory)
+StaticEntity::StaticEntity(const sf::Texture& texture, const std::shared_ptr<BaseBonus>& bonus)
+    : BaseEntity(texture), _bonus(bonus)
 {
-    float xpos = CMath::randf(-(static_cast<int>(WindowData::GetScreenSize().x / 2)), static_cast<int>(WindowData::GetScreenSize().x / 2));
-    float ypos = CMath::randf(-(static_cast<int>(WindowData::GetScreenSize().x / 2)), static_cast<int>(WindowData::GetScreenSize().x / 2));
+    _sprite.setScale({.15f, .15f});
+
+    float xpos = CMath::randf(-(static_cast<int>(WindowData::GetScreenSize().x / 2)), static_cast<int>(WindowData::GetScreenSize().x / 2 - _sprite.getGlobalBounds().size.x));
+    float ypos = CMath::randf(-(static_cast<int>(WindowData::GetScreenSize().y / 2 - _sprite.getGlobalBounds().size.y)), static_cast<int>(WindowData::GetScreenSize().y / 2));
 
     _id = _count;
-    _sprite.setScale({.15f, .15f});
 
     // _sprite.setOrigin({_sprite.getGlobalBounds().size.x / 2.f, _sprite.getGlobalBounds().size.y / 2.f});
 
@@ -31,8 +32,8 @@ StaticEntity::StaticEntity(const sf::Texture& texture, const std::shared_ptr<Bas
     _count++;
 }
 
-StaticEntity::StaticEntity(const char* texturePath, std::shared_ptr<BaseBonus> bonus, StaticEntityFactory* factory)
-    : BaseEntity(texturePath), _factory(factory)
+StaticEntity::StaticEntity(const char* texturePath, std::shared_ptr<BaseBonus> bonus)
+    : BaseEntity(texturePath)
 {
     _id = _count;
     _sprite.setScale({.15f, .15f});
@@ -55,13 +56,14 @@ sf::Vector2f StaticEntity::GetScaledSize() const
 void StaticEntity::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
 {
     BaseEntity::Collision(otherComponent);
-    std::cout << "ok y'a une collision la\n";
     if (
         const auto pBonusConsumer = std::dynamic_pointer_cast<IBonusConsumer>(otherComponent);
         pBonusConsumer != nullptr
     )
     {
-        std::cout << "Static Entity " << this->_id + 1 << " : Collision avec un bonus consumer\n";
+        DEBUG_ONLY(
+            std::cout << "Static Entity " << this->_id + 1 << " : Collision avec un bonus consumer\n";
+        )
         pBonusConsumer->GetBonusConsumer()->AddBonus(_bonus);
         Destruct();
     }
