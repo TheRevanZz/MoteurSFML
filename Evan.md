@@ -25,22 +25,46 @@ Il fallait faire cette rotation de façon progressive et non de façon instantan
 **SOLUTIONS**<br/>
 Pour gérer les déplacements en diagonale, il fallut faire des conditions en plus afin de plus ou moins rotationner le joueur pour correspondre à sa direction. Pour la rotation progressive, il a fallut faire en fonction de delta time pour avoir le résultat souhaité. Il a également fallut normaliser l'angle de rotation, entre -180 et 180, afin de ne pas un tour complet pour rien. 
 
-## #2 Limitation des déplacement aux bords de l'écran
+## #2 Limitation des déplacements aux bords de l'écran
+
 **CONTEXTE**<br/>
+Le joueur ne doit pas pouvoir sortir de l'écran lorsqu'il se déplace.
+
 **PROBLEMES**<br/>
+Il n'y a pas eu de problème particulier pour cette fonctionnalité. Il fallait simplement prendre en compte les dimensions de la fenêtre pour empêcher le joueur de dépasser les bords de l'écran.
+
 **SOLUTIONS**<br/>
+Il a donc fallut ajouter une limitation aux déplacements du joueur afin qu'il ne puisse pas dépasser les bords de la fenêtre.
 
 ## #3 Ajout d'entités statiques avec leur générateur
-**CONTEXTE**<br/>
-**PROBLEMES**<br/>
-**SOLUTIONS**<br/>
 
-## #4 Ajout du générateur d'ennemies
 **CONTEXTE**<br/>
+Dans le jeu, il y a des entités statiques, notamment des astéroïdes. Ces astéroïdes doivent pouvoir apparaître sur la carte et entrer en collision avec les joueurs.
+
 **PROBLEMES**<br/>
+Il fallait tout d'abord créer une classe pour les entités statiques et faire en sorte qu'elles puissent entrer en collision avec les joueurs.<br/>
+Il fallait ensuite créer un générateur permettant de faire apparaître aléatoirement un astéroïde sur la carte, avec un temps aléatoire entre 5 et 30 secondes.<br/>
+Il fallait également faire en sorte que les astéroïdes soient générés à l'intérieur de la fenêtre et non en dehors. Enfin, les entités statiques devaient être ajoutées dans une liste spécifique, située dans une autre classe, afin de pouvoir entrer en collision avec les joueurs.
+
 **SOLUTIONS**<br/>
+Il a donc fallut créer une classe pour les entités statiques et les ajouter au système de collision afin qu'elles puissent entrer en collision avec les joueurs.<br/>
+Pour le générateur, on a utilisé un temps aléatoire entre 5 et 30 secondes ainsi qu'une position aléatoire sur la carte. Il a également fallut limiter les positions possibles aux dimensions de la fenêtre afin que les astéroïdes ne puissent pas apparaître en dehors de l'écran.<br/>
+Pour pouvoir ajouter les nouveaux astéroïdes dans la liste utilisée pour les collisions, il a fallut récupérer cette liste sous forme de pointeur dans la classe du générateur. Le générateur peut ainsi ajouter directement les nouvelles entités dans la liste.
+
+## #4 Ajout du générateur d'ennemis
+
+**CONTEXTE**<br/>
+Le jeu contient également des ennemis qui doivent être générés automatiquement pendant la partie. Le fonctionnement recherché était similaire à celui utilisé pour les entités statiques.
+
+**PROBLEMES**<br/>
+La base de la classe des ennemis avait déjà été réalisée par Sylvio. Il fallait donc principalement créer le générateur et l'intégrer au fonctionnement existant.
+
+**SOLUTIONS**<br/>
+Pour créer le générateur d'ennemis, on a repris le fonctionnement utilisé pour le générateur d'entités statiques. Il a donc fallut reprendre le même principe pour générer les ennemis et les ajouter dans la liste prévue à cet effet.
 
 ## #5 Gestion des différentes scènes
+
 **CONTEXTE**<br/>
-**PROBLEMES**<br/>
-**SOLUTIONS**<br/>
+Le jeu doit avoir plusieurs scènes, notamment le menu du jeu et la scène principale. Il doit être possible de passer du menu au jeu et du jeu au menu.
+
+_Work in progress_
