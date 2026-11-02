@@ -6,7 +6,15 @@ find_package(SFML REQUIRED)
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "./*.cpp" "./*.h" "./*.hpp")
 
-add_executable(R5A12 ${SOURCES})
+add_executable(R5A12 ${SOURCES}
+        Class/Core/Scene/Scene.cpp
+        Class/Core/Scene/Scene.h
+        Class/Core/Scene/SceneManager.cpp
+        Class/Core/Scene/SceneManager.h
+		Class/Scenes/MainMenuScene.cpp
+		Class/Scenes/MainMenuScene.h
+		Class/Scenes/GameScene.cpp
+		Class/Scenes/GameScene.h)
 
 target_link_libraries(R5A12 sfml::sfml)
 

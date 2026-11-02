@@ -166,7 +166,7 @@ void Player::ProgressiveRotate(float targetAngle)
     const auto& dt = Time::deltaTime();
 
     const float currentAngle = _sprite.getRotation().asDegrees();
-    // pr atteindre le target angle je dois rotate de angle°
+    // pr atteindre le target angle faut rotate de angle°
     float angle = targetAngle - currentAngle;
 
     //normalise entre -180 et 180

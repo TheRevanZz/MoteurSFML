@@ -30,29 +30,29 @@ class GameWindow
     private:
         sf::RenderWindow _window;
 
-        std::shared_ptr<Player> _player;
-        std::shared_ptr<Player> _player2;
-        CollisionSystem _collisionSystem;
-        GameComponentGrid _gameComponentGrid;
-
-        // à réfléchir
-        sf::Texture _asteroidTexture;
-
-        float _deleteComponentTimer = 0.0f;
-
-        StaticEntityFactory _staticEntityFactory;
-        EnnemyFactory _ennemyFactory;
+        // std::shared_ptr<Player> _player;
+        // std::shared_ptr<Player> _player2;
+        // CollisionSystem _collisionSystem;
+        // GameComponentGrid _gameComponentGrid;
+        //
+        // // à réfléchir
+        // sf::Texture _asteroidTexture;
+        //
+        // float _deleteComponentTimer = 0.0f;
+        //
+        // StaticEntityFactory _staticEntityFactory;
+        // EnnemyFactory _ennemyFactory;
 
         sf::Clock _clock;
 
-        std::vector<std::shared_ptr<IGameComponent>> _components = {};
+        // std::vector<std::shared_ptr<IGameComponent>> _components = {};
 
         void ProcessEvents();
-        void Render();
-    
-        void PreLoadTexture();
-    
-        void DeleteComponentsOutOfWindow();
+        // void Render();
+        //
+        // void PreLoadTexture();
+        //
+        // void DeleteComponentsOutOfWindow();
     
 };
 
