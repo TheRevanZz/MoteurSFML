@@ -121,12 +121,14 @@ protected:
     float _dashForce = 2500.f;
     float _dashDuration = 0.25f;
     float _dashTimer = 0.f;
+    float _dashCooldownTimer = 0.f;
     float _dashMaxSpeed = 700.f;
 
     sf::Vector2f _dashDirection{0.f, 0.f};
 
     bool _isDashing = false;
     bool _canDash = true;
+    bool _dashKeyWasPressed = false;
     
     int _id = 0;
     std::string _keymapPath = "ressources/config/keymap1.yml";

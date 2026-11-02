@@ -258,19 +258,13 @@ void Player::HandleMovement()
         forceY = input.y * _thrustForce;
     }
 
+    const bool wasDashing = _isDashing;
+
     // Force du dash
-    if (_isDashing)
+    if (wasDashing)
     {
         forceX += _dashDirection.x * _dashForce;
         forceY += _dashDirection.y * _dashForce;
-
-        _dashTimer -= dt;
-
-        if (_dashTimer <= 0.f)
-        {
-            _dashTimer = 0.f;
-            _isDashing = false;
-        }
     }
 
     // Euler : v(n+1) = v(n) + (F/m) * dt
@@ -313,27 +307,39 @@ void Player::HandleMovement()
     );
     
     Move(displacement);
+
+    if (wasDashing)
+    {
+        _dashTimer -= dt;
+        if (_dashTimer <= 0.f)
+        {
+            _dashTimer = 0.f;
+            _isDashing = false;
+        }
+    }
 }
 
 void Player::HandleDash()
 {
     const float dt = Time::deltaTime();
+    const bool dashPressed = PlayerIsDoingAction(EActionTag::DASH);
 
     // Cooldown du dash
     if (!_canDash)
     {
-        _dashTimer -= dt;
+        _dashCooldownTimer -= dt;
 
-        if (_dashTimer <= 0.f)
+        if (_dashCooldownTimer <= 0.f)
         {
-            _dashTimer = 0.f;
+            _dashCooldownTimer = 0.f;
             _canDash = true;
         }
-
-        return;
     }
 
-    if (PlayerIsDoingAction(EActionTag::DASH))
+    const bool dashJustPressed = dashPressed && !_dashKeyWasPressed;
+    _dashKeyWasPressed = dashPressed;
+
+    if (_canDash && !_isDashing && dashJustPressed)
     {
         sf::Vector2f direction(0.f, 0.f);
 
@@ -344,10 +350,10 @@ void Player::HandleDash()
             direction.x += 1.f;
 
         if (PlayerIsDoingAction(EActionTag::UP))
-            direction.y -= 1.f;
+            direction.y += 1.f;
 
         if (PlayerIsDoingAction(EActionTag::DOWN))
-            direction.y += 1.f;
+            direction.y -= 1.f;
 
         // Si aucune direction n'est donnée,
         // dash dans la direction vers laquelle regarde le joueur
@@ -365,6 +371,7 @@ void Player::HandleDash()
         _isDashing = true;
         _canDash = false;
         _dashTimer = _dashDuration;
+        _dashCooldownTimer = _dashDuration;
     }
 }
 
