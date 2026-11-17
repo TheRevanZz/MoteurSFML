@@ -13,10 +13,7 @@
 
 GameWindow::GameWindow()
 {
-    // PreLoadTexture();
-    // if (!_asteroidTexture.loadFromFile("ressources/images/entity_textures/static_entity_textures/static_entity_0.png"))
-    //     abort();
-    // GameplayData::SetComponents(&_components);
+
 }
 
 void GameWindow::Show(const int width, const int height, const std::string& title)
@@ -25,36 +22,6 @@ void GameWindow::Show(const int width, const int height, const std::string& titl
     _window.setFramerateLimit(60);
     WindowData::SetWindow(&_window);
 
-    // this->_player = std::make_shared<Player>(std::vector({
-    //     "ressources/images/player_textures/spaceship_1.png",
-    //     "ressources/images/player_textures/spaceship_2.png",
-    //     "ressources/images/player_textures/spaceship_3.png",
-    //     "ressources/images/player_textures/spaceship_4.png",
-    // }));
-    //
-    // this->_player->SetPosition({-_player->GetScaledSize().x / 2.f, _player->GetScaledSize().y / 2.f});
-    //
-    // this->_player2 = std::make_shared<Player>(
-    //     std::vector({
-    //         "ressources/images/player_textures/spaceship_1.png",
-    //         "ressources/images/player_textures/spaceship_2.png",
-    //         "ressources/images/player_textures/spaceship_3.png",
-    //         "ressources/images/player_textures/spaceship_4.png",
-    //     }),2);
-    // this->_player2->SetPosition({-100, -100});
-    //
-    // // if (this->_player2->ChangeKey(EActionTag::UP, sf::Keyboard::Key::Num0))
-    // // {
-    // //
-    // // }
-    //
-    // _components = { _player, _player2 };
-    //
-    // _gameComponentGrid.SetComponents(&_components);
-    //
-    // _staticEntityFactory.SetComponentsList(&_components);
-    // _ennemyFactory.SetComponentsList(&_components);
-    
     _clock.start();
     float dt = 0.f;
     
@@ -82,10 +49,6 @@ void GameWindow::ProcessEvents()
     {
         if (event->is<sf::Event::Closed>() || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
             _window.close();
-        // if (event->is<sf::Event::KeyPressed>() && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::C))
-        // {
-        //     _player->Shoot();
-        // }
     }
 }
 
