@@ -116,30 +116,35 @@ void Player::Move(const sf::Vector2f& offset)
     // offset.length c'est Vx**2 + y**2 donc si Vx**2 + y**2 = 0 alors c'est que y = 0 car Vx**2 + 0 = x
     _sprite.move({offset.x, -offset.y});
 
-    //si à droite de l'écran
-    if (_sprite.getPosition().x > _screenSize.x - GetScaledSize().x / 2)
+    auto position = _sprite.getPosition();
+    const auto halfSize = GetScaledSize() / 2.f;
+
+    if (position.x > _screenSize.x - halfSize.x)
     {
-        //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(_screenSize.x - GetScaledSize().x / 2, _sprite.getPosition().y));
+        position.x = _screenSize.x - halfSize.x;
+        if (_velocityX > 0.f)
+            _velocityX = -_velocityX;
     }
-    //si à gauche de l'écran
-    if (_sprite.getPosition().x < 0 + GetScaledSize().x / 2)
+    if (position.x < halfSize.x)
     {
-        //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(0 + GetScaledSize().x / 2, _sprite.getPosition().y));
+        position.x = halfSize.x;
+        if (_velocityX < 0.f)
+            _velocityX = -_velocityX;
     }
-    //si en bas de l'écran
-    if (_sprite.getPosition().y > _screenSize.y - GetScaledSize().y / 2)
+    if (position.y > _screenSize.y - halfSize.y)
     {
-        //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x, _screenSize.y - GetScaledSize().y / 2));
+        position.y = _screenSize.y - halfSize.y;
+        if (_velocityY < 0.f)
+            _velocityY = -_velocityY;
     }
-    //si en haut de l'écran
-    if (_sprite.getPosition().y < 0 + GetScaledSize().y / 2)
+    if (position.y < halfSize.y)
     {
-        //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x, 0 + GetScaledSize().y / 2));
+        position.y = halfSize.y;
+        if (_velocityY > 0.f)
+            _velocityY = -_velocityY;
     }
+
+    _sprite.setPosition(position);
 }
 
 CoordinateSystem::WorldPoint Player::GetBulletStartPosition() const
