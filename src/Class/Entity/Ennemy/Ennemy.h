@@ -6,17 +6,24 @@
 
 #include "Character/BaseCharacter/BaseCharacter.h"
 #include "IDestructable/IDestructable.h"
+#include "IShooter/IShooter.h"
 
-class Ennemy: public BaseCharacter, IDestructable {
+class ShootComponent;
+
+class Ennemy: public BaseCharacter, public IDestructable, public IShooter {
 
 public:
     static int _count;
 
     Ennemy(const sf::Texture& texture, float life);
     
-    void TakeDamage(const float& damage) override {}
+    void TakeDamage(const float& damage) override;
     
-    void update() override {}
+    void update() override;
+
+    CoordinateSystem::WorldPoint GetBulletStartPosition() const override;
+
+    void Shoot();
 
     int GetId() const { return this->_id; }
 
@@ -36,8 +43,8 @@ protected:
     int _id = 0;
 
     std::shared_ptr<BaseBonus> _bonus;
+    std::shared_ptr<ShootComponent> _pShootComponent;
+    sf::Clock _shootClock;
 };
 
 inline int Ennemy::_count = 0;
-
-

@@ -7,6 +7,7 @@
 #include "IBonusGiver/IBonusGiver.h"
 #include "IDamageable/IDamageable.h"
 #include "IDestructable/IDestructable.h"
+#include "Entity/Ennemy/Ennemy.h"
 
 Bullet::Bullet(const sf::Vector2f direction, const CoordinateSystem::WorldPoint position,
                const ShootComponent* shootComponent)
@@ -35,8 +36,14 @@ void Bullet::update()
 
 void Bullet::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
 {
-    if (const auto owner = _shootComponent->GetParent();
-        otherComponent.get() == owner)
+    const auto owner = _shootComponent->GetParent();
+
+    if (otherComponent.get() == owner)
+        return;
+
+    const auto ownerIsEnnemy = dynamic_cast<const Ennemy*>(owner) != nullptr;
+    const auto otherIsEnnemy = dynamic_cast<const Ennemy*>(otherComponent.get()) != nullptr;
+    if (ownerIsEnnemy && otherIsEnnemy)
         return;
 
     if (const auto bullet = std::dynamic_pointer_cast<Bullet>(otherComponent); bullet != nullptr)
@@ -45,14 +52,10 @@ void Bullet::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
     }
 
 
-    if (
-        const auto& damageable = std::dynamic_pointer_cast<IDamageable>(otherComponent);
-        damageable != nullptr
-    )
+    const auto damageable = std::dynamic_pointer_cast<IDamageable>(otherComponent);
+    if (damageable != nullptr)
     {
         damageable->TakeDamage(20);
-
-        // _shootComponent->DeleteBullet(this);
     }
 
     if (const auto pBonusConsumer = dynamic_cast<const IBonusConsumer*>(_shootComponent->GetParent()); pBonusConsumer !=
@@ -67,9 +70,13 @@ void Bullet::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
         }
     }
 
-    if (const auto& destructible = std::dynamic_pointer_cast<IDestructable>(otherComponent))
+    // A damageable object decides itself when it should be destroyed.
+    // Destructible objects without health (such as bonus entities) are
+    // destroyed directly on impact.
+    if (damageable == nullptr)
     {
-        destructible->Destruct();
+        if (const auto& destructible = std::dynamic_pointer_cast<IDestructable>(otherComponent))
+            destructible->Destruct();
     }
 
     this->SetMustDie();
