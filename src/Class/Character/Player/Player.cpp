@@ -17,17 +17,37 @@
 #include "Game/Time/Time.h"
 #include "Class/Component/MultipleSprite/MultipleSpriteComponent.h"
 #include "Class/Component/ShootComponent/ShootComponent.h"
-#include "Entity/StaticEntity/StaticEntity.h"
 #include "Class/Game/Bonus/BaseBonus/BaseBonus.h"
 #include "Component/ShootComponent/Bullet.h"
+#include "Core/GameplayData/GameplayData.h"
 #include "UI/HealthBar/UIHealthBar.h"
 
 
-void Player::Init()
+void Player::Init(const uint8_t textureIndex)
 {
+    _playerTextures.reserve(4);
+    _healthBar = std::make_unique<UIHealthBar>(
+        UIHealthBar(
+            {
+                .background_color = sf::Color::Green,
+                .main_color = {100, 0, 0},
+                .element = this,
+                .speed = .8f
+            }
+        )
+    );
+    
+    GameplayData::RegisterPlayer(this);
+    
     _id = _count;
     _sprite.setScale({.15f, .15f});
-    
+
+    while (static_cast<int>(_playerTextures.size()) < _id + 1)
+    {
+        _playerTextures.push_back(-1);
+    }
+    _playerTextures[_id] = textureIndex;
+
     if (_id == 0)
     {
         _keymapPath = "ressources/config/keymap1.yml";
@@ -44,7 +64,7 @@ void Player::Init()
     // keymap.at("Left").second = sf::Keyboard::Key::Left;
 
     _sprite.setOrigin({_sprite.getLocalBounds().size.x / 2.f, _sprite.getLocalBounds().size.y / 2.f});
-    _count++;
+    ++_count;
     // _sprite.setColor(sf::Color(255,0,0));
 }
 
@@ -52,7 +72,7 @@ Player::HitAnimation Player::CreateHitAnimation()
 {
     return {
         {
-            {0,  [this] { ChangeSpriteColor(sf::Color::Red); }},
+            {0, [this] { ChangeSpriteColor(sf::Color::Red); }},
             {15, [this] { ChangeSpriteColor(sf::Color::White); }},
             {30, [this] { ChangeSpriteColor(sf::Color::Red); }},
             {45, [this] { ChangeSpriteColor(sf::Color::White); }},
@@ -65,7 +85,7 @@ Player::HitAnimation Player::CreateHitAnimation()
 }
 
 Player::Player(std::vector<const char*> texturesPaths, const uint8_t textureIndex)
-    : BaseCharacter(texturesPaths[textureIndex], PLAYER_LIFE),
+    : BaseCharacter(texturesPaths[textureIndex % texturesPaths.size()], PLAYER_LIFE),
       _screenSize(WindowData::GetScreenSize()),
       _pMultipleSpriteComponent(
           se3::CreateComponent<MultipleSpriteComponent>(
@@ -80,11 +100,11 @@ Player::Player(std::vector<const char*> texturesPaths, const uint8_t textureInde
       _pBonusConsumer(CreateComponent<BonusConsumer>(this)),
       _hitAnimation(CreateHitAnimation())
 {
-    Init();
+    Init(textureIndex);
 }
 
 Player::Player(std::vector<std::string> texturesPaths, const uint8_t textureIndex)
-    : BaseCharacter(texturesPaths[textureIndex].c_str(), PLAYER_LIFE),
+    : BaseCharacter(texturesPaths[textureIndex % texturesPaths.size()].c_str(), PLAYER_LIFE),
       _screenSize(WindowData::GetScreenSize()),
       _pMultipleSpriteComponent(
           se3::CreateComponent<MultipleSpriteComponent>(
@@ -100,7 +120,20 @@ Player::Player(std::vector<std::string> texturesPaths, const uint8_t textureInde
       _pBonusConsumer(CreateComponent<BonusConsumer>(this)),
       _hitAnimation(CreateHitAnimation())
 {
-    Init();
+    Init(textureIndex);
+}
+
+std::shared_ptr<Player> Player::MakePlayer(const uint8_t textureId)
+{
+    if (_count >= 2)
+        return nullptr;
+    
+    return std::make_shared<Player>(std::vector({
+        "ressources/images/player_textures/spaceship_1.png",
+        "ressources/images/player_textures/spaceship_2.png",
+        "ressources/images/player_textures/spaceship_3.png",
+        "ressources/images/player_textures/spaceship_4.png",
+    }), std::cmp_equal(textureId, _count) ? textureId : _count);
 }
 
 sf::Vector2f Player::GetScaledSize() const
@@ -118,28 +151,30 @@ void Player::Move(const sf::Vector2f& offset)
     _sprite.move({offset.x, -offset.y});
 
     //si à droite de l'écran
-    if (_sprite.getPosition().x > _screenSize.x - GetScaledSize().x / 2)
+    if (_sprite.getPosition().x > static_cast<float>(_screenSize.x) - GetScaledSize().x / 2.0f)
     {
         //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(_screenSize.x - GetScaledSize().x / 2, _sprite.getPosition().y));
+        _sprite.setPosition(sf::Vector2f(static_cast<float>(_screenSize.x) - GetScaledSize().x / 2.0f,
+                                         _sprite.getPosition().y));
     }
     //si à gauche de l'écran
-    if (_sprite.getPosition().x < 0 + GetScaledSize().x / 2)
+    if (_sprite.getPosition().x < 0 + GetScaledSize().x / 2.0f)
     {
         //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(0 + GetScaledSize().x / 2, _sprite.getPosition().y));
+        _sprite.setPosition(sf::Vector2f(0 + GetScaledSize().x / 2.0f, _sprite.getPosition().y));
     }
     //si en bas de l'écran
-    if (_sprite.getPosition().y > _screenSize.y - GetScaledSize().y / 2)
+    if (_sprite.getPosition().y > static_cast<float>(_screenSize.y) - GetScaledSize().y / 2.0f)
     {
         //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x, _screenSize.y - GetScaledSize().y / 2));
+        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x,
+                                         static_cast<float>(_screenSize.y) - GetScaledSize().y / 2.0f));
     }
     //si en haut de l'écran
-    if (_sprite.getPosition().y < 0 + GetScaledSize().y / 2)
+    if (_sprite.getPosition().y < 0 + GetScaledSize().y / 2.0f)
     {
         //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x, 0 + GetScaledSize().y / 2));
+        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x, 0 + GetScaledSize().y / 2.0f));
     }
 }
 
@@ -215,11 +250,13 @@ void Player::update()
     HandleRotation();
     ProgressiveRotate(_targetRotation);
     _pBonusConsumer->UpdateBonusesTimers();
+    _pShootComponent->Update();
     if (_isBeingHit)
     {
         _hitAnimation.Animate();
     }
     UpdateHealthBar();
+    HandleShoot();
 }
 
 void Player::ChangeSpriteColor(const sf::Color newColor)
@@ -300,11 +337,11 @@ void Player::HandleMovement()
     // limitation de la vitesse maximale
     const float speed =
         std::sqrt(_velocityX * _velocityX +
-                  _velocityY * _velocityY);
+            _velocityY * _velocityY);
 
     const float maxSpeed = _isDashing
-        ? _dashMaxSpeed
-        : ApplyBonusToStat(_maxSpeed, EBonusCategory::SPEED);
+                               ? _dashMaxSpeed
+                               : ApplyBonusToStat(_maxSpeed, EBonusCategory::SPEED);
 
     if (speed > maxSpeed)
     {
@@ -320,7 +357,7 @@ void Player::HandleMovement()
         _velocityX * dt,
         _velocityY * dt
     );
-    
+
     Move(displacement);
 }
 
@@ -386,6 +423,7 @@ bool Player::PlayerIsDoingAction(const EActionTag action_tag) const
         return false;
     return sf::Keyboard::isKeyPressed(keymapValue.value().second.value());
 }
+
 
 bool Player::LoadKeymap(const std::string& keymapPath)
 {
@@ -503,9 +541,9 @@ void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
     // if (std::dynamic_pointer_cast<StaticEntity>(otherComponent))
     // {
     //     const auto pEntity = std::dynamic_pointer_cast<StaticEntity>(otherComponent);
-        // DEBUG_ONLY(
-        //     std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->GetId() + 1 << "\n";
-        // )
+    // DEBUG_ONLY(
+    //     std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->GetId() + 1 << "\n";
+    // )
     // }
     // if (auto bullet = std::dynamic_pointer_cast<Bullet>(otherComponent); bullet != nullptr)
     // {
@@ -516,7 +554,6 @@ void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
 
 void Player::Initialize()
 {
-    _healthBar = std::make_unique<UIHealthBar>(UIHealthBar({255,0,0}, {100,0,0}, shared_from_this()));
 }
 
 void Player::ChangeSprite(const uint8_t id)
@@ -557,6 +594,14 @@ void Player::UpdateHealthBar()
     position.x -= _healthBar->GetWidth() / 2;
     position.y -= GetBounds().size.y / 2 + 10.f;
     _healthBar->SetPosition(position);
+}
+
+void Player::HandleShoot()
+{
+    if (PlayerIsDoingAction(EActionTag::SHOOT))
+    {
+        Shoot();
+    }
 }
 
 void Player::HandleRotation()

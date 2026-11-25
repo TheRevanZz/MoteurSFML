@@ -25,7 +25,7 @@ public:
 
 protected:
     sf::Vector2f _direction;
-    float _maxDistance = 200.0f;
+    float _maxDistance = 800.0f;
     float _currentDistance = 0.f;
     float _speed = 200.0f;
 
