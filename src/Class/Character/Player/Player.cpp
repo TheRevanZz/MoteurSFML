@@ -85,7 +85,6 @@ Player::HitAnimation Player::CreateHitAnimation()
 
 Player::Player(std::vector<const char*> texturesPaths, const uint8_t textureIndex)
     : BaseCharacter(texturesPaths[textureIndex % texturesPaths.size()], PLAYER_LIFE),
-      _screenSize(WindowData::GetScreenSize()),
       _pMultipleSpriteComponent(
           se3::CreateComponent<MultipleSpriteComponent>(
               this,
@@ -104,7 +103,6 @@ Player::Player(std::vector<const char*> texturesPaths, const uint8_t textureInde
 
 Player::Player(std::vector<std::string> texturesPaths, const uint8_t textureIndex)
     : BaseCharacter(texturesPaths[textureIndex % texturesPaths.size()].c_str(), PLAYER_LIFE),
-      _screenSize(WindowData::GetScreenSize()),
       _pMultipleSpriteComponent(
           se3::CreateComponent<MultipleSpriteComponent>(
               this,
