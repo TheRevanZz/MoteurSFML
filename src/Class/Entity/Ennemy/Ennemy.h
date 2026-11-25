@@ -48,3 +48,4 @@ protected:
 };
 
 inline int Ennemy::_count = 0;
+
