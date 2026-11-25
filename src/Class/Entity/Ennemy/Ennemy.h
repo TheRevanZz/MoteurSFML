@@ -16,7 +16,7 @@ public:
     
     void TakeDamage(const float& damage) override {}
     
-    void update() override {}
+    void update() override;
 
     int GetId() const { return this->_id; }
 
@@ -39,5 +39,4 @@ protected:
 };
 
 inline int Ennemy::_count = 0;
-
 

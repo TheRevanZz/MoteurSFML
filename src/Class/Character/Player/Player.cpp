@@ -13,7 +13,6 @@
 #include "Debug.h"
 #include "Character/BonusConsumer/BonusConsumer.h"
 #include "Game/Utils/Utils.h"
-#include "Game/WindowData/WindowData.h"
 #include "Game/Time/Time.h"
 #include "Class/Component/MultipleSprite/MultipleSpriteComponent.h"
 #include "Class/Component/ShootComponent/ShootComponent.h"
@@ -66,7 +65,6 @@ Player::HitAnimation Player::CreateHitAnimation()
 
 Player::Player(std::vector<const char*> texturesPaths, const uint8_t textureIndex)
     : BaseCharacter(texturesPaths[textureIndex], PLAYER_LIFE),
-      _screenSize(WindowData::GetScreenSize()),
       _pMultipleSpriteComponent(
           se3::CreateComponent<MultipleSpriteComponent>(
               this,
@@ -85,7 +83,6 @@ Player::Player(std::vector<const char*> texturesPaths, const uint8_t textureInde
 
 Player::Player(std::vector<std::string> texturesPaths, const uint8_t textureIndex)
     : BaseCharacter(texturesPaths[textureIndex].c_str(), PLAYER_LIFE),
-      _screenSize(WindowData::GetScreenSize()),
       _pMultipleSpriteComponent(
           se3::CreateComponent<MultipleSpriteComponent>(
               this,
@@ -103,49 +100,14 @@ Player::Player(std::vector<std::string> texturesPaths, const uint8_t textureInde
     Init();
 }
 
+Player::~Player() = default;
+
 sf::Vector2f Player::GetScaledSize() const
 {
     const auto& scale = this->_sprite.getScale();
     const auto& size = this->_sprite.getLocalBounds().size;
 
     return {scale.x * size.x, scale.y * size.y};
-}
-
-void Player::Move(const sf::Vector2f& offset)
-{
-    //Si offset.length = offset.x c'est équivalent à ce que offset.y soit egal a 0.
-    // offset.length c'est Vx**2 + y**2 donc si Vx**2 + y**2 = 0 alors c'est que y = 0 car Vx**2 + 0 = x
-    _sprite.move({offset.x, -offset.y});
-
-    auto position = _sprite.getPosition();
-    const auto halfSize = GetScaledSize() / 2.f;
-
-    if (position.x > _screenSize.x - halfSize.x)
-    {
-        position.x = _screenSize.x - halfSize.x;
-        if (_velocityX > 0.f)
-            _velocityX = -_velocityX;
-    }
-    if (position.x < halfSize.x)
-    {
-        position.x = halfSize.x;
-        if (_velocityX < 0.f)
-            _velocityX = -_velocityX;
-    }
-    if (position.y > _screenSize.y - halfSize.y)
-    {
-        position.y = _screenSize.y - halfSize.y;
-        if (_velocityY < 0.f)
-            _velocityY = -_velocityY;
-    }
-    if (position.y < halfSize.y)
-    {
-        position.y = halfSize.y;
-        if (_velocityY > 0.f)
-            _velocityY = -_velocityY;
-    }
-
-    _sprite.setPosition(position);
 }
 
 CoordinateSystem::WorldPoint Player::GetBulletStartPosition() const
@@ -167,50 +129,6 @@ void Player::Draw(sf::RenderWindow& window)
 void Player::Shoot()
 {
     _pShootComponent->Shoot();
-}
-
-void Player::Rotate(float angle)
-{
-    _sprite.rotate(sf::degrees(angle));
-}
-
-void Player::ProgressiveRotate(float targetAngle)
-{
-    const auto& dt = Time::deltaTime();
-
-    const float currentAngle = _sprite.getRotation().asDegrees();
-    // pr atteindre le target angle je dois rotate de angle°
-    float angle = targetAngle - currentAngle;
-
-    //normalise entre -180 et 180
-    while (angle > 180.f)
-    {
-        angle -= 360.f;
-    }
-    while (angle < -180.f)
-    {
-        angle += 360.f;
-    }
-
-    float tempRotation;
-    if (angle > 0.f)
-    {
-        if (_rotateSpeed * dt < angle)
-            tempRotation = _rotateSpeed * dt;
-        else
-            tempRotation = angle;
-
-        Rotate(tempRotation);
-    }
-    else if (angle < 0.f)
-    {
-        if (_rotateSpeed * dt < -angle)
-            tempRotation = _rotateSpeed * dt;
-        else
-            tempRotation = -angle;
-
-        Rotate(-tempRotation);
-    }
 }
 
 void Player::update()
@@ -259,68 +177,16 @@ void Player::HandleMovement()
         input.y -= 1.f;
     }
 
-    // calcul forces
-    float forceX = 0.f;
-    float forceY = 0.f;
-
-    if (input.length() > 0.f)
-    {
-        input = input.normalized();
-
-        // force normale
-        forceX = input.x * _thrustForce;
-        forceY = input.y * _thrustForce;
-    }
-
     const bool wasDashing = _isDashing;
-
-    // Force du dash
-    if (wasDashing)
-    {
-        forceX += _dashDirection.x * _dashForce;
-        forceY += _dashDirection.y * _dashForce;
-    }
-
-    // Euler : v(n+1) = v(n) + (F/m) * dt
-
-    const float accelerationX = forceX / _mass;
-    const float accelerationY = forceY / _mass;
-
-    _velocityX += accelerationX * dt;
-    _velocityY += accelerationY * dt;
-
-    // décélération
-    if (input.length() == 0.f && !_isDashing)
-    {
-        _velocityX *= _friction;
-        _velocityY *= _friction;
-    }
-
-    // limitation de la vitesse maximale
-    const float speed =
-        std::sqrt(_velocityX * _velocityX +
-                  _velocityY * _velocityY);
 
     const float maxSpeed = _isDashing
         ? _dashMaxSpeed
         : ApplyBonusToStat(_maxSpeed, EBonusCategory::SPEED);
 
-    if (speed > maxSpeed)
-    {
-        const float scale = maxSpeed / speed;
-
-        _velocityX *= scale;
-        _velocityY *= scale;
-    }
-
-    // Euler : x(n+1) = x(n) + v(n) * dt
-
-    const sf::Vector2f displacement(
-        _velocityX * dt,
-        _velocityY * dt
-    );
-    
-    Move(displacement);
+    const sf::Vector2f additionalForce = wasDashing
+        ? _dashDirection * _dashForce
+        : sf::Vector2f{};
+    Move(ApplyPhysics(input, dt, maxSpeed, additionalForce));
 
     if (wasDashing)
     {
