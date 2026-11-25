@@ -150,32 +150,35 @@ void Player::Move(const sf::Vector2f& offset)
     // offset.length c'est Vx**2 + y**2 donc si Vx**2 + y**2 = 0 alors c'est que y = 0 car Vx**2 + 0 = x
     _sprite.move({offset.x, -offset.y});
 
-    //si à droite de l'écran
-    if (_sprite.getPosition().x > static_cast<float>(_screenSize.x) - GetScaledSize().x / 2.0f)
+    auto position = _sprite.getPosition();
+    const auto halfSize = GetScaledSize() / 2.f;
+
+    if (position.x > _screenSize.x - halfSize.x)
     {
-        //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(static_cast<float>(_screenSize.x) - GetScaledSize().x / 2.0f,
-                                         _sprite.getPosition().y));
+        position.x = _screenSize.x - halfSize.x;
+        if (_velocityX > 0.f)
+            _velocityX = -_velocityX;
     }
-    //si à gauche de l'écran
-    if (_sprite.getPosition().x < 0 + GetScaledSize().x / 2.0f)
+    if (position.x < halfSize.x)
     {
-        //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(0 + GetScaledSize().x / 2.0f, _sprite.getPosition().y));
+        position.x = halfSize.x;
+        if (_velocityX < 0.f)
+            _velocityX = -_velocityX;
     }
-    //si en bas de l'écran
-    if (_sprite.getPosition().y > static_cast<float>(_screenSize.y) - GetScaledSize().y / 2.0f)
+    if (position.y > _screenSize.y - halfSize.y)
     {
-        //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x,
-                                         static_cast<float>(_screenSize.y) - GetScaledSize().y / 2.0f));
+        position.y = _screenSize.y - halfSize.y;
+        if (_velocityY < 0.f)
+            _velocityY = -_velocityY;
     }
-    //si en haut de l'écran
-    if (_sprite.getPosition().y < 0 + GetScaledSize().y / 2.0f)
+    if (position.y < halfSize.y)
     {
-        //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x, 0 + GetScaledSize().y / 2.0f));
+        position.y = halfSize.y;
+        if (_velocityY > 0.f)
+            _velocityY = -_velocityY;
     }
+
+    _sprite.setPosition(position);
 }
 
 CoordinateSystem::WorldPoint Player::GetBulletStartPosition() const
@@ -304,19 +307,13 @@ void Player::HandleMovement()
         forceY = input.y * _thrustForce;
     }
 
+    const bool wasDashing = _isDashing;
+
     // Force du dash
-    if (_isDashing)
+    if (wasDashing)
     {
         forceX += _dashDirection.x * _dashForce;
         forceY += _dashDirection.y * _dashForce;
-
-        _dashTimer -= dt;
-
-        if (_dashTimer <= 0.f)
-        {
-            _dashTimer = 0.f;
-            _isDashing = false;
-        }
     }
 
     // Euler : v(n+1) = v(n) + (F/m) * dt
@@ -359,27 +356,39 @@ void Player::HandleMovement()
     );
 
     Move(displacement);
+
+    if (wasDashing)
+    {
+        _dashTimer -= dt;
+        if (_dashTimer <= 0.f)
+        {
+            _dashTimer = 0.f;
+            _isDashing = false;
+        }
+    }
 }
 
 void Player::HandleDash()
 {
     const float dt = Time::deltaTime();
+    const bool dashPressed = PlayerIsDoingAction(EActionTag::DASH);
 
     // Cooldown du dash
     if (!_canDash)
     {
-        _dashTimer -= dt;
+        _dashCooldownTimer -= dt;
 
-        if (_dashTimer <= 0.f)
+        if (_dashCooldownTimer <= 0.f)
         {
-            _dashTimer = 0.f;
+            _dashCooldownTimer = 0.f;
             _canDash = true;
         }
-
-        return;
     }
 
-    if (PlayerIsDoingAction(EActionTag::DASH))
+    const bool dashJustPressed = dashPressed && !_dashKeyWasPressed;
+    _dashKeyWasPressed = dashPressed;
+
+    if (_canDash && !_isDashing && dashJustPressed)
     {
         sf::Vector2f direction(0.f, 0.f);
 
@@ -390,10 +399,10 @@ void Player::HandleDash()
             direction.x += 1.f;
 
         if (PlayerIsDoingAction(EActionTag::UP))
-            direction.y -= 1.f;
+            direction.y += 1.f;
 
         if (PlayerIsDoingAction(EActionTag::DOWN))
-            direction.y += 1.f;
+            direction.y -= 1.f;
 
         // Si aucune direction n'est donnée,
         // dash dans la direction vers laquelle regarde le joueur
@@ -411,6 +420,7 @@ void Player::HandleDash()
         _isDashing = true;
         _canDash = false;
         _dashTimer = _dashDuration;
+        _dashCooldownTimer = _dashDuration;
     }
 }
 
