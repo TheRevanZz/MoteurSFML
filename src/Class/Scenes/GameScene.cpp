@@ -142,12 +142,6 @@ void GameScene::ProcessEvents()
         GameplayData::RemovePlayer(0);
     }
 
-    //!\\ test du tir à modifier/déplacer
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::C))
-    {
-        _player->Shoot();
-    }
-
     // if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
     // {
     //     std::cout << "CLKICKK\n";
