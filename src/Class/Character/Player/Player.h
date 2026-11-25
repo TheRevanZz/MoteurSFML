@@ -47,13 +47,14 @@ class Player :
     public IBonusConsumer
 {
     using HitAnimation = se3::Animation;
-    
+
 public:
     static int _count;
-
+    static std::shared_ptr<Player> MakePlayer(uint8_t textureId = 0);
+    
     explicit Player(std::vector<const char*> texturesPaths, uint8_t textureIndex = 0);
     explicit Player(std::vector<std::string> texturesPaths, uint8_t textureIndex = 0);
-
+    
     int GetId() const { return this->_id; }
     
     const sf::Sprite& GetSprite() const { return this->_sprite; }
@@ -109,14 +110,15 @@ public:
 
     void ChangeSprite(uint8_t id);
     const std::shared_ptr<BonusConsumer>& GetBonusConsumer() const override;
-    
-    
 
 private:
     float ApplyBonusToStat(const float& stat, EBonusCategory bonusCategory) const;
     void UpdateHealthBar();
+    void HandleShoot();
 
 protected:
+    static std::vector<int> _playerTextures;
+    
     std::vector<const char*> _texturesPaths;
     CoordinateSystem::WorldPoint _position;
     sf::Vector2u _screenSize;
@@ -174,9 +176,10 @@ private:
     void HandleDash();
     void HandleRotation();
     bool PlayerIsDoingAction(EActionTag action_tag) const;
-    void Init();
+    void Init(const uint8_t textureIndex);
     
     HitAnimation CreateHitAnimation();
 };
 
 inline int Player::_count = 0;
+inline std::vector<int> Player::_playerTextures;

@@ -56,3 +56,9 @@ void CollisionSystem::compute(const GameComponentGrid& _componentsGrid)
 
     }
 }
+
+bool CollisionSystem::IsColliding(const sf::FloatRect& component1,
+    const sf::FloatRect& component2)
+{
+    return component1.findIntersection(component2).has_value();
+}

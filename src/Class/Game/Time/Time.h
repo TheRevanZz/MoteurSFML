@@ -10,6 +10,7 @@ class Time
     
     public:
         static void update(const sf::Time& dtTime) { _deltaTime = dtTime.asSeconds(); }
+        //En seconde
         static float deltaTime() { return _deltaTime * _timeSpeed; }
         static void setTimeSpeed(const float& timeSpeed) { _timeSpeed = timeSpeed; }
         static float getFPS() { return 1 / _deltaTime; }

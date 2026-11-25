@@ -24,6 +24,7 @@ public:
     virtual sf::Transform GetTransform() const;
     
     virtual const sf::FloatRect GetBounds() const = 0;
+    explicit virtual operator sf::FloatRect() const { return {GetPosition(), GetBounds().size};}
     virtual const sf::Transformable& GetTransformable() const = 0;
     virtual sf::Transformable& GetTransformable() = 0;
     virtual void Draw(sf::RenderWindow& window);
