@@ -17,15 +17,36 @@
 #include "Game/Time/Time.h"
 #include "Class/Component/MultipleSprite/MultipleSpriteComponent.h"
 #include "Class/Component/ShootComponent/ShootComponent.h"
-#include "Entity/StaticEntity/StaticEntity.h"
 #include "Class/Game/Bonus/BaseBonus/BaseBonus.h"
 #include "Component/ShootComponent/Bullet.h"
+#include "Core/GameplayData/GameplayData.h"
+#include "UI/HealthBar/UIHealthBar.h"
 
 
-void Player::Init()
+void Player::Init(const uint8_t textureIndex)
 {
+    _playerTextures.reserve(4);
+    _healthBar = std::make_unique<UIHealthBar>(
+        UIHealthBar(
+            {
+                .background_color = sf::Color::Green,
+                .main_color = {100, 0, 0},
+                .element = this,
+                .speed = .8f
+            }
+        )
+    );
+    
+    GameplayData::RegisterPlayer(this);
+    
     _id = _count;
     _sprite.setScale({.15f, .15f});
+
+    while (static_cast<int>(_playerTextures.size()) < _id + 1)
+    {
+        _playerTextures.push_back(-1);
+    }
+    _playerTextures[_id] = textureIndex;
 
     if (_id == 0)
     {
@@ -43,7 +64,7 @@ void Player::Init()
     // keymap.at("Left").second = sf::Keyboard::Key::Left;
 
     _sprite.setOrigin({_sprite.getLocalBounds().size.x / 2.f, _sprite.getLocalBounds().size.y / 2.f});
-    _count++;
+    ++_count;
     // _sprite.setColor(sf::Color(255,0,0));
 }
 
@@ -51,7 +72,7 @@ Player::HitAnimation Player::CreateHitAnimation()
 {
     return {
         {
-            {0,  [this] { ChangeSpriteColor(sf::Color::Red); }},
+            {0, [this] { ChangeSpriteColor(sf::Color::Red); }},
             {15, [this] { ChangeSpriteColor(sf::Color::White); }},
             {30, [this] { ChangeSpriteColor(sf::Color::Red); }},
             {45, [this] { ChangeSpriteColor(sf::Color::White); }},
@@ -64,7 +85,7 @@ Player::HitAnimation Player::CreateHitAnimation()
 }
 
 Player::Player(std::vector<const char*> texturesPaths, const uint8_t textureIndex)
-    : BaseCharacter(texturesPaths[textureIndex], PLAYER_LIFE),
+    : BaseCharacter(texturesPaths[textureIndex % texturesPaths.size()], PLAYER_LIFE),
       _screenSize(WindowData::GetScreenSize()),
       _pMultipleSpriteComponent(
           se3::CreateComponent<MultipleSpriteComponent>(
@@ -79,11 +100,11 @@ Player::Player(std::vector<const char*> texturesPaths, const uint8_t textureInde
       _pBonusConsumer(CreateComponent<BonusConsumer>(this)),
       _hitAnimation(CreateHitAnimation())
 {
-    Init();
+    Init(textureIndex);
 }
 
 Player::Player(std::vector<std::string> texturesPaths, const uint8_t textureIndex)
-    : BaseCharacter(texturesPaths[textureIndex].c_str(), PLAYER_LIFE),
+    : BaseCharacter(texturesPaths[textureIndex % texturesPaths.size()].c_str(), PLAYER_LIFE),
       _screenSize(WindowData::GetScreenSize()),
       _pMultipleSpriteComponent(
           se3::CreateComponent<MultipleSpriteComponent>(
@@ -99,7 +120,20 @@ Player::Player(std::vector<std::string> texturesPaths, const uint8_t textureInde
       _pBonusConsumer(CreateComponent<BonusConsumer>(this)),
       _hitAnimation(CreateHitAnimation())
 {
-    Init();
+    Init(textureIndex);
+}
+
+std::shared_ptr<Player> Player::MakePlayer(const uint8_t textureId)
+{
+    if (_count >= 2)
+        return nullptr;
+    
+    return std::make_shared<Player>(std::vector({
+        "ressources/images/player_textures/spaceship_1.png",
+        "ressources/images/player_textures/spaceship_2.png",
+        "ressources/images/player_textures/spaceship_3.png",
+        "ressources/images/player_textures/spaceship_4.png",
+    }), std::cmp_equal(textureId, _count) ? textureId : _count);
 }
 
 sf::Vector2f Player::GetScaledSize() const
@@ -116,30 +150,35 @@ void Player::Move(const sf::Vector2f& offset)
     // offset.length c'est Vx**2 + y**2 donc si Vx**2 + y**2 = 0 alors c'est que y = 0 car Vx**2 + 0 = x
     _sprite.move({offset.x, -offset.y});
 
-    //si à droite de l'écran
-    if (_sprite.getPosition().x > _screenSize.x - GetScaledSize().x / 2)
+    auto position = _sprite.getPosition();
+    const auto halfSize = GetScaledSize() / 2.f;
+
+    if (position.x > _screenSize.x - halfSize.x)
     {
-        //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(_screenSize.x - GetScaledSize().x / 2, _sprite.getPosition().y));
+        position.x = _screenSize.x - halfSize.x;
+        if (_velocityX > 0.f)
+            _velocityX = -_velocityX;
     }
-    //si à gauche de l'écran
-    if (_sprite.getPosition().x < 0 + GetScaledSize().x / 2)
+    if (position.x < halfSize.x)
     {
-        //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(0 + GetScaledSize().x / 2, _sprite.getPosition().y));
+        position.x = halfSize.x;
+        if (_velocityX < 0.f)
+            _velocityX = -_velocityX;
     }
-    //si en bas de l'écran
-    if (_sprite.getPosition().y > _screenSize.y - GetScaledSize().y / 2)
+    if (position.y > _screenSize.y - halfSize.y)
     {
-        //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x, _screenSize.y - GetScaledSize().y / 2));
+        position.y = _screenSize.y - halfSize.y;
+        if (_velocityY < 0.f)
+            _velocityY = -_velocityY;
     }
-    //si en haut de l'écran
-    if (_sprite.getPosition().y < 0 + GetScaledSize().y / 2)
+    if (position.y < halfSize.y)
     {
-        //remplacer par une force
-        _sprite.setPosition(sf::Vector2f(_sprite.getPosition().x, 0 + GetScaledSize().y / 2));
+        position.y = halfSize.y;
+        if (_velocityY > 0.f)
+            _velocityY = -_velocityY;
     }
+
+    _sprite.setPosition(position);
 }
 
 CoordinateSystem::WorldPoint Player::GetBulletStartPosition() const
@@ -149,6 +188,13 @@ CoordinateSystem::WorldPoint Player::GetBulletStartPosition() const
     const auto size = _sprite.getGlobalBounds().size;
     const auto add = sf::Vector2f{size.x * direction.x / 2, size.y * direction.y / 2};
     return {_sprite.getPosition().x + add.x, _sprite.getPosition().y + add.y};
+}
+
+void Player::Draw(sf::RenderWindow& window)
+{
+    assert(_healthBar && "HEALTH BAR NULLPTR");
+    _healthBar->Draw(window);
+    BaseCharacter::Draw(window);
 }
 
 void Player::Shoot()
@@ -207,10 +253,13 @@ void Player::update()
     HandleRotation();
     ProgressiveRotate(_targetRotation);
     _pBonusConsumer->UpdateBonusesTimers();
+    _pShootComponent->Update();
     if (_isBeingHit)
     {
         _hitAnimation.Animate();
     }
+    UpdateHealthBar();
+    HandleShoot();
 }
 
 void Player::ChangeSpriteColor(const sf::Color newColor)
@@ -258,19 +307,13 @@ void Player::HandleMovement()
         forceY = input.y * _thrustForce;
     }
 
+    const bool wasDashing = _isDashing;
+
     // Force du dash
-    if (_isDashing)
+    if (wasDashing)
     {
         forceX += _dashDirection.x * _dashForce;
         forceY += _dashDirection.y * _dashForce;
-
-        _dashTimer -= dt;
-
-        if (_dashTimer <= 0.f)
-        {
-            _dashTimer = 0.f;
-            _isDashing = false;
-        }
     }
 
     // Euler : v(n+1) = v(n) + (F/m) * dt
@@ -291,11 +334,11 @@ void Player::HandleMovement()
     // limitation de la vitesse maximale
     const float speed =
         std::sqrt(_velocityX * _velocityX +
-                  _velocityY * _velocityY);
+            _velocityY * _velocityY);
 
     const float maxSpeed = _isDashing
-        ? _dashMaxSpeed
-        : ApplyBonusToStat(_maxSpeed, EBonusCategory::SPEED);
+                               ? _dashMaxSpeed
+                               : ApplyBonusToStat(_maxSpeed, EBonusCategory::SPEED);
 
     if (speed > maxSpeed)
     {
@@ -313,27 +356,39 @@ void Player::HandleMovement()
     );
 
     Move(displacement);
+
+    if (wasDashing)
+    {
+        _dashTimer -= dt;
+        if (_dashTimer <= 0.f)
+        {
+            _dashTimer = 0.f;
+            _isDashing = false;
+        }
+    }
 }
 
 void Player::HandleDash()
 {
     const float dt = Time::deltaTime();
+    const bool dashPressed = PlayerIsDoingAction(EActionTag::DASH);
 
     // Cooldown du dash
     if (!_canDash)
     {
-        _dashTimer -= dt;
+        _dashCooldownTimer -= dt;
 
-        if (_dashTimer <= 0.f)
+        if (_dashCooldownTimer <= 0.f)
         {
-            _dashTimer = 0.f;
+            _dashCooldownTimer = 0.f;
             _canDash = true;
         }
-
-        return;
     }
 
-    if (PlayerIsDoingAction(EActionTag::DASH))
+    const bool dashJustPressed = dashPressed && !_dashKeyWasPressed;
+    _dashKeyWasPressed = dashPressed;
+
+    if (_canDash && !_isDashing && dashJustPressed)
     {
         sf::Vector2f direction(0.f, 0.f);
 
@@ -344,10 +399,10 @@ void Player::HandleDash()
             direction.x += 1.f;
 
         if (PlayerIsDoingAction(EActionTag::UP))
-            direction.y -= 1.f;
+            direction.y += 1.f;
 
         if (PlayerIsDoingAction(EActionTag::DOWN))
-            direction.y += 1.f;
+            direction.y -= 1.f;
 
         // Si aucune direction n'est donnée,
         // dash dans la direction vers laquelle regarde le joueur
@@ -365,6 +420,7 @@ void Player::HandleDash()
         _isDashing = true;
         _canDash = false;
         _dashTimer = _dashDuration;
+        _dashCooldownTimer = _dashDuration;
     }
 }
 
@@ -377,6 +433,7 @@ bool Player::PlayerIsDoingAction(const EActionTag action_tag) const
         return false;
     return sf::Keyboard::isKeyPressed(keymapValue.value().second.value());
 }
+
 
 bool Player::LoadKeymap(const std::string& keymapPath)
 {
@@ -494,15 +551,19 @@ void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
     // if (std::dynamic_pointer_cast<StaticEntity>(otherComponent))
     // {
     //     const auto pEntity = std::dynamic_pointer_cast<StaticEntity>(otherComponent);
-        // DEBUG_ONLY(
-        //     std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->GetId() + 1 << "\n";
-        // )
+    // DEBUG_ONLY(
+    //     std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->GetId() + 1 << "\n";
+    // )
     // }
     // if (auto bullet = std::dynamic_pointer_cast<Bullet>(otherComponent); bullet != nullptr)
     // {
     //     _isBeingHit = true;
     // }
     // abort();
+}
+
+void Player::Initialize()
+{
 }
 
 void Player::ChangeSprite(const uint8_t id)
@@ -534,6 +595,23 @@ float Player::ApplyBonusToStat(const float& stat, const EBonusCategory bonusCate
         final_stat = (*it)->GetApplyedBonus(final_stat);
     }
     return final_stat;
+}
+
+void Player::UpdateHealthBar()
+{
+    _healthBar->Update();
+    auto position = GetPosition();
+    position.x -= _healthBar->GetWidth() / 2;
+    position.y -= GetBounds().size.y / 2 + 10.f;
+    _healthBar->SetPosition(position);
+}
+
+void Player::HandleShoot()
+{
+    if (PlayerIsDoingAction(EActionTag::SHOOT))
+    {
+        Shoot();
+    }
 }
 
 void Player::HandleRotation()

@@ -25,7 +25,7 @@ sf::Transformable& BaseEntity::GetTransformable()
     return _sprite;
 }
 
-const sf::Drawable& BaseEntity::getDrawable() const
+const sf::Drawable& BaseEntity::GetDrawable() const
 {
     return _sprite;
 }

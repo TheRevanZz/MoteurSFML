@@ -27,6 +27,11 @@ sf::Transform IGameComponent::GetTransform() const
     return GetTransformable().getTransform();
 }
 
+void IGameComponent::Draw(sf::RenderWindow& window)
+{
+    window.draw(GetDrawable());
+}
+
 void IGameComponent::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
 {
     DEBUG_ONLY(

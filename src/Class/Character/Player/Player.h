@@ -17,6 +17,8 @@
 #include "IBonusConsumer/IBonusConsumer.h"
 #include "IShooter/IShooter.h"
 
+class UIHealthBar;
+
 namespace se3
 {
     class Animation;
@@ -38,16 +40,21 @@ using KeyValue = std::pair<
     std::optional<sf::Keyboard::Key>
 >;
 
-class Player : public BaseCharacter, public IShooter, public IBonusConsumer
+class Player :
+    public std::enable_shared_from_this<Player>,
+    public BaseCharacter,
+    public IShooter,
+    public IBonusConsumer
 {
     using HitAnimation = se3::Animation;
-    
+
 public:
     static int _count;
-
+    static std::shared_ptr<Player> MakePlayer(uint8_t textureId = 0);
+    
     explicit Player(std::vector<const char*> texturesPaths, uint8_t textureIndex = 0);
     explicit Player(std::vector<std::string> texturesPaths, uint8_t textureIndex = 0);
-
+    
     int GetId() const { return this->_id; }
     
     const sf::Sprite& GetSprite() const { return this->_sprite; }
@@ -63,6 +70,7 @@ public:
 
     CoordinateSystem::WorldPoint GetBulletStartPosition() const override;
 
+    void Draw(sf::RenderWindow& window) override;
 
     void Shoot();
     void Rotate(float angle);
@@ -72,7 +80,7 @@ public:
 
     void update() override;
 
-    const sf::Drawable& getDrawable() const override { return this->_sprite; }
+    const sf::Drawable& GetDrawable() const override { return this->_sprite; }
 
     [[nodiscard("Il faut vérifier si l'opération a réussi")]]
     bool LoadKeymap(const std::string& keymapPath);
@@ -98,16 +106,19 @@ public:
         // multipleSpriteComponent.changeTexture(0u);
     }
     
+    void Initialize();
 
     void ChangeSprite(uint8_t id);
     const std::shared_ptr<BonusConsumer>& GetBonusConsumer() const override;
-    
-    
 
 private:
     float ApplyBonusToStat(const float& stat, EBonusCategory bonusCategory) const;
+    void UpdateHealthBar();
+    void HandleShoot();
 
 protected:
+    static std::vector<int> _playerTextures;
+    
     std::vector<const char*> _texturesPaths;
     CoordinateSystem::WorldPoint _position;
     sf::Vector2u _screenSize;
@@ -124,12 +135,14 @@ protected:
     float _dashForce = 2500.f;
     float _dashDuration = 0.25f;
     float _dashTimer = 0.f;
+    float _dashCooldownTimer = 0.f;
     float _dashMaxSpeed = 700.f;
 
     sf::Vector2f _dashDirection{0.f, 0.f};
 
     bool _isDashing = false;
     bool _canDash = true;
+    bool _dashKeyWasPressed = false;
     
     int _id = 0;
     std::string _keymapPath = "ressources/config/keymap1.yml";
@@ -154,6 +167,7 @@ protected:
     bool _isBeingHit = false;
     HitAnimation _hitAnimation;
     
+    std::unique_ptr<UIHealthBar> _healthBar = nullptr;
 
     void ChangeSpriteColor(sf::Color newColor);
 
@@ -162,9 +176,10 @@ private:
     void HandleDash();
     void HandleRotation();
     bool PlayerIsDoingAction(EActionTag action_tag) const;
-    void Init();
+    void Init(const uint8_t textureIndex);
     
     HitAnimation CreateHitAnimation();
 };
 
 inline int Player::_count = 0;
+inline std::vector<int> Player::_playerTextures;

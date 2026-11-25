@@ -21,11 +21,11 @@ public:
     const sf::FloatRect GetBounds() const override;
     void SetPosition(const CoordinateSystem::WorldPoint& position) override;
     
-    const sf::Drawable& getDrawable() const override;
+    const sf::Drawable& GetDrawable() const override;
 
 protected:
     sf::Vector2f _direction;
-    float _maxDistance = 200.0f;
+    float _maxDistance = 800.0f;
     float _currentDistance = 0.f;
     float _speed = 200.0f;
 

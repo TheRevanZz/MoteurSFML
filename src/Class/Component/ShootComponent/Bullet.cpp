@@ -95,7 +95,7 @@ void Bullet::SetPosition(const CoordinateSystem::WorldPoint& position)
     IGameComponent::SetPosition(position);
 }
 
-const sf::Drawable& Bullet::getDrawable() const
+const sf::Drawable& Bullet::GetDrawable() const
 {
     return _shape;
 }
