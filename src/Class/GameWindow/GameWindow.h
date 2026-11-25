@@ -4,67 +4,26 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 
-#include "Entity/Ennemy/EnnemyFactory.h"
 #include "Entity/StaticEntity/StaticEntityFactory.h"
-#include "Game/CollisionSystem/CollisionSystem.h"
-#include "Game/GameComponentGrid/GameComponentGrid.h"
 #include "Game/WindowData/WindowData.h"
-#include "UI/HealthBar/UIHealthBar.h"
-
-class Player;
 
 class GameWindow
 {
-    
-    public:
-        GameWindow();
+public:
+    GameWindow();
 
-        // Show window.
-        // Input:
-        //  * width: window width (pixels).
-        //  * height: window height (pixels).
-        //  * title: window title.
-        // Output:
-        //  * Nothing.
-        void Show(int width, int height, const std::string& title);
+    // Show window.
+    // Input:
+    //  * width: window width (pixels).
+    //  * height: window height (pixels).
+    //  * title: window title.
+    // Output:
+    //  * Nothing.
+    void Show(int width, int height, const std::string& title);
 
-    private:
-        sf::RenderWindow _window;
+private:
+    sf::RenderWindow _window;
+    sf::Clock _clock;
 
-        std::shared_ptr<UIHealthBar> _healthBar;
-        std::shared_ptr<Player> _player = nullptr;
-        std::shared_ptr<Player> _player2 = nullptr;
-        CollisionSystem _collisionSystem;
-        GameComponentGrid _gameComponentGrid;
-
-        // à réfléchir
-        sf::Texture _asteroidTexture;
-
-        float _deleteComponentTimer = 0.0f;
-
-        StaticEntityFactory _staticEntityFactory;
-        EnnemyFactory _ennemyFactory;
-
-        sf::Clock _clock;
-
-        std::vector<std::shared_ptr<IGameComponent>> _components = {};
-        std::vector<std::shared_ptr<IGameComponent>> _componentsToAdd = {};
-
-        std::vector<std::shared_ptr<se3::UIGameComponent>> _UIComponents = {};
-
-        void ProcessEvents();
-        void Render();
-        void Update();
-    
-        void PreLoadTexture();
-    
-        void DeleteComponentsOutOfWindow();
-    
-        void AddNewComponents();
-    
-        void UpdateTime();
-    
+    void ProcessEvents();
 };
-
-
-
