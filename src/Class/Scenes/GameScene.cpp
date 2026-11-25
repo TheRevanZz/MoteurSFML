@@ -27,26 +27,13 @@ void GameScene::start()
     PreLoadTexture();
     if (!_asteroidTexture.loadFromFile("ressources/images/entity_textures/static_entity_textures/static_entity_0.png"))
         abort();
+
     GameplayData::SetComponents(&_components);
+    GameplayData::SetComponentsToAdd(&_componentsToAdd);
+    GameplayData::InitGameClock();
 
-    this->_player = std::make_shared<Player>(std::vector({
-        "ressources/images/player_textures/spaceship_1.png",
-        "ressources/images/player_textures/spaceship_2.png",
-        "ressources/images/player_textures/spaceship_3.png",
-        "ressources/images/player_textures/spaceship_4.png",
-    }));
-    this->_player->SetPosition({-_player->GetScaledSize().x / 2.f, _player->GetScaledSize().y / 2.f});
-
-    this->_player2 = std::make_shared<Player>(
-        std::vector({
-            "ressources/images/player_textures/spaceship_1.png",
-            "ressources/images/player_textures/spaceship_2.png",
-            "ressources/images/player_textures/spaceship_3.png",
-            "ressources/images/player_textures/spaceship_4.png",
-        }),2);
-    this->_player2->SetPosition({-100, -100});
-
-    _components = { _player, _player2 };
+    _player = Player::MakePlayer();
+    _components = { _player };
 
     _gameComponentGrid.SetComponents(&_components);
 
@@ -56,18 +43,24 @@ void GameScene::start()
 
 void GameScene::update(float dt)
 {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::G))
-    {
-        SceneManager::getInstance().setActiveScene("MainMenuScene");
-    }
-
-    //!\\ test à modifier/enlever
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::C))
-    {
-        _player->Shoot();
-    }
+    ProcessEvents();
 
     _deleteComponentTimer += dt;
+
+    for (auto it = _components.begin(); it != _components.end();)
+    {
+        const auto& component = *it;
+        if (component == nullptr || component->GetMustDie())
+        {
+            it = _components.erase(it);
+            continue;
+        }
+        if (auto* updateableComponent = dynamic_cast<IUpdateable*>(component.get()); updateableComponent != nullptr)
+        {
+            updateableComponent->update();
+        }
+        ++it;
+    }
 
     _staticEntityFactory.update();
     _ennemyFactory.update();
@@ -80,6 +73,13 @@ void GameScene::update(float dt)
         DeleteComponentsOutOfWindow();
         _deleteComponentTimer -= 2.f;
     }
+
+    _staticEntityFactory.update();
+    _ennemyFactory.update();
+    _collisionSystem.compute(_gameComponentGrid);
+
+    _gameComponentGrid.Update();
+    AddNewComponents();
 }
 
 void GameScene::Render(sf::RenderWindow& window)
@@ -103,16 +103,12 @@ void GameScene::Render(sf::RenderWindow& window)
     for (auto it = _components.begin(); it != _components.end();)
     {
         const auto& component = *it;
-        if (component->GetMustDie()) {
+        if (component == nullptr || component->GetMustDie())
+        {
             it = _components.erase(it);
             continue;
         }
-        window.draw(component->getDrawable());
-
-        if (auto* UpdateableCompoent = dynamic_cast<IUpdateable*>(component.get()); UpdateableCompoent != nullptr)
-        {
-            UpdateableCompoent->update();
-        }
+        component->Draw(window);
         DEBUG_ONLY(
             sf::RectangleShape bounds(sf::Vector2f(component->GetBounds().size.x, component->GetBounds().size.y));
             bounds.setPosition(component->GetPosition());
@@ -120,11 +116,60 @@ void GameScene::Render(sf::RenderWindow& window)
             bounds.setOutlineThickness(4.f);
             bounds.setOutlineColor(sf::Color::Red);
             window.draw(bounds);
-
-            // std::cout << component->getPosition().x << " " << component->getPosition().y << "\n";
         )
         ++it;
     }
+}
+
+void GameScene::ProcessEvents()
+{
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::G))
+    {
+        SceneManager::getInstance().setActiveScene("MainMenuScene");
+    }
+
+    // ajout d'un joueur
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::X))
+    {
+        auto p = Player::MakePlayer();
+        if (p != nullptr)
+            _components.push_back(std::move(p));
+    }
+
+    // suppression d'un joueur
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::J))
+    {
+        GameplayData::RemovePlayer(0);
+    }
+
+    //!\\ test du tir à modifier/déplacer
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::C))
+    {
+        _player->Shoot();
+    }
+
+    // if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+    // {
+    //     std::cout << "CLKICKK\n";
+    //     int index = 0;
+    //     for (const auto& p : GameplayData::GetPlayers())
+    //     {
+    //         DEBUG_ONLY(
+    //             std::cout << "ok";
+    //         )
+    //         if (CollisionSystem::IsColliding(
+    //             static_cast<sf::FloatRect>(*p),
+    //             sf::FloatRect(
+    //                 static_cast<sf::Vector2f>(sf::Mouse::getPosition(_window)),
+    //                 sf::Vector2f(10.f, 10.f)
+    //             )))
+    //         {
+    //             GameplayData::RemovePlayer(index);
+    //             break;
+    //         }
+    //         index++;
+    //     }
+    // }
 }
 
 void GameScene::PreLoadTexture()
@@ -147,12 +192,13 @@ void GameScene::DeleteComponentsOutOfWindow()
     for (auto it = _components.begin(); it != _components.end();)
     {
         //Si la view n'est pas empty, ça veut dire qu'une correspondance a été trouvé dans outOfWindowComponent par rapport à it.
-        auto IsPresent = outOfWindowComponent | std::ranges::views::filter([it](const std::shared_ptr<IGameComponent>& component)
-        {
-           return component == *it;
-        });
+        auto isPresent = outOfWindowComponent | std::ranges::views::filter(
+            [it](const std::shared_ptr<IGameComponent>& component)
+            {
+                return component == *it;
+            });
 
-        if (IsPresent.empty())
+        if (isPresent.empty())
         {
             ++it;
         }
@@ -161,5 +207,15 @@ void GameScene::DeleteComponentsOutOfWindow()
             it = _components.erase(it);
         }
     }
+}
 
+void GameScene::AddNewComponents()
+{
+    _components.insert(
+        _components.end(),
+        std::make_move_iterator(_componentsToAdd.begin()),
+        std::make_move_iterator(_componentsToAdd.end())
+    );
+
+    _componentsToAdd.clear();
 }

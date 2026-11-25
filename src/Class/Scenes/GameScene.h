@@ -11,6 +11,7 @@
 #include "Entity/StaticEntity/StaticEntityFactory.h"
 #include "Game/CollisionSystem/CollisionSystem.h"
 #include "Game/GameComponentGrid/GameComponentGrid.h"
+#include "UI/HealthBar/UIHealthBar.h"
 
 class Player;
 
@@ -29,22 +30,31 @@ protected:
     bool _closeGame = false;
 
 private:
-    std::shared_ptr<Player> _player;
-    std::shared_ptr<Player> _player2;
+    std::shared_ptr<UIHealthBar> _healthBar;
+    std::shared_ptr<Player> _player = nullptr;
+    std::shared_ptr<Player> _player2 = nullptr;
 
     CollisionSystem _collisionSystem;
     GameComponentGrid _gameComponentGrid;
+
+    sf::Texture _asteroidTexture;
 
     StaticEntityFactory _staticEntityFactory;
     EnnemyFactory _ennemyFactory;
 
 
     std::vector<std::shared_ptr<IGameComponent>> _components = {};
+    std::vector<std::shared_ptr<IGameComponent>> _componentsToAdd = {};
+
+    std::vector<std::shared_ptr<se3::UIGameComponent>> _UIComponents = {};
 
     float _deleteComponentTimer = 0.0f;
 
-    sf::Texture _asteroidTexture;
+    void ProcessEvents();
 
     static void PreLoadTexture();
     void DeleteComponentsOutOfWindow();
+    void AddNewComponents();
+
+    // void UpdateTime();
 };
