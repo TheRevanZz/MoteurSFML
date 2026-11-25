@@ -16,17 +16,37 @@
 #include "Game/Time/Time.h"
 #include "Class/Component/MultipleSprite/MultipleSpriteComponent.h"
 #include "Class/Component/ShootComponent/ShootComponent.h"
-#include "Entity/StaticEntity/StaticEntity.h"
 #include "Class/Game/Bonus/BaseBonus/BaseBonus.h"
 #include "Component/ShootComponent/Bullet.h"
+#include "Core/GameplayData/GameplayData.h"
 #include "UI/HealthBar/UIHealthBar.h"
 
 
-void Player::Init()
+void Player::Init(const uint8_t textureIndex)
 {
+    _playerTextures.reserve(4);
+    _healthBar = std::make_unique<UIHealthBar>(
+        UIHealthBar(
+            {
+                .background_color = sf::Color::Green,
+                .main_color = {100, 0, 0},
+                .element = this,
+                .speed = .8f
+            }
+        )
+    );
+    
+    GameplayData::RegisterPlayer(this);
+    
     _id = _count;
     _sprite.setScale({.15f, .15f});
-    
+
+    while (static_cast<int>(_playerTextures.size()) < _id + 1)
+    {
+        _playerTextures.push_back(-1);
+    }
+    _playerTextures[_id] = textureIndex;
+
     if (_id == 0)
     {
         _keymapPath = "ressources/config/keymap1.yml";
@@ -43,7 +63,7 @@ void Player::Init()
     // keymap.at("Left").second = sf::Keyboard::Key::Left;
 
     _sprite.setOrigin({_sprite.getLocalBounds().size.x / 2.f, _sprite.getLocalBounds().size.y / 2.f});
-    _count++;
+    ++_count;
     // _sprite.setColor(sf::Color(255,0,0));
 }
 
@@ -51,7 +71,7 @@ Player::HitAnimation Player::CreateHitAnimation()
 {
     return {
         {
-            {0,  [this] { ChangeSpriteColor(sf::Color::Red); }},
+            {0, [this] { ChangeSpriteColor(sf::Color::Red); }},
             {15, [this] { ChangeSpriteColor(sf::Color::White); }},
             {30, [this] { ChangeSpriteColor(sf::Color::Red); }},
             {45, [this] { ChangeSpriteColor(sf::Color::White); }},
@@ -64,7 +84,8 @@ Player::HitAnimation Player::CreateHitAnimation()
 }
 
 Player::Player(std::vector<const char*> texturesPaths, const uint8_t textureIndex)
-    : BaseCharacter(texturesPaths[textureIndex], PLAYER_LIFE),
+    : BaseCharacter(texturesPaths[textureIndex % texturesPaths.size()], PLAYER_LIFE),
+      _screenSize(WindowData::GetScreenSize()),
       _pMultipleSpriteComponent(
           se3::CreateComponent<MultipleSpriteComponent>(
               this,
@@ -78,11 +99,12 @@ Player::Player(std::vector<const char*> texturesPaths, const uint8_t textureInde
       _pBonusConsumer(CreateComponent<BonusConsumer>(this)),
       _hitAnimation(CreateHitAnimation())
 {
-    Init();
+    Init(textureIndex);
 }
 
 Player::Player(std::vector<std::string> texturesPaths, const uint8_t textureIndex)
-    : BaseCharacter(texturesPaths[textureIndex].c_str(), PLAYER_LIFE),
+    : BaseCharacter(texturesPaths[textureIndex % texturesPaths.size()].c_str(), PLAYER_LIFE),
+      _screenSize(WindowData::GetScreenSize()),
       _pMultipleSpriteComponent(
           se3::CreateComponent<MultipleSpriteComponent>(
               this,
@@ -97,7 +119,20 @@ Player::Player(std::vector<std::string> texturesPaths, const uint8_t textureInde
       _pBonusConsumer(CreateComponent<BonusConsumer>(this)),
       _hitAnimation(CreateHitAnimation())
 {
-    Init();
+    Init(textureIndex);
+}
+
+std::shared_ptr<Player> Player::MakePlayer(const uint8_t textureId)
+{
+    if (_count >= 2)
+        return nullptr;
+    
+    return std::make_shared<Player>(std::vector({
+        "ressources/images/player_textures/spaceship_1.png",
+        "ressources/images/player_textures/spaceship_2.png",
+        "ressources/images/player_textures/spaceship_3.png",
+        "ressources/images/player_textures/spaceship_4.png",
+    }), std::cmp_equal(textureId, _count) ? textureId : _count);
 }
 
 Player::~Player() = default;
@@ -138,11 +173,13 @@ void Player::update()
     HandleRotation();
     ProgressiveRotate(_targetRotation);
     _pBonusConsumer->UpdateBonusesTimers();
+    _pShootComponent->Update();
     if (_isBeingHit)
     {
         _hitAnimation.Animate();
     }
     UpdateHealthBar();
+    HandleShoot();
 }
 
 void Player::ChangeSpriteColor(const sf::Color newColor)
@@ -180,8 +217,8 @@ void Player::HandleMovement()
     const bool wasDashing = _isDashing;
 
     const float maxSpeed = _isDashing
-        ? _dashMaxSpeed
-        : ApplyBonusToStat(_maxSpeed, EBonusCategory::SPEED);
+                               ? _dashMaxSpeed
+                               : ApplyBonusToStat(_maxSpeed, EBonusCategory::SPEED);
 
     const sf::Vector2f additionalForce = wasDashing
         ? _dashDirection * _dashForce
@@ -264,6 +301,7 @@ bool Player::PlayerIsDoingAction(const EActionTag action_tag) const
         return false;
     return sf::Keyboard::isKeyPressed(keymapValue.value().second.value());
 }
+
 
 bool Player::LoadKeymap(const std::string& keymapPath)
 {
@@ -381,9 +419,9 @@ void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
     // if (std::dynamic_pointer_cast<StaticEntity>(otherComponent))
     // {
     //     const auto pEntity = std::dynamic_pointer_cast<StaticEntity>(otherComponent);
-        // DEBUG_ONLY(
-        //     std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->GetId() + 1 << "\n";
-        // )
+    // DEBUG_ONLY(
+    //     std::cout << "Joueur " << this->_id + 1 << " : Collision avec StaticEntity" << pEntity->GetId() + 1 << "\n";
+    // )
     // }
     // if (auto bullet = std::dynamic_pointer_cast<Bullet>(otherComponent); bullet != nullptr)
     // {
@@ -394,7 +432,6 @@ void Player::Collision(const std::shared_ptr<IGameComponent>& otherComponent)
 
 void Player::Initialize()
 {
-    _healthBar = std::make_unique<UIHealthBar>(UIHealthBar({255,0,0}, {100,0,0}, shared_from_this()));
 }
 
 void Player::ChangeSprite(const uint8_t id)
@@ -435,6 +472,14 @@ void Player::UpdateHealthBar()
     position.x -= _healthBar->GetWidth() / 2;
     position.y -= GetBounds().size.y / 2 + 10.f;
     _healthBar->SetPosition(position);
+}
+
+void Player::HandleShoot()
+{
+    if (PlayerIsDoingAction(EActionTag::SHOOT))
+    {
+        Shoot();
+    }
 }
 
 void Player::HandleRotation()

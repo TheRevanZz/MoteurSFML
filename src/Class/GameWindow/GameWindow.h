@@ -48,14 +48,21 @@ class GameWindow
         sf::Clock _clock;
 
         std::vector<std::shared_ptr<IGameComponent>> _components = {};
+        std::vector<std::shared_ptr<IGameComponent>> _componentsToAdd = {};
+
         std::vector<std::shared_ptr<se3::UIGameComponent>> _UIComponents = {};
 
         void ProcessEvents();
         void Render();
+        void Update();
     
         void PreLoadTexture();
     
         void DeleteComponentsOutOfWindow();
+    
+        void AddNewComponents();
+    
+        void UpdateTime();
     
 };
 

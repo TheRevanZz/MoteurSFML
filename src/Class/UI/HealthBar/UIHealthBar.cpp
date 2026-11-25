@@ -1,23 +1,17 @@
 ﻿#include "UIHealthBar.h"
-
 #include "Core/GameObject/IGameComponent/IGameComponent.h"
 #include "Game/Time/Time.h"
 #include "ILife/ILife.h"
 #include "Other/Math/CMath.h"
 
-UIHealthBar::UIHealthBar(
-    const sf::Color backgroundColor, const sf::Color mainColor,
-    const std::shared_ptr<ILife>& element, const sf::Vector2f size,
-    const bool followElement
-)
-    : _element(element), _backgroundColor(backgroundColor), _mainColor(mainColor),
-      _mainRectangle(size), _backgroundRectangle(size), _followElement(followElement), _width(size.x), _height(size.y)
+UIHealthBar::UIHealthBar(const params& params) 
+: _element(params.element), _backgroundColor(params.background_color), _mainColor(params.main_color),
+  _mainRectangle(params.size), _backgroundRectangle(params.size), _followElement(params.follow_element), _speed(params.speed), _height(params.size.y), _width(params.size.x)
 {
-    //Mettre l'origine en bas à gauche
     _backgroundRectangle.setOrigin({0, _backgroundRectangle.getGlobalBounds().size.y});
     _mainRectangle.setOrigin({0, _mainRectangle.getGlobalBounds().size.y});
 
-    //Couleur des 
+    //Couleurs healthbar
     _backgroundRectangle.setFillColor(_backgroundColor);
     _mainRectangle.setFillColor(_mainColor);
     
@@ -79,7 +73,7 @@ float UIHealthBar::GetWidth() const
 void UIHealthBar::UpdatePosition()
 {
     if (
-        const auto pGameComponent = std::dynamic_pointer_cast<IGameComponent>(_element);
+        const auto pGameComponent = dynamic_cast<IGameComponent*>(_element);
         pGameComponent != nullptr && _followElement
     )
     {
