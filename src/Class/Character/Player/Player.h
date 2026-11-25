@@ -54,7 +54,8 @@ public:
     
     explicit Player(std::vector<const char*> texturesPaths, uint8_t textureIndex = 0);
     explicit Player(std::vector<std::string> texturesPaths, uint8_t textureIndex = 0);
-    
+    ~Player() override;
+
     int GetId() const { return this->_id; }
     
     const sf::Sprite& GetSprite() const { return this->_sprite; }
@@ -66,15 +67,11 @@ public:
 
     const sf::FloatRect GetBounds() const override { return this->_sprite.getGlobalBounds(); }
 
-    void Move(const sf::Vector2f& offset);
-
     CoordinateSystem::WorldPoint GetBulletStartPosition() const override;
 
     void Draw(sf::RenderWindow& window) override;
 
     void Shoot();
-    void Rotate(float angle);
-    void ProgressiveRotate(float targetAngle);
 
     explicit operator sf::Sprite() const { return this->_sprite; }
 
@@ -121,17 +118,8 @@ protected:
     
     std::vector<const char*> _texturesPaths;
     CoordinateSystem::WorldPoint _position;
-    sf::Vector2u _screenSize;
     float _speed = 160.f; //pixel par seconde;
 
-    float _velocityX = 0.f;
-    float _velocityY = 0.f;
-    float _mass = 1.f;
-
-    float _maxSpeed = 150.f;
-    float _friction = 0.90f;
-    float _thrustForce = 500.f;
-    
     float _dashForce = 2500.f;
     float _dashDuration = 0.25f;
     float _dashTimer = 0.f;
@@ -157,9 +145,6 @@ protected:
         {EActionTag::SHOOT, {"Tirer", {}}}
     });
 
-    float _rotateSpeed = 500.f;
-    float _targetRotation = 0.f;
-
     std::shared_ptr<MultipleSpriteComponent> _pMultipleSpriteComponent;
     std::shared_ptr<ShootComponent> _pShootComponent;
     std::shared_ptr<BonusConsumer> _pBonusConsumer;
@@ -167,7 +152,7 @@ protected:
     bool _isBeingHit = false;
     HitAnimation _hitAnimation;
     
-    std::unique_ptr<UIHealthBar> _healthBar = nullptr;
+    std::unique_ptr<UIHealthBar> _healthBar;
 
     void ChangeSpriteColor(sf::Color newColor);
 
