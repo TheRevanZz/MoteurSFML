@@ -311,7 +311,7 @@ void Player::HandleMovement()
         _velocityX * dt,
         _velocityY * dt
     );
-    
+
     Move(displacement);
 }
 
